@@ -1,3 +1,4 @@
+package Interface;
 public interface Management {
     public boolean add();
     public boolean update();
