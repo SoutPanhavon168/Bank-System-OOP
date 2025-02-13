@@ -55,7 +55,71 @@ public class staff extends User implements Management{
     }
 
     @Override 
-    public 
+    public void viewbankAccounts(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Would you like to: \n1. View all bank accounts \n2. Search for a bank account");
+        System.out.println("Enter your choice (1 or 2): ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        if(choice == 1){
+            System.out.println("All bank accounts:");
+            // Print all bank accounts details
+            viewAllbankAccounts();
+        }
+        else if(choice == 2){
+            System.out.println("Enter the bank account ID: ");
+            int accountId = scanner.nextInt();
+            scanner.nextLine();
+            viewSpecificbankAccount(accountId);
+            // Search for the bank account with the ID
+            // Print the bank account's details
+        }
+        else{
+            System.out.println("Invalid choice. Please enter 1 or 2.");
+        }
+    }
+
+    @Override
+    public void viewSpecificbankAccount(int accountId){
+
+    }
+
+    @Override
+    public void viewAllbankAccounts() {
+        
+    }
+
+    @Override
+    public void freezeAccount(int accountId){
+
+    }
+
+    @Override 
+    public void unfreezeAccount(int accountId){
+
+    }
+
+    @Override
+    public boolean approveSmallLoan(int loanId){
+        return true;
+    }
+
+    @Override
+    public boolean rejectLoan(int loanId){
+        return true;
+    }
+
+    @Override
+    public void viewAllLoans(){
+
+    }
+
+    @Override
+    public void viewAllRequests(){
+
+    }
+
 
     
 

@@ -40,6 +40,18 @@ public class User implements Authentication{
         this.password = password;
     }
 
+    //getters & setters
+    public int getUserId(){return userId;}
+    public String getLastName(){return lastName;}
+    public String getFirstName(){return firstName;}
+    public String getEmail(){return email;}
+    public String getPhoneNumber(){return phoneNumber;}
+    public String getPassword(){return password;}    public LocalDate getBirthDate(){return birthDate;}
+    public String getGovernmentId(){return governmentId;}
+
+    
+
+
     // private as it is only used internally in this class
     private boolean isEmailValid(String email){
         //email regex pattern to check if the email has the correct pattern [a-z, A-Z, 0-9, +, _, ., -]@[a-z, A-Z, 0-9, -]

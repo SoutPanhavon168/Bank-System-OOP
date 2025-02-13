@@ -1,13 +1,17 @@
 package Interfaces;
 public interface Management {
+    //customer management
     void viewCustomerDetails();  // Both Admin & Staff
     void viewSpecificCustomerDetails(int ID);  // Both Admin & Staff
     void viewAllCustomers();  // Both Admin & Staff
     void updateCustomerAccount();  // Both Admin & Staff
-    void viewAccount();  // Both Admin & Staff
-    void viewAllAccounts();  // Both Admin & Staff
+
+    //bank account management
+    void viewbankAccounts();  // Both Admin & Staff
+    void viewSpecificbankAccount(int accountId);  // Both Admin & Staff
+    void viewAllbankAccounts();  // Both Admin & Staff
     void freezeAccount(int accountId);  // Both Admin & Staff
-    void unfreezeAccount();
+    void unfreezeAccount(int accountId);
 
     // Loan handling
     boolean approveSmallLoan(int loanId);  // Admin & Staff
