@@ -18,24 +18,26 @@ public class BankAccount implements Authentication {
     private int pin;
 
     // Constructor with all fields
-    public BankAccount(int accountNumber, String accountName, double balance, String accountType, String accountStatus) {
-        this.accountNumber = accountNumber;
+    public BankAccount(String accountName, double balance, String accountType, String accountStatus) {
         this.accountName = accountName;
-        this.balance = balance;
+        this.balance = 1;
         this.accountType = accountType;
         this.accountStatus = accountStatus;
     }
-    // to be used later
-    public void createAccount(int accountNumber, String accountName, double balance, String accountType, String accountStatus) {
-        this.accountNumber = accountNumber;
-        this.accountName = accountName;
-        this.balance = balance;
-        this.accountType = accountType;
-        this.accountStatus = accountStatus;
-    }
+    // // to be used later
+    // public void createSubAccount(String accountName, String accountType, String accountStatus) {
+    //     this.accountName = accountName;
+    //     this.balance = 1.0; // default
+    //     this.accountType = accountType;
+    //     this.accountStatus = "Active";
+    // }
 
     public int getAccountNumber() {
         return accountNumber;
+    }
+
+    public void setAccountNumber(int accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public void setAccountStatus(String accountStatus) {
@@ -50,7 +52,7 @@ public class BankAccount implements Authentication {
         this.pin = pin;
     }
 
-    protected void setBalance(double balance){
+    public void setBalance(double balance){
         this.balance = balance;
     }
     
@@ -76,7 +78,8 @@ public class BankAccount implements Authentication {
 
     public static void createAccount(String accountName, double balance, String accountType, String accountStatus) {
         int newAccountNumber = generateAccountNumber();
-        BankAccount newAccount = new BankAccount(newAccountNumber, accountName, balance, accountType, accountStatus);
+        BankAccount newAccount = new BankAccount(accountName, 1, accountType, accountStatus);
+        newAccount.setAccountNumber(newAccountNumber);
         accounts.add(newAccount);
     }
 
