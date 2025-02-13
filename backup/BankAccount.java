@@ -34,8 +34,6 @@ public class BankAccount implements Authentication {
 
     public int getAccountNumber() {
         return accountNumber;
-        // return the account number for the account if i need to get the account number for viewing transcation
-        // or any other purpose (modifying account details)
     }
 
     public void setAccountNumber(int accountNumber) {
@@ -48,33 +46,22 @@ public class BankAccount implements Authentication {
 
     protected void setPassword(String password) {
         this.password = password;
-        // account password != pin
-        // password when logging in
     }
-    
+
     protected void setPin(int pin) {
         this.pin = pin;
-        // pin when launching the app
-        // pin when making transactions
     }
 
     public void setBalance(double balance){
         this.balance = balance;
-        // set the balance for the account
-        // this will be used when making transactions
-        // (keeping public because it will be used in the transaction class)
     }
     
     public String getAccountName() {
         return accountName;
-        // return the account name for the account if i need to get the account name for viewing transcation
     }
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
-        // set the account name for the account
-        // this will be used when creating the account
-
     }
 
     public double getBalance() {
@@ -83,43 +70,39 @@ public class BankAccount implements Authentication {
 
     public String getAccountType() {
         return accountType;
-        // return the account type for the account if i need to get the account type for viewing transcation
     }
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
-        // set the account type for the account
-        // this will be used when creating the account
     }
 
     public static void createAccount(String accountName, double balance, String accountType, String accountStatus) {
-        //to be implemented: 
-
-        // creates account and then add it into the list
-        // generate a unique account number
-        // create a new account object
-        // set the account number
-        // add the account to the list of accounts
-
+        int newAccountNumber = generateAccountNumber();
+        BankAccount newAccount = new BankAccount(accountName, 1, accountType, accountStatus);
+        newAccount.setAccountNumber(newAccountNumber);
+        accounts.add(newAccount);
     }
 
     public BankAccount getAccountByNumber(int accountNumber){
-        // loop through the list of accounts and return the account with the account number
-
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                return account;
+            }
+        }
         return null; // Return null if account is not found
     }
 
     // Generate a unique account number
     private static int generateAccountNumber() {
         int accountNumber;
-        do { // Loop until a unique account number is generated
+        do {
             accountNumber = 1000000000 + random.nextInt(900000); // Generate 9-digit number
-        } while (accountExists(accountNumber)); // Check if the account number already exists
+        } while (accountExists(accountNumber));
         return accountNumber;
     }
     
     public static ArrayList<BankAccount> getAccountsList() {
-        return accounts; // Return the list of accounts
+        return accounts;
     }
     
     // Check if an account number already exists
@@ -128,7 +111,7 @@ public class BankAccount implements Authentication {
             if (account.getAccountNumber() == accountNumber) {
                 return true;
             }
-        } // Return true if the account number already exists
+        }
         return false;
     }
 
@@ -142,11 +125,18 @@ public class BankAccount implements Authentication {
                 ", accountType='" + accountType + '\'' +
                 ", accountStatus='" + accountStatus + '\'' +
                 '}';
-
-                // override the toString method to return the account details
-                // account number, account name, balance, account type, account status
     }
 
+    // Print bank details
+    public static void printBankDetails(int accountNumber) {
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                System.out.println(account);
+                return;
+            }
+        }
+        System.out.println("Account not found.");
+    }
 
     @Override
     public boolean login() {
