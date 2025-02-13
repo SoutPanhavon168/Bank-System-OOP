@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class User implements Authentication{
     private int userId;
@@ -20,6 +22,7 @@ public class User implements Authentication{
 
     private static String ADMIN_KEY = "Admin123";
     private static String STAFF_KEY = "Staff123";
+
 
     public User(){}
 
@@ -40,17 +43,19 @@ public class User implements Authentication{
         this.password = password;
     }
 
-    //getters & setters
+    //getters
     public int getUserId(){return userId;}
     public String getLastName(){return lastName;}
     public String getFirstName(){return firstName;}
     public String getEmail(){return email;}
-    public String getPhoneNumber(){return phoneNumber;}
-    public String getPassword(){return password;}    public LocalDate getBirthDate(){return birthDate;}
+    public String getPhoneNumber(){return phoneNumber;}    
+    public LocalDate getBirthDate(){return birthDate;}
     public String getGovernmentId(){return governmentId;}
 
-    
 
+    private static List<User> admin = new ArrayList<>();
+    private static List<User> staffMembers = new ArrayList<>();
+    private static List<User> customers = new ArrayList<>();
 
     // private as it is only used internally in this class
     private boolean isEmailValid(String email){
@@ -98,7 +103,7 @@ public class User implements Authentication{
 
     // Method to create an account, put on public to allow external access
     @Override
-    public boolean register(){
+    public void register(){
 
         //create account
         Scanner scanner = new Scanner(System.in);
@@ -164,14 +169,24 @@ public class User implements Authentication{
 
         if(isUnderage()){
             System.out.println("You are underage. You cannot create an account.");
-            return false;
+            return;
         }
 
         userId = generateUserId();
+
+        if(isAdmin){
+            admin.add(this);
+        }
+        else if(isStaff){
+            staffMembers.add(this);
+        }else{
+            customers.add(this);
+        }
+
         System.out.println("Account created successfuly, welcome " + firstName + " " + lastName + "!");
+
         //next after successfully creating an account, write all information to a file
 
-        return true; //placeholder for now
     }
 
     @Override
@@ -190,10 +205,8 @@ public class User implements Authentication{
 
 
     // method to update password when the user forget password, put on public to allow external access
-    public boolean forgotPassword(){
+    public void forgotPassword(){
         //forgot password
-
-        return true; //placeholder for now
     }
 
     // method to check if user is admin, put on public to allow external access
@@ -218,6 +231,17 @@ public class User implements Authentication{
         return calculateAge() < 16;
     }
 
+    @Override
+    public String toString() {
+    String role = isAdmin ? "Admin" : isStaff ? "Staff" : "Customer";
+    return "User ID: " + userId +
+           " | Name: " + firstName + " " + lastName +
+           " | Email: " + email +
+           " | Phone: " + phoneNumber +
+           " | Birth Date: " + birthDate +
+           " | Role: " + role +
+           " | Government ID: " + governmentId;
+    }
 
 
 }
