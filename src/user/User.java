@@ -1,34 +1,41 @@
 package user;
-import interface.Authentication;
+import Interfaces.Authentication;
 import java.util.Scanner;
 import java.time.LocalDate;
-//import java.time.LocalDate;
-//import java.time.Period;
+import java.time.Period;
 import java.util.Random;
 
 public class User implements Authentication{
     private int userId;
-    private String userName;
     private String lastName;
     private String firstName;
     private String email;
+    private String phoneNumber;
     private String password;
     private String confirmPassword;
     private LocalDate birthDate;
+    private String governmentId;
     private boolean isAdmin;
+    private boolean isStaff;
 
-    public User(int userId, String userName, String lastName, String firstName, String email, String password, String confirmPassword, LocalDate birthDate, boolean isAdmin){
-        this.userName = userName;
+    private static String ADMIN_KEY = "Admin123";
+    private static String STAFF_KEY = "Staff123";
+
+    public User(){}
+
+    public User(String lastName, String firstName, String email, String password, String confirmPassword, String phoneNumber, LocalDate birthDate, String governmentId){
         this.lastName = lastName;
         this.firstName = firstName;
         this.email = email;
         this.password = password;
         this.confirmPassword = confirmPassword;
+        this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
+        this.governmentId = governmentId;
     }
 
-    public User(String userName, String email, String password){
-        this.userName = userName;
+    public User(String phoneNumber, String email, String password){
+        this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
     }
@@ -53,54 +60,99 @@ public class User implements Authentication{
         return (int)(System.currentTimeMillis() % 1000000) + random.nextInt(1000);
     }
 
+    private boolean isPhoneNumberValid(String phoneNumber){
+        //phone number regex pattern to check if the phone number has the correct pattern [0-9]{10}
+        String phoneNumberRegex = "^[0-9]{10}$";
+        if(phoneNumber.matches(phoneNumberRegex)){
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isGovernmentIdValid(String governmentId){
+        //government id regex pattern to check if the government id has the correct pattern [a-z, A-Z, 0-9]{6, 12}
+        String governmentIdRegex = "^[A-Za-z0-9]{6, 12}$";
+        if(governmentId.matches(governmentIdRegex)){
+            return true;
+        }
+
+        return false;
+    }
 
     // Method to create an account, put on public to allow external access
     @Override
     public boolean register(){
+
         //create account
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter your first name: ");
         firstName = scanner.nextLine();
+
         System.out.println("Enter your last name: ");
         lastName = scanner.nextLine();
-        System.out.println("Enter your username: ");
-        userName = scanner.nextLine();
+
         System.out.println("Enter your email: ");
         email = scanner.nextLine();
         while(!isEmailValid(email)){
             System.out.println("Invalid email. Please enter a valid email: ");
             email = scanner.nextLine();
         }
+
         System.out.println("Enter your password: ");
         password = scanner.nextLine();
-        System.out.println("Confirm your password: ");
-        confirmPassword = scanner.nextLine();
-        while(!confirmPassword.equals(password)){
-            System.out.println("Passwords do not match. Please re-confirm your password: ");
+        do {
+            System.out.print("Confirm your password: ");
             confirmPassword = scanner.nextLine();
-        }
+            if (!confirmPassword.equals(password)) {
+                System.out.println("Passwords do not match. Try again.");
+            }
+        } while (!confirmPassword.equals(password));
+
+
+        do {
+            System.out.println("Enter your phone number (e.g., +1234567890 or 1234567890): ");
+            phoneNumber = scanner.nextLine();
+            if (!isPhoneNumberValid(phoneNumber)) {
+                System.out.println("Invalid phone number. Please enter a valid phone number.");
+            }
+        } while (!isPhoneNumberValid(phoneNumber));
 
         System.out.println("Enter your birth date (yyyy-mm-dd): ");
         String birthDateString = scanner.nextLine();
+        this.birthDate = LocalDate.parse(birthDateString);
 
-        if(isUnderage(birthDate)){
-            System.out.println("You are underage. You cannot create an account.");
-            return false;
-        }else{
-            System.out.println("Account created successfully.");
-        }
+       
+        do {
+            System.out.println("Enter your government ID: ");
+            governmentId = scanner.nextLine();
+            if (!isGovernmentIdValid(governmentId)) {
+                System.out.println("Invalid government ID. Must be at least 6 characters long.");
+            }
+        } while (!isGovernmentIdValid(governmentId));
 
-        System.out.println("Enter the admin key (Press Enter to skip if you are not an admin): ");
-        String adminKey = scanner.nextLine();
-        if(adminKey.equals("Password123")){
+        
+        System.out.println("Enter the admin or staff key (Press Enter to skip): ");
+        String key = scanner.nextLine();
+        if (key.equals(ADMIN_KEY)) {
             isAdmin = true;
             System.out.println("Admin privilege granted.");
-        }else{
+        } else if (key.equals(STAFF_KEY)) {
+            isStaff = true;
+            System.out.println("Staff privilege granted.");
+        } else {
             isAdmin = false;
+            isStaff = false;
+        }
+
+
+        if(isUnderage()){
+            System.out.println("You are underage. You cannot create an account.");
+            return false;
         }
 
         userId = generateUserId();
-
+        System.out.println("Account created successfuly, welcome " + firstName + " " + lastName + "!");
         //next after successfully creating an account, write all information to a file
 
         return true; //placeholder for now
@@ -110,8 +162,8 @@ public class User implements Authentication{
     public boolean login(){
         //login
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your username or email: ");
-        String username = scanner.nextLine();
+        System.out.println("Enter your email or phone number: ");
+        String emailOrPhoneNumber = scanner.nextLine();
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
 
@@ -133,15 +185,21 @@ public class User implements Authentication{
         return isAdmin;
     }
 
-    //private as it is used internally in the class only
-    private int calculateAge(LocalDate birthDate){
-        //calculate age logic
-        //get current date then convert the birthdate to LocalDate then calculate the time period between both date and convert it to years
-        return 0; //should return age but 0 placeholder for now
+    public boolean isStaff(){
+        return isStaff;
     }
 
-    public boolean isUnderage(LocalDate birthDate){
-        return calculateAge(birthDate) < 18;
+    //private as it is used internally in the class only
+    private int calculateAge(){
+        //calculate age logic
+        if(birthDate == null){
+            return 0;
+        }
+        return Period.between(birthDate, LocalDate.now()).getYears();
+    }
+
+    public boolean isUnderage(){
+        return calculateAge() < 16;
     }
 
 

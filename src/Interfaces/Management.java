@@ -1,4 +1,4 @@
-package Interface;
+package Interfaces;
 public interface Management {
     public void addAccount();
     public void removeAccount();
