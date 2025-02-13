@@ -1,9 +1,9 @@
 package user;
 import Interfaces.Authentication;
-import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Random;
+import java.util.Scanner;
 
 public class User implements Authentication{
     private int userId;
