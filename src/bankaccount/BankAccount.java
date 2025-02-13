@@ -1,23 +1,21 @@
 package bankaccount;
 
-import transaction.Transaction;
+import Interfaces.Authentication;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
 
-public class BankAccount {
+public class BankAccount implements Authentication {
+
+    private static ArrayList<BankAccount> accounts = new ArrayList<>();
+    private static Random random = new Random();
     private int accountNumber;
     private String accountName;
     private double balance;
     private String accountType;
     private String accountStatus;
     private String password; // Added for authentication
-
-    // Constructor to initialize account with a specific number
-    public BankAccount(int accountNumber) {
-        this.accountNumber = accountNumber;
-        this.accountName = "Sereyreaksa";
-        this.balance = 0.0; // Initialize balance to 0
-        this.accountType = "Saving";
-        this.accountStatus = "Active";
-    }
+    private int pin;
 
     // Constructor with all fields
     public BankAccount(int accountNumber, String accountName, double balance, String accountType, String accountStatus) {
@@ -27,14 +25,33 @@ public class BankAccount {
         this.accountType = accountType;
         this.accountStatus = accountStatus;
     }
+    // to be used later
+    public void createAccount(int accountNumber, String accountName, double balance, String accountType, String accountStatus) {
+        this.accountNumber = accountNumber;
+        this.accountName = accountName;
+        this.balance = balance;
+        this.accountType = accountType;
+        this.accountStatus = accountStatus;
+    }
 
-    // Getters and Setters
     public int getAccountNumber() {
         return accountNumber;
     }
 
-    public void setAccountNumber(int accountNumber) {
-        this.accountNumber = accountNumber;
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
+    protected void setPassword(String password) {
+        this.password = password;
+    }
+
+    protected void setPin(int pin) {
+        this.pin = pin;
+    }
+
+    protected void setBalance(double balance){
+        this.balance = balance;
     }
     
     public String getAccountName() {
@@ -49,13 +66,6 @@ public class BankAccount {
         return balance;
     }
 
-    // Deposit method that updates the balance
-    public void deposit(double amount) {
-        Transaction transaction = new Transaction("Deposit", amount, "Completed");
-        this.balance += transaction.deposit();
-        
-    }
-
     public String getAccountType() {
         return accountType;
     }
@@ -64,16 +74,42 @@ public class BankAccount {
         this.accountType = accountType;
     }
 
-    public String getAccountStatus() {
-        return accountStatus;
+    public static void createAccount(String accountName, double balance, String accountType, String accountStatus) {
+        int newAccountNumber = generateAccountNumber();
+        BankAccount newAccount = new BankAccount(newAccountNumber, accountName, balance, accountType, accountStatus);
+        accounts.add(newAccount);
     }
 
-    public void setAccountStatus(String accountStatus) {
-        this.accountStatus = accountStatus;
+    public BankAccount getAccountByNumber(int accountNumber){
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                return account;
+            }
+        }
+        return null; // Return null if account is not found
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    // Generate a unique account number
+    private static int generateAccountNumber() {
+        int accountNumber;
+        do {
+            accountNumber = 1000000000 + random.nextInt(900000); // Generate 9-digit number
+        } while (accountExists(accountNumber));
+        return accountNumber;
+    }
+    
+    public static ArrayList<BankAccount> getAccountsList() {
+        return accounts;
+    }
+    
+    // Check if an account number already exists
+    private static boolean accountExists(int accountNumber) {
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Override toString for better readability
@@ -89,7 +125,76 @@ public class BankAccount {
     }
 
     // Print bank details
-    public void printBankDetails() {
-        System.out.println(toString());
+    public static void printBankDetails(int accountNumber) {
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                System.out.println(account);
+                return;
+            }
+        }
+        System.out.println("Account not found.");
+    }
+
+    @Override
+    public boolean login() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter account number");
+        int accountNumber = input.nextInt();
+        System.out.println("Enter password: ");
+        String password = input.nextLine();
+    
+        // for testing purposes
+        if(password.equals("12345") && accountNumber == 123456789){
+            input.close();
+            return true;
+        }
+        input.close();
+        return false;
+    }
+
+    @Override
+    public void register() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter account name: ");
+        String accountName = input.nextLine();
+        System.out.println("Enter initial balance: ");
+        double balance = input.nextDouble();
+        System.out.println("Enter account type: ");
+        String accountType = input.next();
+        createAccount(accountName, balance, accountType, "Active");
+        input.close();
+    }
+    
+    @Override
+    public void forgotPassword() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter account number: ");
+        int accountNumber = input.nextInt();
+        BankAccount account = getAccountByNumber(accountNumber);
+        if (account != null) {
+            System.out.println("Account found. Enter new password: ");
+            String newPassword = input.nextLine();
+            account.setPassword(newPassword);
+        } else {
+            System.out.println("Account not found.");
+        }
+
+        input.close();
+    }
+
+    private void changePIN() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter old PIN: ");
+        int oldPin = input.nextInt();
+        //for testing purpose
+        if (oldPin == 123456) {
+            System.out.println("Enter new PIN: ");
+            int newPin = input.nextInt();
+            setPin(newPin);
+        }
+        // setPassword(newPassword);
+        input.close();
     }
 }
+
+
