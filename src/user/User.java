@@ -71,13 +71,17 @@ public class User implements Authentication{
     }
 
     private boolean isGovernmentIdValid(String governmentId){
-        //government id regex pattern to check if the government id has the correct pattern [a-z, A-Z, 0-9]{6, 12}
-        String governmentIdRegex = "^[A-Za-z0-9]{6, 12}$";
+        //government id regex pattern to check if the government id has the correct pattern [a-z, A-Z, 0-9]{12}
+        String governmentIdRegex = "^[0-9]{12}$";
         if(governmentId.matches(governmentIdRegex)){
             return true;
         }
 
         return false;
+    }
+
+    public void viewAccount(){
+        
     }
 
     // Method to create an account, put on public to allow external access
