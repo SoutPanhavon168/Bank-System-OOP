@@ -1,6 +1,7 @@
-package User;
-import Interface.Authentication;
+package user;
+import interface.Authentication;
 import java.util.Scanner;
+import java.time.LocalDate;
 //import java.time.LocalDate;
 //import java.time.Period;
 import java.util.Random;
@@ -13,10 +14,10 @@ public class User implements Authentication{
     private String email;
     private String password;
     private String confirmPassword;
-    private BirthDate birthDate;
+    private LocalDate birthDate;
     private boolean isAdmin;
 
-    public User(int userId, String userName, String lastName, String firstName, String email, String password, String confirmPassword, BirthDate birthDate, boolean isAdmin){
+    public User(int userId, String userName, String lastName, String firstName, String email, String password, String confirmPassword, LocalDate birthDate, boolean isAdmin){
         this.userName = userName;
         this.lastName = lastName;
         this.firstName = firstName;
@@ -80,15 +81,11 @@ public class User implements Authentication{
         }
 
         System.out.println("Enter your birth date (yyyy-mm-dd): ");
-        int day = scanner.nextInt();
-        int month = scanner.nextInt();
-        int year = scanner.nextInt();
-        scanner.nextLine(); //consume the newline char
-        birthDate = new BirthDate(day, month, year);
+        String birthDateString = scanner.nextLine();
 
         if(isUnderage(birthDate)){
             System.out.println("You are underage. You cannot create an account.");
-            return;
+            return false;
         }else{
             System.out.println("Account created successfully.");
         }
@@ -125,8 +122,10 @@ public class User implements Authentication{
 
 
     // method to update password when the user forget password, put on public to allow external access
-    public void forgotPassword(){
+    public boolean forgotPassword(){
         //forgot password
+
+        return true; //placeholder for now
     }
 
     // method to check if user is admin, put on public to allow external access
@@ -135,13 +134,13 @@ public class User implements Authentication{
     }
 
     //private as it is used internally in the class only
-    private int calculateAge(BirthDate birthDate){
+    private int calculateAge(LocalDate birthDate){
         //calculate age logic
         //get current date then convert the birthdate to LocalDate then calculate the time period between both date and convert it to years
         return 0; //should return age but 0 placeholder for now
     }
 
-    public boolean isUnderage(BirthDate birthDate){
+    public boolean isUnderage(LocalDate birthDate){
         return calculateAge(birthDate) < 18;
     }
 

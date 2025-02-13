@@ -1,5 +1,7 @@
 package Staff;
+import User.User;
 
-public class staff {
+public class staff extends User {
     
+
 }
