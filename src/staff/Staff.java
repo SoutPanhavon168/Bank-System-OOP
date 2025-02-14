@@ -4,8 +4,8 @@ import Interfaces.Management;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-public class staff extends User implements Management{
-    public staff(String lastName, String firstName, String email, String password, String confirmPassword, String phoneNumber, LocalDate birthDate, String governmentId){
+public class Staff extends User implements Management{
+    public Staff(String lastName, String firstName, String email, String password, String confirmPassword, String phoneNumber, LocalDate birthDate, String governmentId){
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
     }
 
