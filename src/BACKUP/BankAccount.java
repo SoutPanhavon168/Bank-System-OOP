@@ -20,9 +20,11 @@ public class BankAccount implements Authentication {
     // Constructor with all fields
     public BankAccount(String accountName, double balance, String accountType, String accountStatus) {
         this.accountName = accountName;
-        this.balance = 1;
+        this.balance = 0.0;
         this.accountType = accountType;
         this.accountStatus = accountStatus;
+
+        accounts.add(this);
     }
     // // to be used later
     // public void createSubAccount(String accountName, String accountType, String accountStatus) {
@@ -75,13 +77,7 @@ public class BankAccount implements Authentication {
     public void setAccountType(String accountType) {
         this.accountType = accountType;
     }
-
-    public static void createAccount(String accountName, double balance, String accountType, String accountStatus) {
-        int newAccountNumber = generateAccountNumber();
-        BankAccount newAccount = new BankAccount(accountName, 1, accountType, accountStatus);
-        newAccount.setAccountNumber(newAccountNumber);
-        accounts.add(newAccount);
-    }
+    
 
     public BankAccount getAccountByNumber(int accountNumber){
         for (BankAccount account : accounts) {
