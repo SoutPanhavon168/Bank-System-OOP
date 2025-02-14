@@ -51,6 +51,21 @@ public class User implements Authentication{
     public String getPhoneNumber(){return phoneNumber;}    
     public LocalDate getBirthDate(){return birthDate;}
     public String getGovernmentId(){return governmentId;}
+    public String getMaskedGovernmentId(){
+        if(governmentId.length() > 4){
+            return "********" + governmentId.substring(governmentId.length() - 4);
+        }
+        return governmentId;
+    }
+
+    //setters 
+    public void setEmail(String email){
+        this.email = email;
+    }
+
+    public void setPhoneNumber(String phoneNumber){
+        this.phoneNumber = phoneNumber;
+    }
 
 
     private static List<User> admin = new ArrayList<>();
@@ -58,7 +73,7 @@ public class User implements Authentication{
     private static List<User> customers = new ArrayList<>();
 
     // private as it is only used internally in this class
-    private boolean isEmailValid(String email){
+    public boolean isEmailValid(String email){
         //email regex pattern to check if the email has the correct pattern [a-z, A-Z, 0-9, +, _, ., -]@[a-z, A-Z, 0-9, -]
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         if(email.matches(emailRegex)){
@@ -77,7 +92,7 @@ public class User implements Authentication{
         return (int)(System.currentTimeMillis() % 1000000) + random.nextInt(1000);
     }
 
-    private boolean isPhoneNumberValid(String phoneNumber){
+    public boolean isPhoneNumberValid(String phoneNumber){
         //phone number regex pattern to check if the phone number has the correct pattern [0-9]{10}
         String phoneNumberRegex = "^[0-9]{10}$";
         if(phoneNumber.matches(phoneNumberRegex)){

@@ -9,6 +9,7 @@ public class staff extends User implements Management{
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
     }
 
+    @Override
     public void viewCustomerDetails(){
         Scanner scanner = new Scanner(System.in);
         System.out.println("Would you like to: \n1. View all customers \n2. Search for a customer");
