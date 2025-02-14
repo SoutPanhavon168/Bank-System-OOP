@@ -3,12 +3,14 @@ import java.util.Scanner;
 import Interfaces.Management;
 import Interfaces.AdminPrivilege;
 
-public class Admin implements AdminPrevilege {
-    private String firstName;
-    private String lastName;    
-    private String PhoneNumber;
-    private String password;
+
+public class Admin extends User implements AdminPrivilege {
     private int userId;
+    private String firstName;
+    private String lastName;
+    private String password;
+    private String PhoneNumber;
+    
 
 
     public Admin(String firstName, String lastName , String password, String PhoneNumber) {
