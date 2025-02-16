@@ -20,8 +20,8 @@ public class User implements Authentication{
     private boolean isAdmin;
     private boolean isStaff;
 
-    private static String ADMIN_KEY = "Admin123";
-    private static String STAFF_KEY = "Staff123";
+    private static String adminKey = "Admin123";
+    private static String staffKey = "Staff123";
 
 
     public User(){}
@@ -50,12 +50,8 @@ public class User implements Authentication{
     public String getEmail(){return email;}
     public String getPhoneNumber(){return phoneNumber;}    
     public LocalDate getBirthDate(){return birthDate;}
-    public String getGovernmentId(){return governmentId;}
     public String getMaskedGovernmentId(){
-        if(governmentId.length() > 4){
-            return "********" + governmentId.substring(governmentId.length() - 4);
-        }
-        return governmentId;
+            return "********" + governmentId.substring(8);   
     }
 
     //setters 
@@ -170,10 +166,10 @@ public class User implements Authentication{
         
         System.out.println("Enter the admin or staff key (Press Enter to skip): ");
         String key = scanner.nextLine();
-        if (key.equals(ADMIN_KEY)) {
+        if (key.equals(adminKey)) {
             isAdmin = true;
             System.out.println("Admin privilege granted.");
-        } else if (key.equals(STAFF_KEY)) {
+        } else if (key.equals(staffKey)) {
             isStaff = true;
             System.out.println("Staff privilege granted.");
         } else {

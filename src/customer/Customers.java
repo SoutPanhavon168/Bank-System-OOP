@@ -83,6 +83,22 @@ public class Customers extends User {
             }
         }
     }
+
+    public void createbankAccount(){
+
+    }
+
+    public void deposit(){
+
+    }
+
+    public void withdraw(){
+
+    }
+    
+    public void requestLoan(){
+
+    }
     
     
 }
