@@ -1,25 +1,18 @@
 package Admin;
 import java.util.Scanner;
 import Interfaces.Management;
-import Interfaces.AdminPrivilege;
+
+//admin needs to login first before doing any action
+public class Admin extends User  {
+    private String admin_username;
+    private String admin_password; 
 
 
-public class Admin extends User implements AdminPrivilege {
-    private int userId;
-    private String firstName;
-    private String lastName;
-    private String password;
-    private String PhoneNumber;
-    
-
-
-    public Admin(String firstName, String lastName , String password, String PhoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = password;
-        this.PhoneNumber = PhoneNumber;
+    public Admin(String admin_password, String admin_username, int userId, String firstName, String lastName, String phoneNumber, String password, String confirmPassword, String email, String birthDate, String governmentId, String userType) {
+        super(userId, firstName, lastName, phoneNumber, password, confirmPassword, email, birthDate, governmentId, userType);
+        this.admin_username = admin_username;
+        this.admin_password = admin_password;
     }
-    @Override
     public void addAccount() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the first name: ");
@@ -45,7 +38,6 @@ public class Admin extends User implements AdminPrivilege {
 
         // Add account to database
     }
-    @Override
     public void removeAccount() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to remove: ");
@@ -70,7 +62,6 @@ public class Admin extends User implements AdminPrivilege {
 
         // Remove account from database
     }
-    @Override
     public void updateAccount(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to update: ");
@@ -113,4 +104,13 @@ public class Admin extends User implements AdminPrivilege {
             System.out.println("Account not found");
         }
     }
+    boolean approveLargeLoan(int loanId){
+        return true;
+    };  // Only Admin
+    void viewAllTransactions(){
+
+    };  // Only Admin
+    void viewAllPayments(){
+
+    }; 
 }
