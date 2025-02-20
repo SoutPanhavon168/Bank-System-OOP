@@ -1,14 +1,18 @@
 package customer;
 
-import user.User;
 import bankaccount.BankAccount;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
+import transaction.Transaction;
+import user.User;
 
 public class Customers extends User {
+    private String fullName;
+    private BankAccount bankAccount;
     private ArrayList<BankAccount> bankAccounts;
+
+    public Customers(){}
 
    public Customers(String lastName, String firstName, String email, String password, String confirmPassword,
                      String phoneNumber, LocalDate birthDate, String governmentId) {
@@ -38,7 +42,6 @@ public class Customers extends User {
 
         int choice = scanner.nextInt();
         scanner.nextLine(); 
-
         switch(choice){
             case 1: 
             System.out.println("Enter your email: ");
@@ -61,6 +64,11 @@ public class Customers extends User {
         }
     }
 
+    public String getFullName() {
+        return this.fullName = getLastName() + " " + getFirstName();
+    }
+    
+
     public void viewOwnAccount() {
         System.out.println("===== Account Details =====");
         System.out.println("User ID: " + getUserId());
@@ -70,7 +78,6 @@ public class Customers extends User {
         System.out.println("Birth Date: " + getBirthDate());
         System.out.println("Government ID: " + getMaskedGovernmentId());
         System.out.println("Number of Bank Accounts: " + bankAccounts.size());
-        
         System.out.println("\n===== Bank Accounts =====");
         if (bankAccounts.isEmpty()) {
             System.out.println("No bank accounts found.");
@@ -85,20 +92,59 @@ public class Customers extends User {
     }
 
     public void createbankAccount(){
+        Scanner input = new Scanner(System.in);
+        String type = "";
+        System.out.println("Select an account type");
+        System.out.println("1. Saving");
+        System.out.println("2. Current");
+        System.out.println("3. Checking");
+        System.out.println("Select an option-> ");
+        int options = input.nextInt();
+        switch(options){
+            case 1:
+            type = "Saving";
+            break;
+            case 2:
+            type = "Current";
+            break;
+            case 3:
+            type = "Checking";
+            break;
+
+        }
+        bankAccount = new BankAccount(getFullName(),type,"Active");
+        
 
     }
 
     public void deposit(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter amount to deposit ($):");
+        double amount = input.nextFloat();
+        Transaction executeTransaction = new Transaction(bankAccount);
+        executeTransaction.deposit(amount);
 
     }
 
     public void withdraw(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter amount to deposit ($):");
+        double amount = input.nextFloat();
+        Transaction executeTransaction = new Transaction(bankAccount);
+        executeTransaction.withdraw(amount);
 
     }
     
-    public void requestLoan(){
+    public void transfer(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter bank account to transfer: ");
+        System.out.println("Enter amount to deposit ($):");
+        double amount = input.nextFloat();
+        Transaction executeTransaction = new Transaction(bankAccount);
+        executeTransaction.transfer(bankAccount, amount);
 
     }
+
     
     
 }

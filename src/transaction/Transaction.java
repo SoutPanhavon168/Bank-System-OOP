@@ -29,6 +29,9 @@ public class Transaction {
         this(transactionType, amount, status);
         this.bankAccount = bankAccount;
     }
+    public Transaction(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
+    }
 
     public Transaction(String transactionType, double amount, String status) {
         this.transactionType = transactionType;
@@ -164,5 +167,4 @@ public class Transaction {
         // Print the transaction details
         System.out.println(transaction.toString());
     }
-
-}
+    }
