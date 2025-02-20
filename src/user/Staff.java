@@ -33,7 +33,7 @@ public class Staff extends User implements Management{
         else{
             System.out.println("Invalid choice. Please enter 1 or 2.");
         }
-
+        Staff staff = new Staff();
         
         
     }
