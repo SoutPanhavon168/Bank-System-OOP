@@ -1,6 +1,7 @@
 package bankapp;
 import bankaccount.BankAccount;
-import customer.Customers;
+import user.Customers;
+
 import java.time.LocalDate;
 import java.util.Scanner;
 
