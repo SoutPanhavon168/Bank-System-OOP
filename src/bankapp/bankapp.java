@@ -1,8 +1,8 @@
 package bankapp;
-import bankaccount.BankAccount;
-import customer.Customers;
+import bankAccount.*;
 import java.time.LocalDate;
 import java.util.Scanner;
+import user.Customers;
 
 public class bankapp {
     public static void main(String[] args) {
@@ -20,20 +20,18 @@ public class bankapp {
             System.out.println("6. Transfer");
             System.out.println("7. Exit");
             System.out.print("Choose an option: ");
-            
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
             
             switch (choice) {
                 case 1:
                     customer.viewOwnAccount();
-                    bankAccount.printBankDetails();
                     break;
                 case 2:
                     customer.updateOwnAccount();
                     break;
                 case 3:
-                    customer.createbankAccount();
+                    customer.createBankAccount();
                     break;
                 case 4:
                     customer.deposit();

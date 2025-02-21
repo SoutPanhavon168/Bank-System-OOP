@@ -1,4 +1,4 @@
-package bankaccount;
+package bankAccount;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -105,18 +105,12 @@ public class BankAccount {
 
     @Override
     public String toString() {
-        return "BankAccount{" +
-                "accountNumber=" + accountNumber +
-                ", accountName='" + accountName + '\'' +
-                ", balance=" + balance +
-                ", accountType='" + accountType + '\'' +
-                ", accountStatus='" + accountStatus + '\'' +
-                '}';
-    }
-
-    public void printBankDetails() {
-        System.out.println("Account details: ");
-        System.out.println(toString());
+        return  "Account Number: " + accountNumber + '\n' +
+                "Account Name: '" + accountName + '\n' +
+                "Balance: " + balance + '\n' +
+                "Account Type: '" + accountType + '\n' +
+                "Account Status: '" + accountStatus + '\n' +
+                "========================================" + '\n';
     }
 
     private void changePIN() {

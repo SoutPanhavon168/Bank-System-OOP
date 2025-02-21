@@ -1,5 +1,4 @@
-package staff;
-import user.User;
+package user;
 import Interfaces.Management;
 import java.time.LocalDate;
 import java.util.Scanner;
