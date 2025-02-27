@@ -1,4 +1,4 @@
-package Admin;
+package user;
 import java.util.Scanner;
 import Interfaces.Management;
 

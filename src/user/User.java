@@ -2,23 +2,23 @@ package user;
 import Interfaces.Authentication;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Random;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
 
-public class User implements Authentication{
-    private int userId;
-    private String lastName;
-    private String firstName;
-    private String email;
-    private String phoneNumber;
-    private String password;
-    private String confirmPassword;
-    private LocalDate birthDate;
-    private String governmentId;
-    private boolean isAdmin;
-    private boolean isStaff;
+public abstract class User implements Authentication{
+    protected int userId;
+    protected String lastName;
+    protected String firstName;
+    protected String email;
+    protected String phoneNumber;
+    protected String password;
+    protected String confirmPassword;
+    protected LocalDate birthDate;
+    protected String governmentId;
+    protected boolean isAdmin;
+    protected boolean isStaff;
 
     private static String adminKey = "Admin123";
     private static String staffKey = "Staff123";
@@ -177,7 +177,6 @@ public class User implements Authentication{
             isStaff = false;
         }
 
-
         if(isUnderage()){
             System.out.println("You are underage. You cannot create an account.");
             return;
@@ -203,15 +202,27 @@ public class User implements Authentication{
     @Override
     public boolean login(){
         //login
+        boolean admin;
+        boolean user;
+        boolean staff;
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your email or phone number: ");
-        String emailOrPhoneNumber = scanner.nextLine();
+        System.out.println("Enter phone number (+855): ");
+        //int phoneNo = scanner.nextInt();
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
 
+        if(password.equals("$Admin&123$")){
+            System.out.println("You are now admin");
+            return admin = true;
+        } else if (password.equals("user")) {
+            System.out.println("You are user");
+            return user = true;
+        } else {
+            System.out.println("staff");
+            System.out.println("You are staff");
+            return staff = true;
+        }
         //open file to read all user information and compare to the login input to validate user login
-
-        return true; //placeholder for now
     }
 
 

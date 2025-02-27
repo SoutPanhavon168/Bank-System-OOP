@@ -1,28 +1,54 @@
 package bankapp;
+import bankAccount.*;
+import java.time.LocalDate;
+import java.util.Scanner;
+import user.Customers;
 
-import bankaccount.*;
-import bankaccount.BankAccount;
 public class bankapp {
     public static void main(String[] args) {
-        // Details for the new account
-        String accountName = "John Doe";
-        double balance = 1000.0;  // Initial balance
-        String accountType = "Checking";
-        String accountStatus = "Active";
-
-        // Create the account
-        BankAccount.createAccount(accountName, balance, accountType, accountStatus);
-
-        // BankAccount.printBankDetails()
-
-        // Print out the list of accounts to confirm
-         for (BankAccount account : BankAccount.getAccountsList()) {
-             System.out.println(account.getAccountNumber());
-             BankAccount.printBankDetails(account.getAccountNumber());
-         }
-
-        // Deposit some money
+        Scanner scanner = new Scanner(System.in);
+        BankAccount bankAccount = new BankAccount();
+        Customers customer = new Customers("Doe", "John", "john@example.com", "password123", "password123", "1234567890", LocalDate.of(1990, 1, 1), "ID123456");
         
-
+        while (true) {
+            System.out.println("\n===== Customer Menu =====");
+            System.out.println("1. View Account");
+            System.out.println("2. Update Account");
+            System.out.println("3. Create Bank Account");
+            System.out.println("4. Deposit");
+            System.out.println("5. Withdraw");
+            System.out.println("6. Transfer");
+            System.out.println("7. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+            
+            switch (choice) {
+                case 1:
+                    customer.viewOwnAccount();
+                    break;
+                case 2:
+                    customer.updateOwnAccount();
+                    break;
+                case 3:
+                    customer.createBankAccount();
+                    break;
+                case 4:
+                    customer.deposit();
+                    break;
+                case 5:
+                    customer.withdraw();
+                    break;
+                case 6:
+                    customer.transfer();
+                    break;
+                case 7:
+                    System.out.println("Exiting... Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 7.");
+            }
+        }
     }
 }

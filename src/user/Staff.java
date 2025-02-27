@@ -1,5 +1,4 @@
-package staff;
-import user.User;
+package user;
 import Interfaces.Management;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -33,7 +32,7 @@ public class Staff extends User implements Management{
         else{
             System.out.println("Invalid choice. Please enter 1 or 2.");
         }
-
+        Staff staff = new Staff();
         
         
     }
