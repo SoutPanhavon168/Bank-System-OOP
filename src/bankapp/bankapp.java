@@ -26,7 +26,6 @@ public class bankapp {
             System.out.println("6. Transfer");
             System.out.println("7. Exit");
             System.out.print("Choose an option: ");
-            
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
             
