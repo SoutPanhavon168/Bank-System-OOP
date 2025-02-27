@@ -3,6 +3,7 @@ package transaction;
 import bankAccount.BankAccount;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Transaction {
@@ -22,9 +23,6 @@ public class Transaction {
     // public void viewTransactionByType(String transactionType);
     // public void sortTransactionsByDate();
     // public void sortTransactionsByAmount();
-
-
-    
 
     public Transaction(BankAccount bankAccount, String transactionType, double amount, String status) {
         this(transactionType, amount, status);
@@ -84,40 +82,52 @@ public class Transaction {
             return;
         }
     
-        // Display available accounts
-        System.out.println("Select an account to deposit into:");
-        for (int i = 0; i < bankAccounts.size(); i++) {
-            System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
-        }
+        try {
+            System.out.println("Select an account to deposit into:");
+            for (int i = 0; i < bankAccounts.size(); i++) {
+                System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
+            }
     
-        // Get user selection
-        System.out.print("Enter the number of the account: ");
-        int index = input.nextInt() - 1; // Adjust for 0-based indexing
+            System.out.print("Enter the number of the account: ");
+            int index = input.nextInt() - 1;
     
-        if (index < 0 || index >= bankAccounts.size()) {
-            System.out.println("Invalid selection.");
-            return;
-        }
+            if (index < 0 || index >= bankAccounts.size()) {
+                throw new IndexOutOfBoundsException("Invalid selection.");
+            }
     
-        BankAccount selectedAccount = bankAccounts.get(index);
+            BankAccount selectedAccount = bankAccounts.get(index);
     
-        // Get deposit amount
-        System.out.print("Enter amount to deposit ($): ");
-        double depositAmount = input.nextDouble();
+            System.out.print("Enter amount to deposit ($): ");
+            double depositAmount = input.nextDouble();
     
-        if (depositAmount > 0) {
+            if (depositAmount <= 0) {
+                throw new IllegalArgumentException("Invalid deposit amount.");
+            }
+    
             selectedAccount.setBalance(selectedAccount.getBalance() + depositAmount);
             System.out.println("Deposit successful. New balance: $" + selectedAccount.getBalance());
     
-            // Save transaction record
             Transaction transaction = new Transaction(selectedAccount, "Deposit", depositAmount, "Completed");
             System.out.println(transaction.toString());
-        } else {
-            System.out.println("Invalid deposit amount.");
+        
+        } catch (InputMismatchException e) /* <- this catches the try block (if it throws and exception) */ {
+            System.out.println("Invalid input. Please enter numbers only.");
+            // IndexOutOfBoundsException == access an array that is out of bound (accessing an out of bound index)
+            // IllegalArgumentException == if u put number 0 or negative
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) { // <- catches any exception
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
     
-
+    public class InsufficientFundsException extends Exception {
+        public InsufficientFundsException(String message) {
+            super(message);
+        }
+    }
+    
+    
     public void withdraw(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
     
@@ -126,133 +136,143 @@ public class Transaction {
             return;
         }
     
-        // Display available accounts
-        System.out.println("Select an account to withdraw from:");
-        for (int i = 0; i < bankAccounts.size(); i++) {
-            System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
-        }
+        try {
+            System.out.println("Select an account to withdraw from:");
+            for (int i = 0; i < bankAccounts.size(); i++) {
+                System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
+            }
     
-        // Get user selection
-        System.out.print("Enter the number of the account: ");
-        int index = input.nextInt() - 1; // Adjust for 0-based indexing
+            System.out.print("Enter the number of the account: ");
+            int index = input.nextInt() - 1;
     
-        if (index < 0 || index >= bankAccounts.size()) {
-            System.out.println("Invalid selection.");
-            return;
-        }
+            if (index < 0 || index >= bankAccounts.size()) {
+                throw new IndexOutOfBoundsException("Invalid selection.");
+            }
     
-        BankAccount selectedAccount = bankAccounts.get(index);
+            BankAccount selectedAccount = bankAccounts.get(index);
     
-        // Get withdrawal amount
-        System.out.print("Enter amount to withdraw ($): ");
-        double withdrawAmount = input.nextDouble();
+            System.out.print("Enter amount to withdraw ($): ");
+            double withdrawAmount = input.nextDouble();
     
-        if (withdrawAmount > 0 && selectedAccount.getBalance() >= withdrawAmount) {
+            if (withdrawAmount <= 0) {
+                throw new IllegalArgumentException("Withdrawal amount must be greater than zero.");
+            }
+    
+            if (selectedAccount.getBalance() < withdrawAmount) {
+                throw new InsufficientFundsException("Insufficient balance for withdrawal.");
+            }
+    
             selectedAccount.setBalance(selectedAccount.getBalance() - withdrawAmount);
             System.out.println("Withdrawal successful. New balance: $" + selectedAccount.getBalance());
     
-            // Save transaction record
             Transaction transaction = new Transaction(selectedAccount, "Withdraw", withdrawAmount, "Completed");
             System.out.println(transaction.toString());
-        } else {
-            System.out.println("Withdrawal failed. Insufficient balance or invalid amount.");
+    
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter numbers only.");
+        } catch (IndexOutOfBoundsException | IllegalArgumentException | InsufficientFundsException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
+    
     
     
 
     public void transfer(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
-    
-        if (bankAccounts.size() < 2) {
-            System.out.println("At least two accounts are required for a transfer.");
-            return;
-        }
-    
-        // Ask transfer type
-        System.out.println("Choose transfer type:");
-        System.out.println("1. Transfer between my own accounts");
-        System.out.println("2. Transfer to another person's account");
-        System.out.print("Enter your choice: ");
-        int transferType = input.nextInt();
-    
-        BankAccount sender = null;
-        BankAccount recipient = null;
-    
-        // Select sender account
-        System.out.println("Select your account to transfer from:");
-        for (int i = 0; i < bankAccounts.size(); i++) {
-            System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
-        }
         
-        System.out.print("Enter the number of your account: ");
-        int senderIndex = input.nextInt() - 1;
+        try {
+            System.out.println("Choose transfer type:");
+            System.out.println("1. Transfer between my own accounts");
+            System.out.println("2. Transfer to another person's account");
+            System.out.print("Enter your choice: ");
+            int transferType = input.nextInt();
     
-        if (senderIndex < 0 || senderIndex >= bankAccounts.size()) {
-            System.out.println("Invalid selection.");
-            return;
-        }
+            BankAccount sender = null;
+            BankAccount recipient = null;
     
-        sender = bankAccounts.get(senderIndex);
-    
-        // If transferring between own accounts
-        if (transferType == 1) {
-            System.out.println("Select the account to transfer to:");
+            System.out.println("Select your account to transfer from:");
             for (int i = 0; i < bankAccounts.size(); i++) {
-                if (i != senderIndex) { // Exclude sender's account
-                    System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
+                System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
+            }
+    
+            System.out.print("Enter the number of your account: ");
+            int senderIndex = input.nextInt() - 1;
+    
+            if (senderIndex < 0 || senderIndex >= bankAccounts.size()) {
+                throw new IndexOutOfBoundsException("Invalid selection.");
+            }
+    
+            sender = bankAccounts.get(senderIndex);
+    
+            if (transferType == 1) {
+                System.out.println("Select the account to transfer to:");
+                for (int i = 0; i < bankAccounts.size(); i++) {
+                    if (i != senderIndex) {
+                        System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
+                    }
                 }
-            }
     
-            System.out.print("Enter the number of the recipient's account: ");
-            int recipientIndex = input.nextInt() - 1;
+                System.out.print("Enter the number of the recipient's account: ");
+                int recipientIndex = input.nextInt() - 1;
     
-            if (recipientIndex < 0 || recipientIndex >= bankAccounts.size() || recipientIndex == senderIndex) {
-                System.out.println("Invalid selection.");
-                return;
-            }
-    
-            recipient = bankAccounts.get(recipientIndex);
-    
-        } else if (transferType == 2) {
-            // Transfer to another person's account (manual entry)
-            System.out.print("Enter the recipient's account number: ");
-            int recipientAccountNumber = input.nextInt();
-    
-            for (BankAccount account : bankAccounts) {
-                if (account.getAccountNumber() == recipientAccountNumber) {
-                    recipient = account;
-                    break;
+                if (recipientIndex < 0 || recipientIndex >= bankAccounts.size() || recipientIndex == senderIndex) {
+                    throw new IndexOutOfBoundsException("Invalid selection.");
                 }
+    
+                recipient = bankAccounts.get(recipientIndex);
+    
+            } else if (transferType == 2) {
+                System.out.print("Enter the recipient's account number: ");
+                int recipientAccountNumber = input.nextInt();
+    
+                for (BankAccount account : bankAccounts) {
+                    if (account.getAccountNumber() == recipientAccountNumber) {
+                        recipient = account;
+                        break;
+                    }
+                }
+    
+                if (recipient == null) {
+                    throw new IllegalArgumentException("Recipient account not found.");
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid transfer type.");
             }
     
-            if (recipient == null) {
-                System.out.println("Recipient account not found.");
-                return;
+            System.out.print("Enter amount to transfer ($): ");
+            double transferAmount = input.nextDouble();
+    
+            if (transferAmount <= 0) {
+                throw new IllegalArgumentException("Transfer amount must be greater than zero.");
             }
-        } else {
-            System.out.println("Invalid choice.");
-            return;
-        }
     
-        // Get transfer amount
-        System.out.print("Enter amount to transfer ($): ");
-        double transferAmount = input.nextDouble();
+            if (sender.getBalance() < transferAmount) {
+                throw new InsufficientFundsException("Insufficient balance for transfer.");
+            }
     
-        if (transferAmount > 0 && sender.getBalance() >= transferAmount) {
             sender.setBalance(sender.getBalance() - transferAmount);
             recipient.setBalance(recipient.getBalance() + transferAmount);
     
             System.out.println("Transfer successful!");
             System.out.println("New balance for sender: $" + sender.getBalance());
     
-            // Save transaction record
             Transaction transaction = new Transaction(sender, "Transfer", transferAmount, "Completed");
             System.out.println(transaction.toString());
-        } else {
-            System.out.println("Transfer failed. Insufficient balance or invalid amount.");
+    
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter numbers only.");
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (InsufficientFundsException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
+    
     
     
 
