@@ -1,8 +1,9 @@
 package transaction;
 
-import bankaccount.BankAccount;
+import bankAccount.BankAccount;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Transaction {
 
@@ -75,45 +76,133 @@ public class Transaction {
         this.status = status;
     }
 
-    public void deposit(double depositAmount) {
-        this.transactionType = "Deposit";
+    public void deposit(ArrayList<BankAccount> bankAccounts) {
+        Scanner input = new Scanner(System.in);
+        
+        System.out.println("Enter the account number you want to deposit into: ");
+        int accountNumber = input.nextInt();
+    
+        // Find the bank account
+        BankAccount selectedAccount = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                selectedAccount = account;
+                break;
+            }
+        }
+    
+        if (selectedAccount == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to deposit ($): ");
+        double depositAmount = input.nextDouble();
+    
         if (depositAmount > 0) {
-            bankAccount.setBalance(bankAccount.getBalance() + depositAmount);
-            this.amount = depositAmount;
-            this.status = "Completed";
+            selectedAccount.setBalance(selectedAccount.getBalance() + depositAmount);
+            System.out.println("Deposit successful. New balance: $" + selectedAccount.getBalance());
+    
+            // Save transaction record
+            Transaction transaction = new Transaction(selectedAccount, "Deposit", depositAmount, "Completed");
+            System.out.println(transaction.toString());
         } else {
-            this.status = "Failed";
             System.out.println("Invalid deposit amount.");
         }
-        printTransactionDetails();
     }
+    
 
-    public void withdraw(double withdrawAmount) {
-        this.transactionType = "Withdraw";
-        if (withdrawAmount > 0 && bankAccount.getBalance() >= withdrawAmount) {
-            bankAccount.setBalance(bankAccount.getBalance() - withdrawAmount);
-            this.amount = withdrawAmount;
-            this.status = "Completed";
-        } else {
-            this.status = "Failed";
-            System.out.println("Insufficient balance or invalid amount.");
+    public void withdraw(ArrayList<BankAccount> bankAccounts) {
+        Scanner input = new Scanner(System.in);
+    
+        System.out.println("Enter your account number to withdraw from: ");
+        int accountNumber = input.nextInt();
+    
+        // Find the account
+        BankAccount selectedAccount = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                selectedAccount = account;
+                break;
+            }
         }
-        printTransactionDetails();
-    }
-
-    public void transfer(BankAccount recipient, double transferAmount) {
-        this.transactionType = "Transfer";
-        if (transferAmount > 0 && bankAccount.getBalance() >= transferAmount) {
-            bankAccount.setBalance(bankAccount.getBalance() - transferAmount);
-            recipient.setBalance(recipient.getBalance() + transferAmount);
-            this.amount = transferAmount;
-            this.status = "Completed";
+    
+        if (selectedAccount == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to withdraw ($): ");
+        double withdrawAmount = input.nextDouble();
+    
+        if (withdrawAmount > 0 && selectedAccount.getBalance() >= withdrawAmount) {
+            selectedAccount.setBalance(selectedAccount.getBalance() - withdrawAmount);
+            System.out.println("Withdrawal successful. New balance: $" + selectedAccount.getBalance());
+    
+            // Save transaction record
+            Transaction transaction = new Transaction(selectedAccount, "Withdraw", withdrawAmount, "Completed");
+            System.out.println(transaction.toString());
         } else {
-            this.status = "Failed";
+            System.out.println("Withdrawal failed. Insufficient balance or invalid amount.");
+        }
+    }
+    
+
+    public void transfer(ArrayList<BankAccount> bankAccounts) {
+        Scanner input = new Scanner(System.in);
+    
+        // Select sender account
+        System.out.println("Enter your account number to transfer from: ");
+        int senderAccountNumber = input.nextInt();
+    
+        BankAccount sender = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == senderAccountNumber) {
+                sender = account;
+                break;
+            }
+        }
+        
+        if (sender == null) {
+            System.out.println("Sender account not found.");
+            return;
+        }
+    
+        // Select receiver account
+        System.out.println("Enter recipient's account number: ");
+        int recipientAccountNumber = input.nextInt();
+    
+        BankAccount recipient = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == recipientAccountNumber) {
+                recipient = account;
+                break;
+            }
+        }
+    
+        if (recipient == null) {
+            System.out.println("Recipient account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to transfer ($): ");
+        double transferAmount = input.nextDouble();
+    
+        if (transferAmount > 0 && sender.getBalance() >= transferAmount) {
+            sender.setBalance(sender.getBalance() - transferAmount);
+            recipient.setBalance(recipient.getBalance() + transferAmount);
+            
+            System.out.println("Transfer successful!");
+            System.out.println("New balance for sender: $" + sender.getBalance());
+    
+            // Save transaction record
+            Transaction transaction = new Transaction(sender, "Transfer", transferAmount, "Completed");
+            System.out.println(transaction.toString());
+        } else {
             System.out.println("Transfer failed. Insufficient balance or invalid amount.");
         }
-        printTransactionDetails();
     }
+    
 
     public void viewTransactionHistory(){
         // view all transaction history

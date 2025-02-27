@@ -1,9 +1,14 @@
 package bankapp;
+<<<<<<< HEAD
 import bankaccount.BankAccount;
 import user.Customers;
 
+=======
+import bankAccount.*;
+>>>>>>> origin/main
 import java.time.LocalDate;
 import java.util.Scanner;
+import user.Customers;
 
 public class bankapp {
     public static void main(String[] args) {
@@ -28,13 +33,12 @@ public class bankapp {
             switch (choice) {
                 case 1:
                     customer.viewOwnAccount();
-                    bankAccount.printBankDetails();
                     break;
                 case 2:
                     customer.updateOwnAccount();
                     break;
                 case 3:
-                    customer.createbankAccount();
+                    customer.createBankAccount();
                     break;
                 case 4:
                     customer.deposit();

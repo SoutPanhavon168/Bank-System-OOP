@@ -8,17 +8,17 @@ import java.util.Random;
 import java.util.Scanner;
 
 public abstract class User implements Authentication{
-    private int userId;
-    private String lastName;
-    private String firstName;
-    private String email;
-    private String phoneNumber;
-    private String password;
-    private String confirmPassword;
-    private LocalDate birthDate;
-    private String governmentId;
-    private boolean isAdmin;
-    private boolean isStaff;
+    protected int userId;
+    protected String lastName;
+    protected String firstName;
+    protected String email;
+    protected String phoneNumber;
+    protected String password;
+    protected String confirmPassword;
+    protected LocalDate birthDate;
+    protected String governmentId;
+    protected boolean isAdmin;
+    protected boolean isStaff;
 
     private static String adminKey = "Admin123";
     private static String staffKey = "Staff123";
