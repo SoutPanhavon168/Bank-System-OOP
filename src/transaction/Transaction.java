@@ -78,6 +78,7 @@ public class Transaction {
 
     public void deposit(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
+<<<<<<< HEAD
     
         if (bankAccounts.isEmpty()) {
             System.out.println("No bank accounts available.");
@@ -103,6 +104,27 @@ public class Transaction {
     
         // Get deposit amount
         System.out.print("Enter amount to deposit ($): ");
+=======
+        
+        System.out.println("Enter the account number you want to deposit into: ");
+        int accountNumber = input.nextInt();
+    
+        // Find the bank account
+        BankAccount selectedAccount = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                selectedAccount = account;
+                break;
+            }
+        }
+    
+        if (selectedAccount == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to deposit ($): ");
+>>>>>>> origin/main
         double depositAmount = input.nextDouble();
     
         if (depositAmount > 0) {
@@ -121,6 +143,7 @@ public class Transaction {
     public void withdraw(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
     
+<<<<<<< HEAD
         if (bankAccounts.isEmpty()) {
             System.out.println("No bank accounts available.");
             return;
@@ -145,6 +168,26 @@ public class Transaction {
     
         // Get withdrawal amount
         System.out.print("Enter amount to withdraw ($): ");
+=======
+        System.out.println("Enter your account number to withdraw from: ");
+        int accountNumber = input.nextInt();
+    
+        // Find the account
+        BankAccount selectedAccount = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                selectedAccount = account;
+                break;
+            }
+        }
+    
+        if (selectedAccount == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to withdraw ($): ");
+>>>>>>> origin/main
         double withdrawAmount = input.nextDouble();
     
         if (withdrawAmount > 0 && selectedAccount.getBalance() >= withdrawAmount) {
@@ -159,11 +202,15 @@ public class Transaction {
         }
     }
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> origin/main
 
     public void transfer(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
     
+<<<<<<< HEAD
         if (bankAccounts.size() < 2) {
             System.out.println("At least two accounts are required for a transfer.");
             return;
@@ -237,12 +284,53 @@ public class Transaction {
     
         // Get transfer amount
         System.out.print("Enter amount to transfer ($): ");
+=======
+        // Select sender account
+        System.out.println("Enter your account number to transfer from: ");
+        int senderAccountNumber = input.nextInt();
+    
+        BankAccount sender = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == senderAccountNumber) {
+                sender = account;
+                break;
+            }
+        }
+        
+        if (sender == null) {
+            System.out.println("Sender account not found.");
+            return;
+        }
+    
+        // Select receiver account
+        System.out.println("Enter recipient's account number: ");
+        int recipientAccountNumber = input.nextInt();
+    
+        BankAccount recipient = null;
+        for (BankAccount account : bankAccounts) {
+            if (account.getAccountNumber() == recipientAccountNumber) {
+                recipient = account;
+                break;
+            }
+        }
+    
+        if (recipient == null) {
+            System.out.println("Recipient account not found.");
+            return;
+        }
+    
+        System.out.println("Enter amount to transfer ($): ");
+>>>>>>> origin/main
         double transferAmount = input.nextDouble();
     
         if (transferAmount > 0 && sender.getBalance() >= transferAmount) {
             sender.setBalance(sender.getBalance() - transferAmount);
             recipient.setBalance(recipient.getBalance() + transferAmount);
+<<<<<<< HEAD
     
+=======
+            
+>>>>>>> origin/main
             System.out.println("Transfer successful!");
             System.out.println("New balance for sender: $" + sender.getBalance());
     
@@ -254,7 +342,10 @@ public class Transaction {
         }
     }
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> origin/main
 
     public void viewTransactionHistory(){
         // view all transaction history
