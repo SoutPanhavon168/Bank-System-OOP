@@ -58,6 +58,7 @@ public class Customers extends User {
         Scanner scanner = new Scanner(System.in);
 
         int attempts = 3;
+        
         boolean authentication = false;
 
         while (attempts > 0) {
@@ -88,6 +89,7 @@ public class Customers extends User {
             System.out.println("2. Update Phone Number");
             System.out.println("3. Update Password");
             System.out.println("Please choose an option (1-3): ");
+
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -149,20 +151,6 @@ public class Customers extends User {
         int options = input.nextInt();
         switch (options) {
             case 1:
-<<<<<<< HEAD
-            bankAccount.setAccountType("Saving");
-            break;
-            case 2:
-            bankAccount.setAccountType("Saving");
-            break;
-            case 3:
-            bankAccount.setAccountType("Saving");
-            break;
-
-        }
-        bankAccount = new BankAccount(getFullName(),"Active");
-        
-=======
                 bankAccount = new BankAccount(getFullName(), "Saving", "Active");
                 break;
             case 2:
@@ -175,11 +163,6 @@ public class Customers extends User {
         if (bankAccount != null) {
             bankAccounts.add(bankAccount); // Add the new bank account to the list
         }
-<<<<<<< HEAD
->>>>>>> origin/main
-
-=======
->>>>>>> origin/main
     }
 
     public void deposit() {
@@ -194,16 +177,6 @@ public class Customers extends User {
 
     public void transfer() {
         Transaction executeTransaction = new Transaction(bankAccount);
-<<<<<<< HEAD
-        executeTransaction.transfer(bankAccount, amount);
-    }
-
-
-    
-    
-}
-=======
         executeTransaction.transfer(bankAccounts);
     }
 }
->>>>>>> origin/main
