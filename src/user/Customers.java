@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 import transaction.Transaction;
+import transaction.TransactionManager;
 
 public class Customers extends User {
 
@@ -24,8 +25,6 @@ public class Customers extends User {
     }
 
     // Method to generate a random PIN
-    
-
     // Method to authenticate PIN
     private boolean authenticatePin(int enteredPin) throws Exception {
         if (enteredPin == 1234) {
@@ -58,7 +57,6 @@ public class Customers extends User {
         Scanner scanner = new Scanner(System.in);
 
         int attempts = 3;
-        
         boolean authentication = false;
 
         while (attempts > 0) {
@@ -89,7 +87,6 @@ public class Customers extends User {
             System.out.println("2. Update Phone Number");
             System.out.println("3. Update Password");
             System.out.println("Please choose an option (1-3): ");
-
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -166,17 +163,26 @@ public class Customers extends User {
     }
 
     public void deposit() {
-        Transaction executeTransaction = new Transaction(bankAccount);
-        executeTransaction.deposit(bankAccounts);
+        // Use the TransactionManager to handle deposit logic
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.deposit(bankAccounts);
     }
 
     public void withdraw() {
-        Transaction executeTransaction = new Transaction(bankAccount);
-        executeTransaction.withdraw(bankAccounts);
+        // Use the TransactionManager to handle withdraw logic
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.withdraw(bankAccounts);
     }
 
     public void transfer() {
-        Transaction executeTransaction = new Transaction(bankAccount);
-        executeTransaction.transfer(bankAccounts);
+        // Use the TransactionManager to handle transfer logic
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.transfer(bankAccounts);
     }
+
+    public ArrayList<BankAccount> getBankAccounts() {
+        return bankAccounts;
+    }
+    
+
 }
