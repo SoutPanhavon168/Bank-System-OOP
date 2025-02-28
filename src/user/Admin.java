@@ -108,7 +108,7 @@ public class Admin extends User  {
         return true;
     };  // Only Admin
     void viewAllTransactions(){
-
+        
     };  // Only Admin
     void viewAllPayments(){
 
