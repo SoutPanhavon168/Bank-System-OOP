@@ -26,9 +26,9 @@ public class bankapp {
             System.out.println("6. Transfer");
             System.out.println("7. Exit");
             System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-            
+            int choice = scanner.nextInt();  // Read choice
+            scanner.nextLine(); // Consume the newline left by nextInt()
+
             switch (choice) {
                 case 1:
                     customer.viewOwnAccount();
@@ -49,7 +49,7 @@ public class bankapp {
                     customer.transfer();
                     break;
                 case 7:
-                    System.out.println("Exiting... Goodbye!");
+                    System.out.println("Exiting...");
                     scanner.close();
                     return;
                 default:
