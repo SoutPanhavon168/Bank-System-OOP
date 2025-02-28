@@ -98,7 +98,7 @@ public abstract class User implements Authentication{
         return false;
     }
 
-    private boolean isGovernmentIdValid(String governmentId){
+    protected boolean isGovernmentIdValid(String governmentId){
         //government id regex pattern to check if the government id has the correct pattern [a-z, A-Z, 0-9]{12}
         String governmentIdRegex = "^[0-9]{12}$";
         if(governmentId.matches(governmentIdRegex)){
