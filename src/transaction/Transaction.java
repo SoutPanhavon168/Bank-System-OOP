@@ -30,7 +30,7 @@ public class Transaction {
 
     private String generateTransactionID() {
         // You can implement logic for generating a unique transaction ID, for now just return a placeholder
-        return "txn" + System.currentTimeMillis();
+        return "TID" + System.currentTimeMillis();
     }
 
     // Getters and other methods
