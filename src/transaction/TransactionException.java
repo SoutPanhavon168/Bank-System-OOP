@@ -1,6 +1,6 @@
 package transaction;
 
-import bankAccount.BankAccount;
+import bankaccount.BankAccount;
 
 public class TransactionException extends Exception {
     public TransactionException(String message) {

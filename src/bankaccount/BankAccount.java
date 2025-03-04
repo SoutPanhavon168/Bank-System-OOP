@@ -1,7 +1,6 @@
-package bankAccount;
+package bankaccount;
 
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class BankAccount {
@@ -14,70 +13,72 @@ public class BankAccount {
     private String accountStatus;
     private String password;
     private int pin;
+    private String firstName;
+    private String lastName;
 
-    // Constructor with account name and status
-    public BankAccount(String accountName, String accountStatus) {
-        if (accountName == null || accountName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Account name cannot be empty.");
-        }
-        this.accountNumber = generateAccountNumber();
-        this.accountName = accountName;
-        this.balance = 0.0;
-        this.accountStatus = accountStatus;
-        accounts.put(this.accountNumber, this);
-    }
-
-    // Constructor with account name, type, and status
+    // Primary Constructor
     public BankAccount(String accountName, String accountType, String accountStatus) {
-        if (accountName == null || accountName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Account name cannot be empty.");
-        }
-        if (accountType == null || accountType.trim().isEmpty()) {
-            throw new IllegalArgumentException("Account type cannot be empty.");
-        }
+        validateName(accountName);
+        validateType(accountType);
         this.accountNumber = generateAccountNumber();
         this.accountName = accountName;
-        this.balance = 0.0;
         this.accountType = accountType;
         this.accountStatus = accountStatus;
+        this.balance = 0.0;
         accounts.put(this.accountNumber, this);
     }
 
-    // Default constructor
+    public BankAccount(String firstName, String lastName, String accountType, String accountStatus) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.accountType = accountType;
+        this.accountStatus = accountStatus;
+        this.balance = 0.0; // Default balance
+    }
+
+    // Chained Constructor (Defaults Account Type)
+    public BankAccount(String accountName, String accountStatus) {
+        this(accountName, "Saving", accountStatus);
+    }
+
+    // Default Constructor (Defaults Everything)
     public BankAccount() {
-        this.accountNumber = generateAccountNumber();
-        this.accountName = "Default Name";
-        this.balance = 0.0;
-        this.accountType = "Saving";
-        this.accountStatus = "Active";
-        accounts.put(this.accountNumber, this);
+        this("Default Name", "Saving", "Active");
     }
 
     public int getAccountNumber() {
         return accountNumber;
     }
 
-    private void setAccountStatus(String accountStatus) {
-        this.accountStatus = accountStatus;
-    }
-
     protected void setPassword(String password) {
         if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters long.");
+            throw new BankAccountException("Password must be at least 6 characters long.");
         }
         this.password = password;
     }
 
     protected void setPin(int pin) {
         if (pin < 1000 || pin > 9999) {
-            throw new IllegalArgumentException("PIN must be a 4-digit number.");
+            throw new BankAccountException("PIN must be a 4-digit number.");
         }
         this.pin = pin;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getAccountStatus(){
+        return accountStatus;
+    }
+
     public void setBalance(double balance) {
         if (balance < 0) {
-            throw new IllegalArgumentException("Balance cannot be negative.");
+            throw new BankAccountException("Balance cannot be negative.");
         }
         this.balance = balance;
     }
@@ -87,9 +88,7 @@ public class BankAccount {
     }
 
     public void setAccountName(String accountName) {
-        if (accountName == null || accountName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Account name cannot be empty.");
-        }
+        validateName(accountName);
         this.accountName = accountName;
     }
 
@@ -102,16 +101,14 @@ public class BankAccount {
     }
 
     public void setAccountType(String accountType) {
-        if (accountType == null || accountType.trim().isEmpty()) {
-            throw new IllegalArgumentException("Account type cannot be empty.");
-        }
+        validateType(accountType);
         this.accountType = accountType;
     }
 
     public static BankAccount getAccountByNumber(int accountNumber) {
         BankAccount account = accounts.get(accountNumber);
         if (account == null) {
-            throw new NoSuchElementException("Account with number " + accountNumber + " does not exist.");
+            throw new BankAccountException("Account with number " + accountNumber + " does not exist.");
         }
         return account;
     }
@@ -120,7 +117,7 @@ public class BankAccount {
         int accountNumber;
         do {
             accountNumber = 1000000000 + random.nextInt(900000);
-        } while (accountExists(accountNumber));
+        } while (accounts.containsKey(accountNumber));
         return accountNumber;
     }
 
@@ -128,8 +125,16 @@ public class BankAccount {
         return accounts;
     }
 
-    private static boolean accountExists(int accountNumber) {
-        return accounts.containsKey(accountNumber);
+    private static void validateName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new BankAccountException("Account name cannot be empty.");
+        }
+    }
+
+    private static void validateType(String type) {
+        if (type == null || type.trim().isEmpty()) {
+            throw new BankAccountException("Account type cannot be empty.");
+        }
     }
 
     @Override

@@ -1,10 +1,9 @@
 package user;
 
-import bankAccount.BankAccount;
+import bankaccount.BankAccount;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
-import transaction.Transaction;
 import transaction.TransactionManager;
 
 public class Customers extends User {
@@ -148,19 +147,21 @@ public class Customers extends User {
         int options = input.nextInt();
         switch (options) {
             case 1:
-                bankAccount = new BankAccount(getFullName(), "Saving", "Active");
+                bankAccount = new BankAccount(getFirstName(), getLastName(), "Saving", "Active");
                 break;
             case 2:
-                bankAccount = new BankAccount(getFullName(), "Current", "Active");
+                bankAccount = new BankAccount(getFirstName(), getLastName(), "Current", "Active");
                 break;
             case 3:
-                bankAccount = new BankAccount(getFullName(), "Checking", "Active");
+                bankAccount = new BankAccount(getFirstName(), getLastName(), "Checking", "Active");
                 break;
         }
         if (bankAccount != null) {
             bankAccounts.add(bankAccount); // Add the new bank account to the list
         }
     }
+    
+
 
     public void deposit() {
         // Use the TransactionManager to handle deposit logic

@@ -1,4 +1,4 @@
-package bankAccount;
+package bankaccount;
 
 public class CurrentAccount extends BankAccount {
     private double overdraftLimit;

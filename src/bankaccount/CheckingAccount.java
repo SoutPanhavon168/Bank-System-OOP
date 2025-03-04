@@ -1,4 +1,4 @@
-package bankAccount;
+package bankaccount;
 
 public class CheckingAccount extends BankAccount {
     private int checkLimit;

@@ -1,12 +1,13 @@
 package transaction;
 import transaction.Transaction;
 
-import bankAccount.BankAccount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import bankaccount.BankAccount;
 
 public class TransactionManager {
 
