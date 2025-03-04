@@ -2,31 +2,74 @@ package user;
 
 import bankaccount.BankAccount;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import transaction.TransactionManager;
 
-public class Customers extends User {
+public class Customer extends User {
 
-    private String fullName;
+    private int customerId;
     private BankAccount bankAccount;
     private ArrayList<BankAccount> bankAccounts;
     private int pin; // Store the PIN
 
-    public Customers() {
-    }
 
-    public Customers(String lastName, String firstName, String email, String password, String confirmPassword,
+    public Customer(String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.bankAccounts = new ArrayList<>();
         this.pin = 1234; // Generate PIN when a new customer is created
+        this.customerId = getUserId();
     }
 
     // Method to generate a random PIN
+
+    //register
+    public void register() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your last name: ");
+
+        String lastName = scanner.nextLine();
+        System.out.println("Enter your first name: ");
+
+        String firstName = scanner.nextLine();
+        System.out.println("Enter your email: ");
+
+        String email = scanner.nextLine();
+        System.out.println("Enter your password: ");
+
+        String password = scanner.nextLine();
+        System.out.println("Confirm your password: ");
+
+        String confirmPassword = scanner.nextLine();
+        System.out.println("Enter your phone number: ");
+        String phoneNumber = scanner.nextLine();
+
+        LocalDate parsedBirthDate = null;
+        while (parsedBirthDate == null) {
+        System.out.println("Enter your birth date (YYYY-MM-DD): ");
+        String birthDate = scanner.nextLine();
+        try {
+            parsedBirthDate = LocalDate.parse(birthDate);
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format. Please try again.");
+        }
+        }
+
+        System.out.println("Enter your government ID: ");
+        String governmentId = scanner.nextLine();
+
+        Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
+        users.add(customer);
+
+        scanner.close();
+    }
+    
+
     // Method to authenticate PIN
     private boolean authenticatePin(int enteredPin) throws Exception {
-        if (enteredPin == 1234) {
+        if (enteredPin == this.pin) {
             return true;
         } else {
             throw new Exception("Incorrect PIN.");
@@ -49,10 +92,11 @@ public class Customers extends User {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        scanner.close();
     }
 
-    // Update account method with PIN authentication
-    public void updateOwnAccount() {
+    public void forgotPassword(){
+
         Scanner scanner = new Scanner(System.in);
 
         int attempts = 3;
@@ -112,10 +156,12 @@ public class Customers extends User {
                     break;
             }
         }
+        
+        scanner.close();
     }
 
     public String getFullName() {
-        return this.fullName = getLastName() + " " + getFirstName();
+        return getLastName() + " " + getFirstName();
     }
 
     public void viewOwnAccount() {
@@ -135,6 +181,11 @@ public class Customers extends User {
                 System.out.println(account.toString());
             }
         }
+    }
+
+    public boolean login(){
+        
+        return true;
     }
 
     public void createBankAccount() {
@@ -159,6 +210,8 @@ public class Customers extends User {
         if (bankAccount != null) {
             bankAccounts.add(bankAccount); // Add the new bank account to the list
         }
+
+        input.close();
     }
     
 

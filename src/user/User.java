@@ -20,6 +20,7 @@ public abstract class User implements Authentication{
     protected boolean isAdmin;
     protected boolean isStaff;
 
+    protected static final List<User> users = new ArrayList<>(); // All users stored here
     private static String adminKey = "Admin123";
     private static String staffKey = "Staff123";
 
@@ -113,91 +114,91 @@ public abstract class User implements Authentication{
     }
 
     // Method to create an account, put on public to allow external access
-    @Override
-    public void register(){
+    // @Override
+    // public void register(){
 
-        //create account
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your first name: ");
-        firstName = scanner.nextLine();
+    //     //create account
+    //     Scanner scanner = new Scanner(System.in);
+    //     System.out.println("Enter your first name: ");
+    //     firstName = scanner.nextLine();
 
-        System.out.println("Enter your last name: ");
-        lastName = scanner.nextLine();
+    //     System.out.println("Enter your last name: ");
+    //     lastName = scanner.nextLine();
 
-        System.out.println("Enter your email: ");
-        email = scanner.nextLine();
-        while(!isEmailValid(email)){
-            System.out.println("Invalid email. Please enter a valid email: ");
-            email = scanner.nextLine();
-        }
+    //     System.out.println("Enter your email: ");
+    //     email = scanner.nextLine();
+    //     while(!isEmailValid(email)){
+    //         System.out.println("Invalid email. Please enter a valid email: ");
+    //         email = scanner.nextLine();
+    //     }
 
-        System.out.println("Enter your password: ");
-        password = scanner.nextLine();
-        do {
-            System.out.print("Confirm your password: ");
-            confirmPassword = scanner.nextLine();
-            if (!confirmPassword.equals(password)) {
-                System.out.println("Passwords do not match. Try again.");
-            }
-        } while (!confirmPassword.equals(password));
+    //     System.out.println("Enter your password: ");
+    //     password = scanner.nextLine();
+    //     do {
+    //         System.out.print("Confirm your password: ");
+    //         confirmPassword = scanner.nextLine();
+    //         if (!confirmPassword.equals(password)) {
+    //             System.out.println("Passwords do not match. Try again.");
+    //         }
+    //     } while (!confirmPassword.equals(password));
 
 
-        do {
-            System.out.println("Enter your phone number (e.g., +1234567890 or 1234567890): ");
-            phoneNumber = scanner.nextLine();
-            if (!isPhoneNumberValid(phoneNumber)) {
-                System.out.println("Invalid phone number. Please enter a valid phone number.");
-            }
-        } while (!isPhoneNumberValid(phoneNumber));
+    //     do {
+    //         System.out.println("Enter your phone number (e.g., +1234567890 or 1234567890): ");
+    //         phoneNumber = scanner.nextLine();
+    //         if (!isPhoneNumberValid(phoneNumber)) {
+    //             System.out.println("Invalid phone number. Please enter a valid phone number.");
+    //         }
+    //     } while (!isPhoneNumberValid(phoneNumber));
 
-        System.out.println("Enter your birth date (yyyy-mm-dd): ");
-        String birthDateString = scanner.nextLine();
-        this.birthDate = LocalDate.parse(birthDateString);
+    //     System.out.println("Enter your birth date (yyyy-mm-dd): ");
+    //     String birthDateString = scanner.nextLine();
+    //     this.birthDate = LocalDate.parse(birthDateString);
 
        
-        do {
-            System.out.println("Enter your government ID: ");
-            governmentId = scanner.nextLine();
-            if (!isGovernmentIdValid(governmentId)) {
-                System.out.println("Invalid government ID. Must be at least 6 characters long.");
-            }
-        } while (!isGovernmentIdValid(governmentId));
+    //     do {
+    //         System.out.println("Enter your government ID: ");
+    //         governmentId = scanner.nextLine();
+    //         if (!isGovernmentIdValid(governmentId)) {
+    //             System.out.println("Invalid government ID. Must be at least 6 characters long.");
+    //         }
+    //     } while (!isGovernmentIdValid(governmentId));
 
         
-        System.out.println("Enter the admin or staff key (Press Enter to skip): ");
-        String key = scanner.nextLine();
-        if (key.equals(adminKey)) {
-            isAdmin = true;
-            System.out.println("Admin privilege granted.");
-        } else if (key.equals(staffKey)) {
-            isStaff = true;
-            System.out.println("Staff privilege granted.");
-        } else {
-            isAdmin = false;
-            isStaff = false;
-        }
+    //     System.out.println("Enter the admin or staff key (Press Enter to skip): ");
+    //     String key = scanner.nextLine();
+    //     if (key.equals(adminKey)) {
+    //         isAdmin = true;
+    //         System.out.println("Admin privilege granted.");
+    //     } else if (key.equals(staffKey)) {
+    //         isStaff = true;
+    //         System.out.println("Staff privilege granted.");
+    //     } else {
+    //         isAdmin = false;
+    //         isStaff = false;
+    //     }
 
-        if(isUnderage()){
-            System.out.println("You are underage. You cannot create an account.");
-            return;
-        }
+    //     if(isUnderage()){
+    //         System.out.println("You are underage. You cannot create an account.");
+    //         return;
+    //     }
 
-        userId = generateUserId();
+    //     userId = generateUserId();
 
-        if(isAdmin){
-            admin.add(this);
-        }
-        else if(isStaff){
-            staffMembers.add(this);
-        }else{
-            customers.add(this);
-        }
+    //     if(isAdmin){
+    //         admin.add(this);
+    //     }
+    //     else if(isStaff){
+    //         staffMembers.add(this);
+    //     }else{
+    //         customers.add(this);
+    //     }
 
-        System.out.println("Account created successfuly, welcome " + firstName + " " + lastName + "!");
+    //     System.out.println("Account created successfuly, welcome " + firstName + " " + lastName + "!");
 
-        //next after successfully creating an account, write all information to a file
+    //     //next after successfully creating an account, write all information to a file
 
-    }
+    // }
 
     @Override
     public boolean login(){
@@ -264,6 +265,5 @@ public abstract class User implements Authentication{
            " | Role: " + role +
            " | Government ID: " + governmentId;
     }
-
 
 }
