@@ -7,6 +7,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+public abstract class User implements Authentication {
+    protected int userId;
+    protected String lastName;
+    protected String firstName;
+    protected String email;
+    protected String phoneNumber;
+    protected String password;
+    protected LocalDate birthDate;
+    protected String governmentId;
+    protected boolean isAdmin;
+    protected boolean isStaff;
 public abstract class User implements Authentication{
     protected int userId;
     protected String lastName;
@@ -20,6 +31,7 @@ public abstract class User implements Authentication{
     protected boolean isAdmin;
     protected boolean isStaff;
 
+    protected static final List<User> users = new ArrayList<>(); // All users stored here
     private static String adminKey = "Admin123";
     private static String staffKey = "Staff123";
 
@@ -265,5 +277,8 @@ public abstract class User implements Authentication{
            " | Government ID: " + governmentId;
     }
 
+    public static int generateUserId() {
+        return (int) (System.currentTimeMillis() % 1000000) + new Random().nextInt(1000);
+    }
 
 }
