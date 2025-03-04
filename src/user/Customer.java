@@ -63,6 +63,8 @@ public class Customer extends User {
 
         Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         users.add(customer);
+
+        scanner.close();
     }
     
 
@@ -94,7 +96,9 @@ public class Customer extends User {
         scanner.close();
     }
 
-    public void forgotPassword(){}
+    public void forgotPassword(){
+
+        Scanner scanner = new Scanner(System.in);
 
         int attempts = 3;
         boolean authentication = false;
@@ -153,6 +157,8 @@ public class Customer extends User {
                     break;
             }
         }
+        
+        scanner.close();
     }
 
     public String getFullName() {
