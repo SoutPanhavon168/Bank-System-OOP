@@ -1,5 +1,6 @@
 package user;
 
+import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.Scanner;
 //admin needs to login first before doing any action
@@ -7,6 +8,8 @@ public class Admin extends User {
     private String admin_username;
     private String admin_password; 
 
+
+    static ArrayList<User> users = new ArrayList<User>();
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
@@ -22,6 +25,7 @@ public class Admin extends User {
             System.out.println("Enter the admin password: ");
             String password = sc.nextLine();
             if(username.equals(this.admin_username) && password.equals(this.admin_password)){
+                while (isAdmin) {
                 System.out.println("========Admin Menu=======");
                 System.out.println("1. Add Account");
                 System.out.println("2. Remove Account");
@@ -29,6 +33,7 @@ public class Admin extends User {
                 System.out.println("4. Approve Large Loan");
                 System.out.println("5. View All Transactions");
                 System.out.println("6. View All Payments");
+                System.out.println("7. Exit");
                 System.out.println("Please choose an option (1-6): ");
                 int choice = sc.nextInt();
                 sc.nextLine();
@@ -51,11 +56,15 @@ public class Admin extends User {
                     case 6:
                         viewAllPayments();
                         break;
+                    case 7:
+                        System.out.println("Exiting Admin Menu");
+                        return;
                     default:
                         System.out.println("Invalid option");
                         break;
                 }
-            }else{
+            }
+        }else{
                 System.out.println("Invalid username or password");
             }
         } catch (Exception e) {
@@ -108,7 +117,6 @@ public class Admin extends User {
         }
 
         //wait todo until we have the database
-
         // Add account to database
     }
     public void removeAccount() {
@@ -117,8 +125,6 @@ public class Admin extends User {
         int accountNumber = sc.nextInt();
 
         //wait todo until we have the database
-
-
         if(accountNumber == userId) {
             System.out.println("Entet the password to confirm: ");
             String password = sc.nextLine();
@@ -132,7 +138,7 @@ public class Admin extends User {
         else {
             System.out.println("Account not found");
         }
-
+        sc.close();
         // Remove account from database
     }
     public void updateAccount(){
@@ -148,20 +154,28 @@ public class Admin extends User {
             if(password.equals(this.password)) {
                 System.out.println("Enter the new first name: ");
                 String firstName = sc.nextLine();
+
                 System.out.println("Enter the new last name: ");
                 String lastName = sc.nextLine();
+
                 System.out.println("Enter the new phone number: ");
                 String phoneNumber = sc.nextLine();
+
                 System.out.println("Enter the new password: ");
                 String newPassword = sc.nextLine();
+
                 System.out.println("Enter the new confirm password: ");
                 String newConfirmPassword = sc.nextLine();
+
                 System.out.println("Enter the new email: ");
                 String email = sc.nextLine();
+
                 System.out.println("Enter the new birth date: ");
                 String birthDate = sc.nextLine();
+
                 System.out.println("Enter the new government ID: ");
                 String governmentId = sc.nextLine();
+                
                 System.out.println("Enter the new user type: ");
                 String userType = sc.nextLine();
 
@@ -181,9 +195,9 @@ public class Admin extends User {
         return true;
     };  // Only Admin
     void viewAllTransactions(){
-        
+        //fetch all transactions from the database
     };  // Only Admin
     void viewAllPayments(){
-
+        //fetch all payments from the database
     }; 
 }
