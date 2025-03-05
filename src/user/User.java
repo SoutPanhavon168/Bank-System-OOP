@@ -21,8 +21,6 @@ public abstract class User implements Authentication{
     protected boolean isStaff;
 
     protected static final List<User> users = new ArrayList<>(); // All users stored here
-    private static String adminKey = "Admin123";
-    private static String staffKey = "Staff123";
 
 
     public User(){}
@@ -36,12 +34,6 @@ public abstract class User implements Authentication{
         this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.governmentId = governmentId;
-    }
-
-    public User(String phoneNumber, String email, String password){
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.password = password;
     }
 
     //getters
@@ -64,11 +56,6 @@ public abstract class User implements Authentication{
         this.phoneNumber = phoneNumber;
     }
 
-
-    private static List<User> admin = new ArrayList<>();
-    private static List<User> staffMembers = new ArrayList<>();
-    private static List<User> customers = new ArrayList<>();
-
     // private as it is only used internally in this class
     public boolean isEmailValid(String email){
         //email regex pattern to check if the email has the correct pattern [a-z, A-Z, 0-9, +, _, ., -]@[a-z, A-Z, 0-9, -]
@@ -78,15 +65,6 @@ public abstract class User implements Authentication{
         }
 
         return false;
-    }
-
-    // static method to generate user id without creating an object of the class
-    private static int generateUserId(){
-        //generate user id
-        //use the current time in milliseconds and get the last 6 digits
-        //then add a random number between 0 and 1000 to ensure even more uniqueness
-        Random random = new Random();
-        return (int)(System.currentTimeMillis() % 1000000) + random.nextInt(1000);
     }
 
     public boolean isPhoneNumberValid(String phoneNumber){
@@ -107,125 +85,42 @@ public abstract class User implements Authentication{
         }
 
         return false;
-    }
-
-    public void viewAccount(){
-        
-    }
-
-    // Method to create an account, put on public to allow external access
-    // @Override
-    // public void register(){
-
-    //     //create account
-    //     Scanner scanner = new Scanner(System.in);
-    //     System.out.println("Enter your first name: ");
-    //     firstName = scanner.nextLine();
-
-    //     System.out.println("Enter your last name: ");
-    //     lastName = scanner.nextLine();
-
-    //     System.out.println("Enter your email: ");
-    //     email = scanner.nextLine();
-    //     while(!isEmailValid(email)){
-    //         System.out.println("Invalid email. Please enter a valid email: ");
-    //         email = scanner.nextLine();
-    //     }
-
-    //     System.out.println("Enter your password: ");
-    //     password = scanner.nextLine();
-    //     do {
-    //         System.out.print("Confirm your password: ");
-    //         confirmPassword = scanner.nextLine();
-    //         if (!confirmPassword.equals(password)) {
-    //             System.out.println("Passwords do not match. Try again.");
-    //         }
-    //     } while (!confirmPassword.equals(password));
-
-
-    //     do {
-    //         System.out.println("Enter your phone number (e.g., +1234567890 or 1234567890): ");
-    //         phoneNumber = scanner.nextLine();
-    //         if (!isPhoneNumberValid(phoneNumber)) {
-    //             System.out.println("Invalid phone number. Please enter a valid phone number.");
-    //         }
-    //     } while (!isPhoneNumberValid(phoneNumber));
-
-    //     System.out.println("Enter your birth date (yyyy-mm-dd): ");
-    //     String birthDateString = scanner.nextLine();
-    //     this.birthDate = LocalDate.parse(birthDateString);
-
-       
-    //     do {
-    //         System.out.println("Enter your government ID: ");
-    //         governmentId = scanner.nextLine();
-    //         if (!isGovernmentIdValid(governmentId)) {
-    //             System.out.println("Invalid government ID. Must be at least 6 characters long.");
-    //         }
-    //     } while (!isGovernmentIdValid(governmentId));
-
-        
-    //     System.out.println("Enter the admin or staff key (Press Enter to skip): ");
-    //     String key = scanner.nextLine();
-    //     if (key.equals(adminKey)) {
-    //         isAdmin = true;
-    //         System.out.println("Admin privilege granted.");
-    //     } else if (key.equals(staffKey)) {
-    //         isStaff = true;
-    //         System.out.println("Staff privilege granted.");
-    //     } else {
-    //         isAdmin = false;
-    //         isStaff = false;
-    //     }
-
-    //     if(isUnderage()){
-    //         System.out.println("You are underage. You cannot create an account.");
-    //         return;
-    //     }
-
-    //     userId = generateUserId();
-
-    //     if(isAdmin){
-    //         admin.add(this);
-    //     }
-    //     else if(isStaff){
-    //         staffMembers.add(this);
-    //     }else{
-    //         customers.add(this);
-    //     }
-
-    //     System.out.println("Account created successfuly, welcome " + firstName + " " + lastName + "!");
-
-    //     //next after successfully creating an account, write all information to a file
-
-    // }
-
+    }   
     @Override
-    public boolean login(){
-        //login
-        boolean admin;
-        boolean user;
-        boolean staff;
+    public boolean login() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter phone number (+855): ");
-        //int phoneNo = scanner.nextInt();
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
 
-        if(password.equals("$Admin&123$")){
-            System.out.println("You are now admin");
-            return admin = true;
-        } else if (password.equals("user")) {
-            System.out.println("You are user");
-            return user = true;
-        } else {
-            System.out.println("staff");
-            System.out.println("You are staff");
-            return staff = true;
+        System.out.println("Enter email or phone number: ");
+        String Identifier = scanner.nextLine();
+
+        System.out.println("Enter password: ");
+        String inputPassword = scanner.nextLine();
+
+        scanner.close();
+
+        for(User user : users){
+            if (user.getEmail().equals(Identifier) || user.getPhoneNumber().equals(Identifier) && user.password.equals(inputPassword)){
+                System.out.println("Login successful! Welcome " + user.getFirstName());
+                
+                if(user.isAdmin){
+                    System.out.println("You are an admin.");
+                    //adminMenu();
+                }
+                else if(user.isStaff){
+                    System.out.println("You are a staff.");
+                    //staffMenu();
+                }
+                else{
+                    System.out.println("You are a customer.");
+                    //customerMenu();
+                }
+
+                return true;
+            }
         }
-        //open file to read all user information and compare to the login input to validate user login
+        System.out.println("Invalid credentials. Please try again.");
+        return false;   
     }
-
 
     // method to update password when the user forget password, put on public to allow external access
     public void forgotPassword(){
@@ -239,19 +134,6 @@ public abstract class User implements Authentication{
 
     public boolean isStaff(){
         return isStaff;
-    }
-
-    //private as it is used internally in the class only
-    private int calculateAge(){
-        //calculate age logic
-        if(birthDate == null){
-            return 0;
-        }
-        return Period.between(birthDate, LocalDate.now()).getYears();
-    }
-
-    public boolean isUnderage(){
-        return calculateAge() < 16;
     }
 
     @Override
