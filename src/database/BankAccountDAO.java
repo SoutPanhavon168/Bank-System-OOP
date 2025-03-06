@@ -13,8 +13,8 @@ public class BankAccountDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
     
-            ps.setString(1, customer.getFirstName());  // Insert first name
-            ps.setString(2, customer.getLastName());   // Insert last name
+            ps.setString(1, account.getFirstName());  // Insert first name
+            ps.setString(2, account.getLastName());   // Insert last name
             ps.setString(3, account.getAccountType());
             ps.setString(4, account.getAccountStatus());
             ps.setDouble(5, account.getBalance());

@@ -32,19 +32,30 @@ public class Customer extends User {
         this.pin = 1234; // Generate PIN when a new customer is created
         this.customerId = getUserId();
     }
+    @Override
+public String getFirstName() {
+    return this.firstName; // Use this instead of super.getFirstName()
+}
+
+@Override
+public String getLastName() {
+    return this.lastName; // Use this instead of super.getLastName()
+}
+
+    
 
     // Method to register a new customer
     public void register() {
         Scanner scanner = new Scanner(System.in);
         try {
             System.out.println("Enter your last name: ");
-            String lastName = scanner.nextLine().trim();
+            this.lastName = scanner.nextLine().trim();
             if (lastName.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("Last name");
             }
     
             System.out.println("Enter your first name: ");
-            String firstName = scanner.nextLine().trim();
+            this.firstName = scanner.nextLine().trim();
             if (firstName.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("First name");
             }

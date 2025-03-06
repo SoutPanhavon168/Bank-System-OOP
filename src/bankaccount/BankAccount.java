@@ -39,14 +39,13 @@ public class BankAccount {
     // Chained Constructor (Defaults Account Type)
     public BankAccount(String accountName, String accountStatus) {
         this(accountName, "Saving", accountStatus);
-    }
-
-    
+    }  
+   
 
 
     // Default Constructor (Defaults Everything)
     public BankAccount() {
-        this("Default Name", "Saving", "Active");
+        this("","", "Saving", "Active");
     }
 
     public int getAccountNumber() {

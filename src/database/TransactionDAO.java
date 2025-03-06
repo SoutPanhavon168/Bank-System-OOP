@@ -1,12 +1,11 @@
 package database;
 
 import bankaccount.BankAccount;
-import transaction.Transaction;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import transaction.Transaction;
 
 public class TransactionDAO {
     
