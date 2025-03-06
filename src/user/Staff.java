@@ -239,9 +239,22 @@ public class Staff extends User implements Management {
     @Override
     public void viewAllbankAccounts() {
         if (hasAccess("Manager") || hasAccess("Loan Officer")) {
-            // Logic to view all bank accounts' details
+            // Fetch and print all bank accounts' details from the BankAccountDAO
             System.out.println("All bank accounts:");
-            // Fetch and print all bank accounts' details from database
+
+            // Retrieve all bank accounts from the database using BankAccountDAO
+            List<BankAccount> bankAccounts = BankAccountDAO.getAllBankAccounts();
+
+            if (bankAccounts.isEmpty()) {
+                System.out.println("No bank accounts found.");
+                return;
+            }
+
+            // Iterate through the list and display details for each bank account
+            for (BankAccount bankAccount : bankAccounts) {
+                System.out.println(bankAccount); // This will call the toString() method of BankAccount
+            }
+
         } else {
             System.out.println("Access denied: Your role does not have permission to view bank accounts.");
         }
