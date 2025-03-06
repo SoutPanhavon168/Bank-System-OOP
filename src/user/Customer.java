@@ -100,6 +100,9 @@ public class Customer extends User {
     }
     
 
+    public String getFullName(){
+        return getFirstName() + " " + getLastName();
+    }
     
 
     // Method to authenticate PIN

@@ -33,7 +33,7 @@ public class BankAccountDAO {
     
 
     // Retrieve a bank account by account number
-    public BankAccount getBankAccountById(int accountNumber) {
+    public static BankAccount getBankAccountById(int accountNumber) {
         String query = "SELECT * FROM bankaccounts WHERE account_number = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -57,7 +57,7 @@ public class BankAccountDAO {
     }
 
     // Retrieve all bank accounts
-    public ArrayList<BankAccount> getAllBankAccounts() {
+    public static ArrayList<BankAccount> getAllBankAccounts() {
         ArrayList<BankAccount> accounts = new ArrayList<>();
         String query = "SELECT * FROM bankaccounts";
 

@@ -51,7 +51,7 @@ public void updatePasswordInDatabase(int userId, String newPassword) {
 
 
     // Method to retrieve a customer by their ID
-    public Customer getCustomerById(int userId) {
+    public static Customer getCustomerById(int userId) {
         String query = "SELECT * FROM customers WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -80,7 +80,7 @@ public void updatePasswordInDatabase(int userId, String newPassword) {
     }
 
     // Method to retrieve all customers
-    public List<Customer> getAllCustomers() {
+    public static List<Customer> getAllCustomers() {
         List<Customer> customerList = new ArrayList<>();
         String query = "SELECT * FROM customers";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -109,7 +109,7 @@ public void updatePasswordInDatabase(int userId, String newPassword) {
     }
 
     // Method to update customer information
-    public void updateCustomer(Customer customer) {
+    public static void updateCustomer(Customer customer) {
         String query = "UPDATE customers SET firstName = ?, lastName = ?, email = ?, phoneNumber = ?, birthDate = ?, governmentId = ? WHERE userId = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();

@@ -20,7 +20,7 @@ public abstract class User implements Authentication{
     protected boolean isAdmin;
     protected boolean isStaff;
 
-    protected static final List<User> users = new ArrayList<>(); // All users stored here
+    protected static List<User> users = new ArrayList<>(); // All users stored here
 
 
     public User(){}

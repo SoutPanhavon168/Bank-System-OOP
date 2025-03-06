@@ -7,6 +7,8 @@ public interface Management {
     void updateCustomerAccount();  // Both Admin & Staff
 
     //bank account management
+    void createBankAccount();  // Both Admin & Staff
+    void deleteBankAccount(int accountId);  // Both Admin & Staff
     void viewbankAccounts();  // Both Admin & Staff
     void viewSpecificbankAccount(int accountId);  // Both Admin & Staff
     void viewAllbankAccounts();  // Both Admin & Staff
