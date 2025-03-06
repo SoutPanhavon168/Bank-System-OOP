@@ -13,7 +13,7 @@ public class TransactionException extends Exception {
             throw new TransactionException("Invalid amount: $" + amount + ". Amount must be greater than zero.");
         }
     }
-
+    
     // Validate if sufficient funds are available, otherwise throw exception
     public static void validateSufficientFunds(BankAccount account, double amount) throws TransactionException {
         if (account.getBalance() < amount) {

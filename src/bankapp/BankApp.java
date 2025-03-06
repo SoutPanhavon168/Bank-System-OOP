@@ -1,27 +1,25 @@
 package bankapp;
 
-import java.time.LocalDate;
-import java.util.Scanner;
-import transaction.TransactionManager;
-import user.Customers;
 import database.BankAccountDAO;
 import database.TransactionDAO;
+import java.util.Scanner;
+import transaction.TransactionManager;
+import user.Customer;
 
 public class BankApp {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         
         // Initialize the customer
-        Customers customer = new Customers("Doe", "John", "john@example.com", "password123", "password123", "1234567890", LocalDate.of(1990, 1, 1), "ID123456");
+        Customer customer = new Customer();
+        customer.register();
 
         // Create an instance of BankAccountDAO and TransactionDAO for database operations
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         TransactionDAO transactionDAO = new TransactionDAO();
         
         // Save customer data to the database (Customer table should exist in DB)
-        customer.saveCustomerToDatabase();
-
-        // Create an instance of TransactionManager (only once, no need to recreate in each loop)
+               // Create an instance of TransactionManager (only once, no need to recreate in each loop)
         TransactionManager transactionManager = new TransactionManager();
 
         while (true) {
@@ -48,7 +46,7 @@ public class BankApp {
                     customer.viewOwnAccount();
                     break;
                 case 2:
-                    customer.updateOwnAccount();
+                    // customer.updateOwnAccount();
                     break;
                 case 3:
                     customer.createBankAccount();
