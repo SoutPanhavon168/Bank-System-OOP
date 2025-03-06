@@ -33,6 +33,10 @@ public class Customer extends User {
         this.customerId = getUserId();
     }
 
+    private boolean isInputInvalid(String input){
+        return input.matches(".*\\d.*");
+    }
+
     // Method to register a new customer
     public void register() {
         Scanner scanner = new Scanner(System.in);
@@ -42,11 +46,18 @@ public class Customer extends User {
             if (lastName.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("Last name");
             }
-    
+            if (isInputInvalid(lastName)){
+                throw new CustomerException.InvalidInputException("Last name");
+            }
+
             System.out.println("Enter your first name: ");
             String firstName = scanner.nextLine().trim();
             if (firstName.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("First name");
+            }
+            
+            if (isInputInvalid(firstName)){
+                throw new CustomerException.InvalidInputException("First name");
             }
     
             System.out.println("Enter your email: ");

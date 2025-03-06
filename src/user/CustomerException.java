@@ -42,4 +42,10 @@ public class CustomerException extends Exception {
             super("Invalid birth date format.");
         }
     }
+
+    public static class InvalidInputException extends CustomerException {
+        public InvalidInputException(String inputType) {
+            super("Invalid input for " + inputType + "Please enter a valid value.");
+        }
+    }
 }
