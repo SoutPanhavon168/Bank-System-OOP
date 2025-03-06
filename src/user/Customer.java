@@ -26,72 +26,70 @@ public class Customer extends User {
     // Method to generate a random PIN
 
     //register
-    public void register() {
+    public void register() throws CustomerException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your last name: ");
-        String lastName = scanner.nextLine();
     
-        System.out.println("Enter your first name: ");
-        String firstName = scanner.nextLine();
-    
-        System.out.println("Enter your email: ");
-        String email = scanner.nextLine();
-    
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
-    
-        System.out.println("Confirm your password: ");
-        String confirmPassword = scanner.nextLine();
-    
-        System.out.println("Enter your phone number: ");
-        String phoneNumber = scanner.nextLine();
-    
-        // Validate Birth Date
-        LocalDate birthDate = null;
-        while (birthDate == null) {
-            System.out.println("Enter your birth date (YYYY-MM-DD): ");
-            String birthDateInput = scanner.nextLine();
-            try {
-                birthDate = LocalDate.parse(birthDateInput);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please try again.");
+        try {
+            System.out.println("Enter your last name: ");
+            String lastName = scanner.nextLine().trim();
+            if (lastName.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("Last name");
             }
+    
+            System.out.println("Enter your first name: ");
+            String firstName = scanner.nextLine().trim();
+            if (firstName.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("First name");
+            }
+    
+            System.out.println("Enter your email: ");
+            String email = scanner.nextLine().trim();
+            if (!isEmailValid(email)) {
+                throw new CustomerException.InvalidEmailException();
+            }
+    
+            System.out.println("Enter your password: ");
+            String password = scanner.nextLine();
+    
+            System.out.println("Confirm your password: ");
+            String confirmPassword = scanner.nextLine();
+            if (!password.equals(confirmPassword)) {
+                throw new CustomerException.PasswordMismatchException();
+            }
+    
+            System.out.println("Enter your phone number: ");
+            String phoneNumber = scanner.nextLine().trim();
+            if (!isPhoneNumberValid(phoneNumber)) {
+                throw new CustomerException.InvalidPhoneNumberException();
+            }
+    
+            System.out.println("Enter your birth date (YYYY-MM-DD): ");
+            LocalDate birthDate;
+            try {
+                birthDate = LocalDate.parse(scanner.nextLine().trim());
+                if (LocalDate.now().minusYears(16).isBefore(birthDate)) {
+                    throw new CustomerException.UnderageException();
+                }
+            } catch (DateTimeParseException e) {
+                throw new CustomerException.InvalidBirthDateException();
+            }
+    
+            System.out.println("Enter your government ID: ");
+            String governmentId = scanner.nextLine().trim();
+            if (governmentId.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("Government ID");
+            }
+    
+            // Create and store the new customer
+            Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
+            users.add(customer);
+    
+            System.out.println("Registration successful! Your user ID is: " + customer.getUserId());
+    
+        } catch (CustomerException e) {
+            System.out.println("Registration failed: " + e.getMessage());
         }
-    
-        System.out.println("Enter your government ID: ");
-        String governmentId = scanner.nextLine();
-    
-        // Validate email
-        if (!isEmailValid(email)) {
-            System.out.println("Invalid email format.");
-            return;
-        }
-    
-        // Validate phone number
-        if (!isPhoneNumberValid(phoneNumber)) {
-            System.out.println("Invalid phone number format.");
-            return;
-        }
-    
-        // Ensure passwords match
-        if (!password.equals(confirmPassword)) {
-            System.out.println("Passwords do not match.");
-            return;
-        }
-    
-        // Ensure age is at least 16
-        if (LocalDate.now().minusYears(16).isBefore(birthDate)) {
-            System.out.println("You must be at least 16 years old to register.");
-            return;
-        }
-    
-        // Create and store the new customer
-        Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
-        users.add(customer);
-        
-        System.out.println("Registration successful! Your user ID is: " + customer.getUserId());
     }
-    
     
 
     // Method to authenticate PIN
@@ -122,7 +120,7 @@ public class Customer extends User {
         scanner.close();
     }
 
-    public void forgotPassword(){
+    public void updateAccount(){
 
         Scanner scanner = new Scanner(System.in);
 
