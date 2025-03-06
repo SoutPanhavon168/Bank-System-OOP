@@ -1,10 +1,10 @@
 package user;
 import Interfaces.Authentication;
 import java.time.LocalDate;
-import java.time.Period;
+//import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+//import java.util.Random;
 import java.util.Scanner;
 
 public abstract class User implements Authentication{
@@ -85,7 +85,8 @@ public abstract class User implements Authentication{
         }
 
         return false;
-    }   
+    } 
+    
     @Override
     public boolean login() {
         Scanner scanner = new Scanner(System.in);
