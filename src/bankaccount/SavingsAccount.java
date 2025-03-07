@@ -5,13 +5,13 @@ public class SavingsAccount extends BankAccount {
 
     // Constructor with account name and default interest rate
     public SavingsAccount(String accountName) {
-        super(accountName, "Saving", "Active"); // Setting the accountType as "Saving"
+        super(accountName, "Saving", "Active",0000); // Setting the accountType as "Saving"
         this.interestRate = 2.5; // Default interest rate for savings
     }
 
     // Constructor with custom interest rate
     public SavingsAccount(String accountName, double interestRate) {
-        super(accountName, "Saving", "Active"); // Setting the accountType as "Saving"
+        super(accountName, "Saving", "Active",0000); // Setting the accountType as "Saving"
         this.interestRate = interestRate;
     }
 

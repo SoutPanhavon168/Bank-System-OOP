@@ -46,7 +46,7 @@ public class BankApp {
                     customer.viewOwnAccount();
                     break;
                 case 2:
-                    // customer.updateOwnAccount();
+                    customer.updateOwnAccount();
                     break;
                 case 3:
                     customer.createBankAccount();

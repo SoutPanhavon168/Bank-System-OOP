@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class BankAccount {
+
     private static HashMap<Integer, BankAccount> accounts = new HashMap<>();
     private static Random random = new Random();
     private int accountNumber;
@@ -15,9 +16,10 @@ public class BankAccount {
     private int pin;
     private String firstName;
     private String lastName;
+    private int customerId;
 
-    // Primary Constructor
-    public BankAccount(String accountName, String accountType, String accountStatus) {
+    // Primary Constructor (with PIN)
+    public BankAccount(String accountName, String accountType, String accountStatus, int pin) {
         validateName(accountName);
         validateType(accountType);
         this.accountNumber = generateAccountNumber();
@@ -25,31 +27,37 @@ public class BankAccount {
         this.accountType = accountType;
         this.accountStatus = accountStatus;
         this.balance = 0.0;
+        setPin(pin);
         accounts.put(this.accountNumber, this);
     }
 
-    public BankAccount(String firstName, String lastName, String accountType, String accountStatus) {
+    public BankAccount(int customerId, String firstName, String lastName, String accountType, String accountStatus, int pin) {
+        this.firstName = firstName;
+        this.customerId = customerId;
+        this.lastName = lastName;
+        this.accountType = accountType;
+        this.accountStatus = accountStatus;
+        this.balance = 0.0;
+        setPin(pin);
+    }
+// Constructor with first and last name (with PIN)
+    public BankAccount(String firstName, String lastName, String accountType, String accountStatus, int pin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.accountType = accountType;
         this.accountStatus = accountStatus;
-        this.balance = 0.0; // Default balance
+        this.balance = 0.0;
+        setPin(pin);
     }
 
-    // Chained Constructor (Defaults Account Type)
-    public BankAccount(String accountName, String accountStatus) {
-        this(accountName, "Saving", accountStatus);
-    }  
-   
+// Chained Constructor (Defaults Account Type, with PIN)
+    public BankAccount(String accountName, String accountStatus, int pin) {
+        this(accountName, "Saving", accountStatus, pin);
+    }
 
-
-    // Default Constructor (Defaults Everything)
+// Default Constructor (Defaults Everything, with PIN)
     public BankAccount() {
-        this("","", "Saving", "Active");
-    }
-
-    public int getAccountNumber() {
-        return accountNumber;
+        this("Default Name", "Saving", "Active", 1234); // Default values including a default PIN
     }
 
     protected void setPassword(String password) {
@@ -60,11 +68,19 @@ public class BankAccount {
     }
 
     protected void setPin(int pin) {
-        if (pin < 1000 || pin > 9999) {
+        // Check if the PIN is negative
+        if (pin < 0) {
+            throw new BankAccountException("PIN cannot be negative.");
+        }
+    
+        // Check if the PIN is exactly a 4-digit number
+        if (String.valueOf(pin).length() != 4) {
             throw new BankAccountException("PIN must be a 4-digit number.");
         }
-        this.pin = pin;
+    
+        this.pin = pin;  // Set the PIN if valid
     }
+    
 
     public String getFirstName() {
         return firstName;
@@ -74,7 +90,7 @@ public class BankAccount {
         return lastName;
     }
 
-    public String getAccountStatus(){
+    public String getAccountStatus() {
         return accountStatus;
     }
 
@@ -100,6 +116,26 @@ public class BankAccount {
 
     public String getAccountType() {
         return accountType;
+    }
+
+    public int getCustomerId() {
+        return customerId + 1;
+    }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(int accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public int getPin() {
+        return pin;
     }
 
     public void setAccountType(String accountType) {
@@ -138,14 +174,14 @@ public class BankAccount {
             throw new BankAccountException("Account type cannot be empty.");
         }
     }
-    
+
     @Override
     public String toString() {
-        return  "Account Number: " + accountNumber + '\n' +
-                "Account Name: " + accountName + '\n' +
-                "Balance: " + balance + '\n' +
-                "Account Type: " + accountType + '\n' +
-                "Account Status: " + accountStatus + '\n' +
-                "========================================" + '\n';
+        return "Account Number: " + accountNumber + '\n'
+                + "Account Name: " + accountName + '\n'
+                + "Balance: " + balance + '\n'
+                + "Account Type: " + accountType + '\n'
+                + "Account Status: " + accountStatus + '\n'
+                + "========================================" + '\n';
     }
 }

@@ -6,14 +6,14 @@ public class CheckingAccount extends BankAccount {
 
     // Constructor with default check limit and transaction fee
     public CheckingAccount(String accountName) {
-        super(accountName, "Checking", "Active"); // Account type is "Checking"
+        super(accountName, "Checking", "Active",0000); // Account type is "Checking"
         this.checkLimit = 50; // Default limit of checks that can be written per month
         this.transactionFee = 1.0; // Default transaction fee per withdrawal or transfer
     }
 
     // Constructor with custom check limit and transaction fee
     public CheckingAccount(String accountName, int checkLimit, double transactionFee) {
-        super(accountName, "Checking", "Active"); // Account type is "Checking"
+        super(accountName, "Checking", "Active",0000); // Account type is "Checking"
         this.checkLimit = checkLimit;
         this.transactionFee = transactionFee;
     }
