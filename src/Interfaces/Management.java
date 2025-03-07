@@ -19,7 +19,7 @@ public interface Management {
     boolean approveSmallLoan(int loanId);  // Admin & Staff
     boolean rejectLoan(int loanId);  // Admin & Staff
     void viewAllLoans();  // Both Admin & Staff
-    void viewAllRequests();  // Both Admin & Staff
+    void viewAllRequests();  // Both Admin & Staf
 }
 
 

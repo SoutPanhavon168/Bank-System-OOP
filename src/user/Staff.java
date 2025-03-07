@@ -1,22 +1,21 @@
 package user;
 
-import database.BankAccountDAO;
-import database.CustomerDAO;
 import Interfaces.Management;
 import bankaccount.BankAccount;
-
+import database.BankAccountDAO;
+import database.CustomerDAO;
 import java.time.LocalDate;
-import java.util.Scanner;
 import java.util.List;
+import java.util.Scanner;
 
 public class Staff extends User implements Management {
-
+    
     // Additional attributes for Staff
     private int staffId;
     private String role;
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
-                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String department, String role) {
+                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
@@ -85,13 +84,14 @@ public class Staff extends User implements Management {
             System.out.println("You do not have access to update customer accounts.");
             return;
         }
+        CustomerDAO customerDAO = new CustomerDAO();
         // Logic for updating customer account
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the customer's ID: ");
         int customerId = scanner.nextInt();
         scanner.nextLine();
 
-        Customer customer = CustomerDAO.getCustomerById(customerId);
+        Customer customer = customerDAO.getCustomerById(customerId);
 
         if (customer == null){
             System.out.println("Customer not found");
@@ -122,6 +122,7 @@ public class Staff extends User implements Management {
             System.out.println("Enter the new password: ");
             String newPassword = scanner.nextLine();
             customer.setPassword(newPassword);
+            customerDAO.updatePasswordInDatabase(customerId,newPassword);
             if(newPassword.equals(customer.getPassword())){
                 System.out.println("Invalid password. Please enter a different password.");
                 newPassword = scanner.nextLine();
@@ -133,7 +134,7 @@ public class Staff extends User implements Management {
             System.out.println("Invalid choice. Please enter 1, 2, or 3.");
         }
 
-        CustomerDAO.updateCustomer(customer);
+        customerDAO.updateCustomer(customer);
         System.out.println("Customer details updated successfully.");
 
         scanner.close();
@@ -142,7 +143,8 @@ public class Staff extends User implements Management {
     @Override
     public void viewSpecificCustomerDetails(int customerId) {
         // Logic to view a specific customer's details based on their ID
-        Customer customer = CustomerDAO.getCustomerById(userId);
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerById(userId);
 
         if(customer == null){
             System.out.println("Customer with ID: " + userId + "not found.");
@@ -337,5 +339,17 @@ public class Staff extends User implements Management {
         System.out.println("Role: " + role);
         System.out.println("Full Name: " + getFullName());
         System.out.println("Email: " + getEmail());
+    }
+
+    @Override
+    public void createBankAccount() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
+    }
+
+    @Override
+    public void deleteBankAccount(int accountId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
 }

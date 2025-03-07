@@ -43,6 +43,7 @@ public abstract class User implements Authentication{
     public String getEmail(){return email;}
     public String getPhoneNumber(){return phoneNumber;}    
     public LocalDate getBirthDate(){return birthDate;}
+    public String getGovernmentId(){return governmentId;}
     public String getMaskedGovernmentId(){
             return "********" + governmentId.substring(8);   
     }

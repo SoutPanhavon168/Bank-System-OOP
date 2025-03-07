@@ -5,6 +5,7 @@ import database.CustomerDAO;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import transaction.TransactionManager;
 
@@ -19,38 +20,44 @@ public class Customer extends User {
         // Call the super constructor with default values for the User class
         super("", "", "", "", "", "", LocalDate.now(), "");
         this.bankAccounts = new ArrayList<>();
-        this.pin = 1234; // Default PIN
+        this.pin = pin; // Default PIN
         this.customerId = getUserId(); // Generate a unique user ID
     }
-
-
 
     public Customer(String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.bankAccounts = new ArrayList<>();
-        this.pin = 1234; // Generate PIN when a new customer is created
+        // Generate PIN when a new customer is created
         this.customerId = getUserId();
     }
-    @Override
-public String getFirstName() {
-    return this.firstName; // Use this instead of super.getFirstName()
-}
-
-@Override
-public String getLastName() {
-    return this.lastName; // Use this instead of super.getLastName()
-}
-
-    
 
     private boolean isInputInvalid(String input){
         return input.matches(".*\\d.*");
     }
 
+    public void setPassword(String password) {
+        // You can add password validation here (e.g., minimum length, special characters, etc.)
+        this.password = password;
+    }
+    
+    public String getPassword() {
+        return this.password;
+    }
+
+    public int getCustomerId() {
+        return this.customerId;
+    }
+
+    public void setCustomerId(int customerId) {
+    this.customerId = customerId;
+    }
+
     // Method to register a new customer
     public void register() {
         Scanner scanner = new Scanner(System.in);
+        CustomerDAO customerDAO = new CustomerDAO();
+
         try {
             System.out.println("Enter your last name: ");
             this.lastName = scanner.nextLine().trim();
@@ -60,7 +67,7 @@ public String getLastName() {
             if (isInputInvalid(lastName)){
                 throw new CustomerException.InvalidInputException("Last name");
             }
-
+    
             System.out.println("Enter your first name: ");
             this.firstName = scanner.nextLine().trim();
             if (firstName.isEmpty()) {
@@ -96,7 +103,7 @@ public String getLastName() {
             LocalDate birthDate;
             try {
                 birthDate = LocalDate.parse(scanner.nextLine().trim());
-                if (LocalDate.now().minusYears(16).isBefore(birthDate)) {
+                if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
                     throw new CustomerException.UnderageException();
                 }
             } catch (DateTimeParseException e) {
@@ -108,12 +115,30 @@ public String getLastName() {
             if (governmentId.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("Government ID");
             }
+
+            if (!isGovernmentIdValid(governmentId)){
+                throw new CustomerException.InvalidGovernmentIdException();
+            }
     
-            // Create new customer
+            // Ask for PIN
+            System.out.println("Enter your PIN (4 digits): ");
+            this.pin = scanner.nextInt();
+            String pinStr = String.valueOf(pin);
+            if (pinStr.length() != 4 || !pinStr.matches("\\d+")) {
+                throw new CustomerException.InvalidPinException();
+            }
+    
+            // Confirm PIN
+            System.out.println("Confirm your PIN: ");
+            int confirmPin = scanner.nextInt();
+            if (pin != confirmPin) {
+                throw new CustomerException.PinMismatchException();
+            }
+    
+            // Create new customer with PIN
             Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
     
             // Save customer to the database using CustomerDAO
-            CustomerDAO customerDAO = new CustomerDAO();
             customerDAO.saveCustomer(customer); // Store customer in DB
     
         } catch (CustomerException e) {
@@ -121,11 +146,10 @@ public String getLastName() {
         }
     }
     
-
+    
     public String getFullName(){
         return getFirstName() + " " + getLastName();
-    }
-    
+    }  
 
     // Method to authenticate PIN
     private boolean authenticatePin(int enteredPin) throws Exception {
@@ -160,32 +184,8 @@ public String getLastName() {
     public void updateOwnAccount() {
         Scanner scanner = new Scanner(System.in);
     
-        int attempts = 3;
-        boolean authenticated = false;
-    
-        // Authenticate using PIN before allowing any updates
-        while (attempts > 0) {
-            System.out.println("Enter your PIN to proceed: ");
-            String enteredPin = scanner.nextLine();
-    
-            try {
-                if (authenticatePin(Integer.parseInt(enteredPin))) {
-                    authenticated = true;
-                    break; // Exit the loop if the PIN is correct
-                }
-            } catch (Exception e) {
-                attempts--;
-                System.out.println(e.getMessage());
-                if (attempts > 0) {
-                    System.out.println("You have " + attempts + " attempts remaining.");
-                } else {
-                    System.out.println("Too many failed attempts. Access denied.");
-                    return; // Exit if too many failed attempts
-                }
-            }
-        }
-    
-        if (authenticated) {
+           
+        if (authenticateWithRetries(scanner)) {
             // Prompt the user for which information they want to update
             System.out.println("\nUpdate Account Information: ");
             System.out.println("1. Update Email");
@@ -228,18 +228,13 @@ public String getLastName() {
                     break;
             }
         }
-    
-        scanner.close();
     }
-    
-    
 
     // Method to allow customers to change their PIN
     public void changePin() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter your current PIN to change it: ");
         String currentPin = scanner.nextLine();
-
         try {
             if (authenticatePin(Integer.parseInt(currentPin))) {
                 System.out.println("Enter your new PIN: ");
@@ -253,22 +248,14 @@ public String getLastName() {
         scanner.close();
     }
 
-    // Update Account Information (instead of forgotPassword)
-    public void updateAccountInformation() {
-        Scanner scanner = new Scanner(System.in);
-
+    private boolean authenticateWithRetries(Scanner scanner) {
         int attempts = 3;
-        boolean authentication = false;
-
-        // Authenticate PIN first
         while (attempts > 0) {
-            System.out.println("Enter your PIN to continue: ");
+            System.out.println("Enter your PIN to proceed: ");
             String enteredPin = scanner.nextLine();
-
             try {
                 if (authenticatePin(Integer.parseInt(enteredPin))) {
-                    authentication = true;
-                    break; // Exit the loop if PIN is correct
+                    return true;
                 }
             } catch (Exception e) {
                 attempts--;
@@ -277,51 +264,13 @@ public String getLastName() {
                     System.out.println("You have " + attempts + " attempts remaining.");
                 } else {
                     System.out.println("Too many failed attempts. Access denied.");
-                    return; // Exit the method after too many failed attempts
                 }
             }
         }
-
-        if (authentication) {
-            // Proceed with updating account information if authentication is successful
-            System.out.println("\nUpdate Account Information: ");
-            System.out.println("1. Update Email");
-            System.out.println("2. Update Phone Number");
-            System.out.println("3. Update Password");
-            System.out.println("Please choose an option (1-3): ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline
-            switch (choice) {
-                case 1:
-                    System.out.println("Enter your new email: ");
-                    String newEmail = scanner.nextLine();
-                    if (isEmailValid(newEmail)) {
-                        setEmail(newEmail);
-                    }
-                    break;
-                case 2:
-                    System.out.println("Enter your new phone number: ");
-                    String newPhoneNumber = scanner.nextLine();
-                    if (isPhoneNumberValid(newPhoneNumber)) {
-                        setPhoneNumber(newPhoneNumber);
-                    }
-                    break;
-                case 3:
-                    // Update password logic here
-                    System.out.println("Enter your new password: ");
-                    String newPassword = scanner.nextLine();
-                    setPassword(newPassword);
-                    break;
-                default:
-                    System.out.println("Invalid choice");
-                    break;
-            }
-        }
-
-        scanner.close();
+        return false;
     }
-
+    
+    
     // Method to view account details and associated bank accounts
     public void viewBankAccountDetails() {
         System.out.println("===== Account Details =====");
@@ -345,15 +294,6 @@ public String getLastName() {
     public boolean login() {
         // Implement login logic
         return true;
-    }
-
-    public void setPassword(String password) {
-        // You can add password validation here (e.g., minimum length, special characters, etc.)
-        this.password = password;
-    }
-    
-    public String getPassword() {
-        return this.password;
     }
     
     public void updatePassword() {
@@ -402,13 +342,13 @@ public String getLastName() {
     
         switch (options) {
             case 1:
-                bankAccount = new BankAccount(getFirstName(), getLastName(), "Saving", "Active");
+                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Saving", "Active",pin);
                 break;
             case 2:
-                bankAccount = new BankAccount(getFirstName(), getLastName(), "Current", "Active");
+                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Current", "Active",pin);
                 break;
             case 3:
-                bankAccount = new BankAccount(getFirstName(), getLastName(), "Checking", "Active");
+                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Checking", "Active",pin);
                 break;
             default:
                 System.out.println("Invalid option. Try again.");
@@ -446,6 +386,10 @@ public String getLastName() {
 
     public void setUserId(int int1) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUserId'");
+        this.customerId = int1;
+    }
+
+    public int getPin() {
+        return this.pin;
     }
 }
