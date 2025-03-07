@@ -128,9 +128,9 @@ public class Admin extends User {
                 }
                 
             }
+        } catch (Exception e) {
+            System.out.println("Error!!!");
         }
-
-        //wait todo until we have the database
         // Add account to database
     }
     public void removeAccount() {
@@ -194,7 +194,7 @@ public class Admin extends User {
                 }
                 System.out.println("Enter the new birth date: ");
                 String birthDate = sc.nextLine();
-                
+                this.birthDate = LocalDate.parse(birthDate);
                 System.out.println("Enter the new government ID: ");
                 String governmentId = sc.nextLine();
                 this.governmentId = governmentId;
@@ -212,7 +212,7 @@ public class Admin extends User {
                 }
                 //wait todo until we have the database
                 // Update account in database
-            }
+            } while (!confirmPassword.equals(password));
         }
             else {
                 System.out.println("Incorrect password");
@@ -221,6 +221,7 @@ public class Admin extends User {
         else {
             System.out.println("Account not found");
         }
+        sc.close();
     }
     boolean approveLargeLoan(int loanId){
         return true;
