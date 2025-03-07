@@ -37,6 +37,13 @@ public class CustomerException extends Exception {
         }
     }
 
+    public static class InvalidGovernmentIdException extends CustomerException {
+        public InvalidGovernmentIdException() {
+            super("Invalid government ID format.");
+        }
+    }
+    
+
     public static class InvalidBirthDateException extends CustomerException {
         public InvalidBirthDateException() {
             super("Invalid birth date format.");
@@ -61,4 +68,17 @@ public class CustomerException extends Exception {
         public PinMismatchException() {
             super("The PINs do not match.");
         }
-}}
+}
+    public static class DuplicatePhoneNumberException extends CustomerException {
+        public DuplicatePhoneNumberException() {
+            super("Phone number is already registered.");
+        }
+    }
+    
+    public static class DuplicateGovernmentIdException extends CustomerException {
+        public DuplicateGovernmentIdException() {
+            super("Government ID is already registered.");
+        }
+    }
+    
+}

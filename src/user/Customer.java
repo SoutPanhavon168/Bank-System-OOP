@@ -5,6 +5,7 @@ import database.CustomerDAO;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import transaction.TransactionManager;
 
@@ -55,6 +56,8 @@ public class Customer extends User {
     // Method to register a new customer
     public void register() {
         Scanner scanner = new Scanner(System.in);
+        CustomerDAO customerDAO = new CustomerDAO();
+
         try {
             System.out.println("Enter your last name: ");
             this.lastName = scanner.nextLine().trim();
@@ -100,7 +103,7 @@ public class Customer extends User {
             LocalDate birthDate;
             try {
                 birthDate = LocalDate.parse(scanner.nextLine().trim());
-                if (LocalDate.now().minusYears(16).isBefore(birthDate)) {
+                if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
                     throw new CustomerException.UnderageException();
                 }
             } catch (DateTimeParseException e) {
@@ -111,6 +114,10 @@ public class Customer extends User {
             String governmentId = scanner.nextLine().trim();
             if (governmentId.isEmpty()) {
                 throw new CustomerException.EmptyFieldException("Government ID");
+            }
+
+            if (!isGovernmentIdValid(governmentId)){
+                throw new CustomerException.InvalidGovernmentIdException();
             }
     
             // Ask for PIN
@@ -132,7 +139,6 @@ public class Customer extends User {
             Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
     
             // Save customer to the database using CustomerDAO
-            CustomerDAO customerDAO = new CustomerDAO();
             customerDAO.saveCustomer(customer); // Store customer in DB
     
         } catch (CustomerException e) {
