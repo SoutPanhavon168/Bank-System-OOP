@@ -77,8 +77,10 @@ public class Admin extends User {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.println("Enter the first name: ");
             String firstName = sc.nextLine();
+            this.firstName = firstName;
             System.out.println("Enter the last name: ");
             String lastName = sc.nextLine();
+            this.lastName = lastName;
             System.out.println("Enter the email: ");
             String email = sc.nextLine();
             while(!isEmailValid(email)){
@@ -102,6 +104,7 @@ public class Admin extends User {
             }while (!confirmPassword.equals(password));
             System.out.println("Enter the birth date: ");
             String birthDate = sc.nextLine();
+            this.birthDate = LocalDate.parse(birthDate);
             do {
                 System.out.println("Enter the government ID: ");
                 String governmentId = sc.nextLine();
@@ -112,6 +115,19 @@ public class Admin extends User {
             } while (!isGovernmentIdValid(governmentId));
             System.out.println("Enter the user type: ");
             String userType = sc.nextLine();
+            if (isAdmin) {
+                if(userType.equals("admin")){
+                    isAdmin = true;
+                }
+                else if(userType.equals("staff")){
+                    isStaff = true;
+                }
+                else{
+                    isAdmin = false;
+                    isStaff = false;
+                }
+                
+            }
         }
 
         //wait todo until we have the database
@@ -152,35 +168,52 @@ public class Admin extends User {
             if(password.equals(this.password)) {
                 System.out.println("Enter the new first name: ");
                 String firstName = sc.nextLine();
-
+                this.firstName = firstName;
                 System.out.println("Enter the new last name: ");
                 String lastName = sc.nextLine();
-
+                this.lastName = lastName;
                 System.out.println("Enter the new phone number: ");
                 String phoneNumber = sc.nextLine();
-
+                if(!isPhoneNumberValid(phoneNumber)){
+                    System.out.println("Invalid phone number. Please enter a valid phone number: ");
+                    phoneNumber = sc.nextLine();
+                }
                 System.out.println("Enter the new password: ");
                 String newPassword = sc.nextLine();
-
-                System.out.println("Enter the new confirm password: ");
-                String newConfirmPassword = sc.nextLine();
-
+                do {
+                    System.out.print("Confirm your new password: ");
+                    String newConfirmPassword = sc.nextLine();
+                    if (!newConfirmPassword.equals(newPassword)) {
+                        System.out.println("Passwords do not match. Try again.");
+                    }
                 System.out.println("Enter the new email: ");
                 String email = sc.nextLine();
-
+                while(!isEmailValid(email)){
+                    System.out.println("Invalid email. Please enter a valid email: ");
+                    email = sc.nextLine();
+                }
                 System.out.println("Enter the new birth date: ");
                 String birthDate = sc.nextLine();
-
+                
                 System.out.println("Enter the new government ID: ");
                 String governmentId = sc.nextLine();
-                
+                this.governmentId = governmentId;
                 System.out.println("Enter the new user type: ");
                 String userType = sc.nextLine();
-
+                if(userType.equals("admin")){
+                    isAdmin = true;
+                }
+                else if(userType.equals("staff")){
+                    isStaff = true;
+                }
+                else{
+                    isAdmin = false;
+                    isStaff = false;
+                }
                 //wait todo until we have the database
-
                 // Update account in database
             }
+        }
             else {
                 System.out.println("Incorrect password");
             }
@@ -198,4 +231,14 @@ public class Admin extends User {
     void viewAllPayments(){
         //fetch all payments from the database
     }; 
+    @Override
+    public String toString() {
+        return "User ID: " + userId +
+               " | Name: " + firstName + " " + lastName +
+               " | Email: " + email +
+               " | Phone: " + phoneNumber +
+               " | Birth Date: " + birthDate +
+               " | Role: Admin" +
+               " | Government ID: " + governmentId;
+    }
 }
