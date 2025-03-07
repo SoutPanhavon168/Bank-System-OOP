@@ -58,7 +58,7 @@ public class BankAccountDAO {
     }
 
     // Retrieve all bank accounts
-    public static ArrayList<BankAccount> getAllBankAccounts() {
+    public ArrayList<BankAccount> getAllBankAccounts() {
         ArrayList<BankAccount> accounts = new ArrayList<>();
         String query = "SELECT * FROM bankaccounts";
         try (Connection conn = DatabaseConnection.getConnection();

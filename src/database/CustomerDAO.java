@@ -9,7 +9,7 @@ public class CustomerDAO {
 
     // Method to save a customer to the database
     public void saveCustomer(Customer customer) {
-String sql = "INSERT INTO customers (lastName, firstName, email, password, phoneNumber, birthDate, governmentId) " +
+    String sql = "INSERT INTO customers (lastName, firstName, email, password, phoneNumber, birthDate, governmentId) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";        
             try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {

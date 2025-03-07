@@ -70,7 +70,7 @@ public abstract class User implements Authentication{
 
     public boolean isPhoneNumberValid(String phoneNumber){
         //phone number regex pattern to check if the phone number has the correct pattern [0-9]{10}
-        String phoneNumberRegex = "^[0-9]{10}$";
+        String phoneNumberRegex = "^[0-9]{8,10}$";
         if(phoneNumber.matches(phoneNumberRegex)){
             return true;
         }

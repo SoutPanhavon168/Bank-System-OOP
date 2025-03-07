@@ -2,6 +2,7 @@ package user;
 
 import bankaccount.BankAccount;
 import database.CustomerDAO;
+import database.BankAccountDAO;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -134,6 +135,20 @@ public class Customer extends User {
             if (pin != confirmPin) {
                 throw new CustomerException.PinMismatchException();
             }
+
+            List <Customer> customers = customerDAO.getAllCustomers();
+
+            for (Customer customer : customers) {
+                if (customer.getGovernmentId().equals(governmentId)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                    }
+                if (customer.getEmail().equals(email)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                }
+                if (customer.getPhoneNumber().equals(phoneNumber)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                }
+            }
     
             // Create new customer with PIN
             Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
@@ -143,7 +158,7 @@ public class Customer extends User {
     
         } catch (CustomerException e) {
             System.out.println("Registration failed: " + e.getMessage());
-        }
+}
     }
     
     
@@ -391,5 +406,11 @@ public class Customer extends User {
 
     public int getPin() {
         return this.pin;
+    }
+
+    @Override
+    public String toString(){
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        return toString() + "Customer ID: " + customerId + "\n" + bankAccountDAO.getAllBankAccounts();
     }
 }
