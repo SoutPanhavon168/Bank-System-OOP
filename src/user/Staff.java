@@ -11,8 +11,8 @@ import java.util.Scanner;
 public class Staff extends User implements Management {
     
     // Additional attributes for Staff
-    private int staffId;
-    private String role;
+    protected int staffId;
+    protected String role;
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
                  String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role) {
@@ -85,6 +85,7 @@ public class Staff extends User implements Management {
             return;
         }
         CustomerDAO customerDAO = new CustomerDAO();
+
         // Logic for updating customer account
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the customer's ID: ");
@@ -100,7 +101,7 @@ public class Staff extends User implements Management {
         }
 
         System.out.println("What would you like to update?");
-        System.out.println("1.Email");
+        System.out.println("1. Email");
         System.out.println("2. Phone Number");
         System.out.println("3. Password");
 
@@ -135,6 +136,7 @@ public class Staff extends User implements Management {
         }
 
         customerDAO.updateCustomer(customer);
+
         System.out.println("Customer details updated successfully.");
 
         scanner.close();
@@ -240,12 +242,13 @@ public class Staff extends User implements Management {
 
     @Override
     public void viewAllbankAccounts() {
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
         if (hasAccess("Manager") || hasAccess("Loan Officer")) {
             // Fetch and print all bank accounts' details from the BankAccountDAO
             System.out.println("All bank accounts:");
 
             // Retrieve all bank accounts from the database using BankAccountDAO
-            List<BankAccount> bankAccounts = BankAccountDAO.getAllBankAccounts();
+            List <BankAccount> bankAccounts = bankAccountDAO.getAllBankAccounts();
 
             if (bankAccounts.isEmpty()) {
                 System.out.println("No bank accounts found.");
@@ -352,4 +355,6 @@ public class Staff extends User implements Management {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
+
+
 }

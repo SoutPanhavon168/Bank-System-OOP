@@ -69,16 +69,10 @@ public class CustomerException extends Exception {
             super("The PINs do not match.");
         }
 }
-    public static class DuplicatePhoneNumberException extends CustomerException {
-        public DuplicatePhoneNumberException() {
-            super("Phone number is already registered.");
+   public static class CustomerAlreadyExistsException extends CustomerException {
+        public CustomerAlreadyExistsException() {
+        super("Customer already exists.");
         }
-    }
-    
-    public static class DuplicateGovernmentIdException extends CustomerException {
-        public DuplicateGovernmentIdException() {
-            super("Government ID is already registered.");
-        }
-    }
+   }
     
 }
