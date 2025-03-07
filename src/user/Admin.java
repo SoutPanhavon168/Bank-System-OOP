@@ -34,7 +34,7 @@ public class Admin extends User {
                 System.out.println("5. View All Transactions");
                 System.out.println("6. View All Payments");
                 System.out.println("7. Exit");
-                System.out.println("Please choose an option (1-6): ");
+                System.out.println("Please choose an option (1-7): ");
                 int choice = sc.nextInt();
                 sc.nextLine();
                 switch (choice) {
@@ -79,22 +79,20 @@ public class Admin extends User {
             String firstName = sc.nextLine();
             System.out.println("Enter the last name: ");
             String lastName = sc.nextLine();
-            System.out.println("Enter the phone number: ");
-            String phoneNumber = sc.nextLine();
-            if(!isPhoneNumberValid(phoneNumber)){
-                System.out.println("Invalid phone number. Please enter a valid phone number: ");
-                phoneNumber = sc.nextLine();
-            }
             System.out.println("Enter the email: ");
             String email = sc.nextLine();
             while(!isEmailValid(email)){
                 System.out.println("Invalid email. Please enter a valid email: ");
                 email = sc.nextLine();
             }
+            System.out.println("Enter the phone number: ");
+            String phoneNumber = sc.nextLine();
+            if(!isPhoneNumberValid(phoneNumber)){
+                System.out.println("Invalid phone number. Please enter a valid phone number: ");
+                phoneNumber = sc.nextLine();
+            }
             System.out.println("Enter the password: ");
             String password = sc.nextLine();
-            System.out.println("Enter the confirm password: ");
-            String confirmPassword = sc.nextLine();
             do {
                 System.out.print("Confirm your password: ");
                 confirmPassword = sc.nextLine();
