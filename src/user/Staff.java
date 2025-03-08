@@ -217,19 +217,16 @@ public class Staff extends User implements Management {
     // Check if the user has the appropriate access
     if (hasAccess("Manager") || hasAccess("Loan Officer")) {
         // Fetch the bank account details from the database using a DAO method
-        BankAccount bankAccount = BankAccountDAO.getBankAccountById(accountId);
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        BankAccount bankAccount = bankAccountDAO.getBankAccountById(accountId);
 
         if (bankAccount == null) {
             System.out.println("Bank account with ID " + accountId + " not found.");
             return;
         }
-
-        // Display bank account details
-        System.out.println("Bank Account ID: " + bankAccount.getAccountNumber());
-        System.out.println("Account Holder: " + bankAccount.getAccountName());
-        System.out.println("Account Type: " + bankAccount.getAccountType());
-        System.out.println("Account Balance: " + bankAccount.getBalance());
-        System.out.println("Account Status: " + bankAccount.getAccountStatus());
+        System.out.println(bankAccount.toString());
+        
+        
         //System.out.println("Creation Date: " + bankAccount.getCreationDate());
         
         // Optionally display other relevant bank account information here
@@ -257,7 +254,7 @@ public class Staff extends User implements Management {
 
             // Iterate through the list and display details for each bank account
             for (BankAccount bankAccount : bankAccounts) {
-                System.out.println(bankAccount); // This will call the toString() method of BankAccount
+                System.out.println(bankAccount.toString()); // This will call the toString() method of BankAccount
             }
 
         } else {

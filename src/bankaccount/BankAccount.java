@@ -102,7 +102,7 @@ public class BankAccount {
     }
 
     public String getAccountName() {
-        return accountName;
+        return lastName + " " + firstName;
     }
 
     public void setAccountName(String accountName) {
@@ -177,8 +177,9 @@ public class BankAccount {
 
     @Override
     public String toString() {
-        return "Account Number: " + accountNumber + '\n'
-                + "Account Name: " + accountName + '\n'
+        return '\n' + "Account Number: " + accountNumber + '\n'
+                + "First name: " + firstName + '\n' 
+                + "Last name: " + lastName + '\n' 
                 + "Balance: " + balance + '\n'
                 + "Account Type: " + accountType + '\n'
                 + "Account Status: " + accountStatus + '\n'

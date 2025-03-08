@@ -1,8 +1,8 @@
 package user;
 
 import bankaccount.BankAccount;
-import database.CustomerDAO;
 import database.BankAccountDAO;
+import database.CustomerDAO;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -375,6 +375,47 @@ public class Customer extends User {
             System.out.println("Bank account created successfully!");
         }
     }
+
+    // Add this method to the Customer class in user/Customer.java
+
+public static Customer login(String emailOrPhone, String password) {
+    Scanner scanner = new Scanner(System.in);
+    CustomerDAO customerDAO = new CustomerDAO();
+    
+    try {
+        // First, retrieve the customer by their email or phone number
+        Customer customer = customerDAO.getCustomerByEmailOrPhone(emailOrPhone);
+        
+        // If no customer is found with the given email or phone
+        if (customer == null) {
+            System.out.println("No account found with this email or phone number.");
+            return null;
+        }
+        
+        // Verify password
+        if (customer.getPassword().equals(password)) {
+            System.out.println("Login successful. Welcome, " + customer.getFirstName() + "!");
+            
+            // Load customer's bank accounts
+            BankAccountDAO bankAccountDAO = new BankAccountDAO();
+            ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(customer.getCustomerId());
+            customer.setBankAccounts(accounts);
+            
+            return customer;
+        } else {
+            System.out.println("Incorrect password.");
+            return null;
+        }
+    } catch (Exception e) {
+        System.out.println("Login failed: " + e.getMessage());
+        return null;
+    }
+}
+
+// Add this setter method to the Customer class
+public void setBankAccounts(ArrayList<BankAccount> accounts) {
+    this.bankAccounts = accounts;
+}
 
     // Methods to handle deposits, withdrawals, and transfers
     public void deposit() {

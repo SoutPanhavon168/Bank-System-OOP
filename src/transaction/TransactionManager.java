@@ -1,5 +1,8 @@
 package transaction;
 import transaction.Transaction;
+import bankaccount.BankAccount;
+import database.BankAccountDAO;
+import database.TransactionDAO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,45 +10,84 @@ import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import bankaccount.BankAccount;
-
 public class TransactionManager {
 
     private ArrayList<Transaction> transactions = new ArrayList<>();
+    private TransactionDAO transactionDAO = new TransactionDAO();  // Add a reference to the TransactionDAO
 
     public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
     }
 
+    public boolean verifyPin(BankAccount account) {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter PIN for account " + account.getAccountNumber() + ": ");
+        String enteredPin = input.nextLine();
+        
+        // Fetch the PIN from the database
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        int storedPin = bankAccountDAO.getPinForAccount(account.getAccountNumber());  // Retrieves the PIN as an int
+        
+        // Convert the stored PIN (int) to a String for comparison
+        String storedPinString = Integer.toString(storedPin);
+    
+        // Compare the entered PIN with the stored PIN
+        if (enteredPin.equals(storedPinString)) {
+            return true;
+        } else {
+            System.out.println("Incorrect PIN. Transaction cancelled.");
+            return false;
+        }
+    }
+
     public void deposit(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
-
+    
         if (bankAccounts.isEmpty()) {
             System.out.println("No bank accounts available.");
             return;
         }
-
+    
         try {
             listBankAccounts(bankAccounts);
             System.out.print("Enter the number of the account: ");
             int index = input.nextInt() - 1;
-
+    
             TransactionException.validateAccountSelection(index, bankAccounts.size()); // Validate selection
-
+    
             BankAccount selectedAccount = bankAccounts.get(index);
-
+    
+            // Verify PIN before proceeding
+            if (!verifyPin(selectedAccount)) {
+                return;
+            }
+    
             System.out.print("Enter amount to deposit ($): ");
             double depositAmount = input.nextDouble();
-
+    
             TransactionException.validateAmount(depositAmount); // Validate deposit amount
-
-            selectedAccount.setBalance(selectedAccount.getBalance() + depositAmount);
-            System.out.println("Deposit successful. New balance: $" + selectedAccount.getBalance());
-
+    
+            // Create a transaction object
             Transaction transaction = new Transaction(selectedAccount, "Deposit", depositAmount, "Completed");
             addTransaction(transaction);
-            System.out.println(transaction.toString());
-
+    
+            // Save the transaction to the database, which also updates the balance
+            boolean success = transactionDAO.saveTransaction(transaction);
+    
+            if (success) {
+                // After saving the transaction, fetch the updated account with the latest balance
+                BankAccountDAO bankAccountDAO = new BankAccountDAO();
+                BankAccount updatedAccount = bankAccountDAO.getBankAccountById(selectedAccount.getAccountNumber());
+    
+                // Print the updated balance from the database
+                System.out.println("Deposit successful. New balance: $" + updatedAccount.getBalance());
+    
+                // Print the transaction details
+                System.out.println(transaction.toString());
+            } else {
+                System.out.println("Transaction failed. Please try again.");
+            }
+    
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter numbers only.");
         } catch (TransactionException e) {
@@ -54,6 +96,7 @@ public class TransactionManager {
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
+    
 
     public void withdraw(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
@@ -72,17 +115,22 @@ public class TransactionManager {
 
             BankAccount selectedAccount = bankAccounts.get(index);
 
+            // Verify PIN before proceeding
+            if (!verifyPin(selectedAccount)) {
+                return;
+            }
+
             System.out.print("Enter amount to withdraw ($): ");
             double withdrawAmount = input.nextDouble();
 
             TransactionException.validateAmount(withdrawAmount); // Validate withdraw amount
             TransactionException.validateSufficientFunds(selectedAccount, withdrawAmount); // Validate sufficient funds
 
-            selectedAccount.setBalance(selectedAccount.getBalance() - withdrawAmount);
-            System.out.println("Withdrawal successful. New balance: $" + selectedAccount.getBalance());
+            
 
             Transaction transaction = new Transaction(selectedAccount, "Withdraw", withdrawAmount, "Completed");
             addTransaction(transaction);
+            transactionDAO.saveTransaction(transaction);  // Save the transaction to the database
             System.out.println(transaction.toString());
 
         } catch (InputMismatchException e) {
@@ -113,6 +161,11 @@ public class TransactionManager {
 
             TransactionException.validateAccountSelection(senderIndex, bankAccounts.size()); // Validate selection
             sender = bankAccounts.get(senderIndex);
+
+            // Verify PIN before proceeding
+            if (!verifyPin(sender)) {
+                return;
+            }
 
             if (transferType == 1) {
                 System.out.println("Select the account to transfer to:");
@@ -157,6 +210,7 @@ public class TransactionManager {
 
             Transaction transaction = new Transaction(sender, "Transfer", transferAmount, "Completed");
             addTransaction(transaction);
+            transactionDAO.saveTransaction(transaction);  // Save the transaction to the database
             System.out.println(transaction.toString());
 
         } catch (InputMismatchException e) {
@@ -183,13 +237,13 @@ public class TransactionManager {
             System.out.println("No transactions found.");
             return;
         }
-        
+
         System.out.println("===== Transaction History =====");
         for (Transaction transaction : transactions) {
             System.out.println(transaction.toString());  // Assumes you have a proper toString method in Transaction
         }
     }
-    
+
     public void sortTransactionsByAmount() {
         if (transactions.isEmpty()) {
             System.out.println("No transactions found to sort.");
@@ -208,36 +262,30 @@ public class TransactionManager {
         viewTransactionHistory();  // Optionally view the transactions after sorting
     }
 
-    
-
     public double getTotalDepositAmount() {
-    double total = 0;
-    for (Transaction transaction : transactions) {
-        if (transaction.getType() == Transaction.TransactionType.DEPOSIT) {
-            total += transaction.getAmount();
+        double total = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction.getType() == Transaction.TransactionType.DEPOSIT) {
+                total += transaction.getAmount();
+            }
         }
-    }
-    return total;
+        return total;
     }
 
     public double getTotalWithdrawalAmount() {
-    double total = 0;
-    for (Transaction transaction : transactions) {
-        if (transaction.getType() == Transaction.TransactionType.WITHDRAWAL) {
-            total += transaction.getAmount();
+        double total = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction.getType() == Transaction.TransactionType.WITHDRAWAL) {
+                total += transaction.getAmount();
+            }
         }
+        return total;
     }
-    return total;
-    }
-
 
     public void sortTransactionsByDate() {
-    transactions.sort(Comparator.comparing(Transaction::getTransactionDate));
-    System.out.println("Transactions sorted by date.");
-}
-
-    
-
+        transactions.sort(Comparator.comparing(Transaction::getTransactionDate));
+        System.out.println("Transactions sorted by date.");
+    }
 
     private void listBankAccounts(ArrayList<BankAccount> bankAccounts) {
         if (bankAccounts.isEmpty()) {
