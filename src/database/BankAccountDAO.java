@@ -29,32 +29,24 @@ public class BankAccountDAO {
             e.printStackTrace();
         }
     }
+    
 
     // Retrieve a bank account by account number
-    public static BankAccount getBankAccountById(int accountNumber) {
+    public BankAccount getBankAccountById(int accountNumber) {
         String query = "SELECT * FROM bankaccounts WHERE account_number = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
+            
             ps.setInt(1, accountNumber);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                // Rebuild the BankAccount object from the result set
-                BankAccount account = new BankAccount(
-                    rs.getString("first_name"), // Retrieve first name
-                    rs.getString("last_name"), // Retrieve last name
-                    rs.getString("account_type"),
-                    rs.getString("status"),
-                    rs.getInt("pin") // Retrieve pin
-                );
-                account.setBalance(rs.getDouble("balance")); // Set the balance from DB
-                account.setCustomerId(rs.getInt("customerId")); // Set the customer ID
-                account.setAccountNumber(rs.getInt("account_number")); // Set the account number
-                return account;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBankAccount(rs);
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error fetching bank account by ID: " + accountNumber, e);
         }
-        return null;
+        return null; // Return null if no account is found
     }
 
     // Retrieve all bank accounts
@@ -62,25 +54,132 @@ public class BankAccountDAO {
         ArrayList<BankAccount> accounts = new ArrayList<>();
         String query = "SELECT * FROM bankaccounts";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            ResultSet rs = ps.executeQuery();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            
             while (rs.next()) {
-                // Rebuild the BankAccount object from the result set
-                BankAccount account = new BankAccount(
-                    rs.getString("first_name"), // Retrieve first name
-                    rs.getString("last_name"), // Retrieve last name
-                    rs.getString("account_type"),
-                    rs.getString("status"),
-                    rs.getInt("pin")
-                );
-                account.setBalance(rs.getDouble("balance"));
-                account.setCustomerId(rs.getInt("customerId")); // Set the customer ID
-                account.setAccountNumber(rs.getInt("account_number")); // Set the account number
-                accounts.add(account);
+                accounts.add(mapResultSetToBankAccount(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching all bank accounts", e);
+        }
+        return accounts;
+    }
+
+    // Helper method to map ResultSet to BankAccount object
+    private static BankAccount mapResultSetToBankAccount(ResultSet rs) throws SQLException {
+        BankAccount account = new BankAccount(
+            rs.getString("first_name"),
+            rs.getString("last_name"),
+            rs.getString("account_type"),
+            rs.getString("status"),
+            rs.getInt("pin")
+        );
+        account.setBalance(rs.getDouble("balance"));
+        account.setCustomerId(rs.getInt("customerId"));
+        account.setAccountNumber(rs.getInt("account_number"));
+        return account;
+    }
+
+    public BankAccount getBankAccountByAccountNumber(int accountNumber) {
+        String query = "SELECT * FROM bankaccounts WHERE account_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+    
+            ps.setInt(1, accountNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBankAccount(rs); // Use the existing mapping method
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching bank account by account number: " + accountNumber, e);
+        }
+        return null; // Return null if no account is found
+    }
+    
+    
+
+    // Method to retrieve a BankAccount by customerId
+    public BankAccount getBankAccountByCustomerId(int customerId) {
+        String query = "SELECT * FROM bankaccounts WHERE customerId = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+    
+            ps.setInt(1, customerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                // Use the helper method to map the ResultSet to a BankAccount object
+                return mapResultSetToBankAccount(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return accounts;
+        return null; // Return null if no account is found
     }
+
+    public BankAccount getBankAccountByEmailOrPhone(String emailOrPhone) {
+        String query = "SELECT * FROM bankaccounts WHERE email = ? OR phone_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setString(1, emailOrPhone);
+            ps.setString(2, emailOrPhone);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBankAccount(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching bank account by email or phone: " + emailOrPhone, e);
+        }
+        return null; // Return null if no account is found
+    }
+
+    // Add this method to the BankAccountDAO class in database/BankAccountDAO.java
+
+public ArrayList<BankAccount> getBankAccountsByCustomerId(int customerId) {
+    ArrayList<BankAccount> accounts = new ArrayList<>();
+    String query = "SELECT * FROM bankaccounts WHERE customerId = ?";
+    
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        
+        ps.setInt(1, customerId);
+        ResultSet rs = ps.executeQuery();
+        
+        while (rs.next()) {
+            BankAccount account = mapResultSetToBankAccount(rs);
+            accounts.add(account);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Error fetching bank accounts for customer: " + customerId, e);
+    }
+    
+    return accounts;
+}
+
+public int getPinForAccount(int accountNumber) {
+    String query = "SELECT pin FROM bankaccounts WHERE account_number = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setInt(1, accountNumber);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("pin"); // Return the stored PIN
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Error fetching PIN for account number: " + accountNumber, e);
+    }
+    return -1; // Return -1 if no account or PIN found
+}
+    
+    
+
 }

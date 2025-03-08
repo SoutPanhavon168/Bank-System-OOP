@@ -4,6 +4,7 @@ import database.BankAccountDAO;
 import user.Customer;
 
 public class BankAccountTest {
+
     public static void main(String[] args) {
         // Step 1: Create a new Customer and register
         Customer customer = new Customer();
@@ -28,8 +29,12 @@ public class BankAccountTest {
         // Step 5: Save the newly created bank account to the database
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         bankAccountDAO.saveBankAccount(account);  // Ensure saveBankAccount handles PIN
-
+        
         // Step 6: Verify account creation
         System.out.println("Bank account successfully created!");
-    }
-}
+    
+
+
+    
+
+}}

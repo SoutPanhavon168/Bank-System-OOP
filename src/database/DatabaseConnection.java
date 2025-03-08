@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://mysql-193650-0.cloudclusters.net:10248/banksystem?useSSL=false&allowPublicKeyRetrieval=true";
-    private static final String USER = "super";
-    private static final String PASSWORD = "pjava12345";
+    private static final String URL = "jdbc:mysql://banksystem-prumsereyreaksa-c339.h.aivencloud.com:23842/banksystem?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String USER = "avnadmin";
+    private static final String PASSWORD = "AVNS_eEoTvjWciUxHeIQBJHR";
 
     public static Connection getConnection() throws SQLException {
         try {

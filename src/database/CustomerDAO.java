@@ -62,7 +62,7 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
 
 
     // Method to retrieve a customer by their ID
-    public  Customer getCustomerById(int customerID) {
+    public Customer getCustomerById(int customerID) {
         String query = "SELECT * FROM customers WHERE customerID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -134,7 +134,6 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
             ps.setDate(5, Date.valueOf(customer.getBirthDate())); // Convert LocalDate to SQL Date
             ps.setString(6, customer.getMaskedGovernmentId());
             ps.setInt(7, customer.getUserId());
-
             // Execute the update query
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -148,7 +147,6 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-
             // Set the customer ID for deletion
             ps.setInt(1, customerID);
 
@@ -158,4 +156,36 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
             e.printStackTrace();
         }
     }
+
+    // Add this method to the CustomerDAO class in database/CustomerDAO.java
+
+public Customer getCustomerByEmailOrPhone(String emailOrPhone) {
+    String query = "SELECT * FROM customers WHERE email = ? OR phoneNumber = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        
+        ps.setString(1, emailOrPhone);
+        ps.setString(2, emailOrPhone);
+        ResultSet rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            // Create and return the customer object
+            Customer customer = new Customer(
+                rs.getString("lastName"),
+                rs.getString("firstName"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("password"), // Using password for confirmPassword
+                rs.getString("phoneNumber"),
+                rs.getDate("birthDate").toLocalDate(),
+                rs.getString("governmentId")
+            );
+            customer.setUserId(rs.getInt("customerID"));
+            return customer;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }
