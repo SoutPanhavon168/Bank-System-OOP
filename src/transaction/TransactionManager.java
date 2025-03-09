@@ -302,6 +302,7 @@ private void listBankAccounts(ArrayList<BankAccount> bankAccounts) {
     for (int i = 0; i < bankAccounts.size(); i++) {
         System.out.println((i + 1) + ". " + bankAccounts.get(i).getAccountNumber());
     }
+    
 }
 
 }
