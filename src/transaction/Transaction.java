@@ -98,5 +98,40 @@ public class Transaction {
         this.transactionDate = transactionDate;
     }
     
+<<<<<<< HEAD
     
+=======
+    // Method to execute a transaction with PIN verification
+    public static Transaction executeTransaction(BankAccount account, String type, double amount) {
+        // Create transaction with PIN verification
+        Transaction transaction = new Transaction(account, type, amount, "Processing");
+        
+        // Only proceed if the PIN was verified (status is not "Failed")
+        if (!transaction.getStatus().equals("Failed")) {
+            // Process the transaction based on type
+            switch (transaction.getType()) {
+                case DEPOSIT:
+                    account.setBalance(account.getBalance() + amount);
+                    transaction.setStatus("Completed");
+                    break;
+                case WITHDRAWAL:
+                    if (account.getBalance() >= amount) {
+                        account.setBalance(account.getBalance() - amount);
+                        transaction.setStatus("Completed");
+                    } else {
+                        transaction.setStatus("Failed - Insufficient Funds");
+                    }
+                    break;
+                default:
+                    transaction.setStatus("Unknown Transaction Type");
+            }
+            
+            // Save the transaction to the database
+            TransactionDAO transactionDAO = new TransactionDAO();
+            transactionDAO.saveTransaction(transaction);
+        }
+        
+        return transaction;
+    }
+>>>>>>> origin/main
 }
