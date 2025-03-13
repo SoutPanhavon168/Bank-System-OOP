@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Transaction {
     public enum TransactionType {
-        DEPOSIT, WITHDRAWAL;
+        DEPOSIT, WITHDRAW, TRANSFER;
     }
     
     private String transactionID;
