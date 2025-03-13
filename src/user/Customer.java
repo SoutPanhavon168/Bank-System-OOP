@@ -121,21 +121,6 @@ public class Customer extends User {
                 throw new CustomerException.InvalidGovernmentIdException();
             }
     
-            // Ask for PIN
-            System.out.println("Enter your PIN (4 digits): ");
-            this.pin = scanner.nextInt();
-            String pinStr = String.valueOf(pin);
-            if (pinStr.length() != 4 || !pinStr.matches("\\d+")) {
-                throw new CustomerException.InvalidPinException();
-            }
-    
-            // Confirm PIN
-            System.out.println("Confirm your PIN: ");
-            int confirmPin = scanner.nextInt();
-            if (pin != confirmPin) {
-                throw new CustomerException.PinMismatchException();
-            }
-
             List <Customer> customers = customerDAO.getAllCustomers();
 
             for (Customer customer : customers) {
@@ -344,37 +329,76 @@ public class Customer extends User {
     }
     
 
-    // Create a new bank account
     public void createBankAccount() {
         Scanner input = new Scanner(System.in); // DO NOT CLOSE THIS SCANNER
         System.out.println("Select an account type");
         System.out.println("1. Saving");
         System.out.println("2. Current");
         System.out.println("3. Checking");
-        System.out.print("Select an option-> ");
+        System.out.print("Select an option -> ");
         int options = input.nextInt();
         input.nextLine(); // Consume the newline
-    
+        
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        String accountType;
+        
         switch (options) {
             case 1:
-                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Saving", "Active",pin);
+                accountType = "Saving";
                 break;
             case 2:
-                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Current", "Active",pin);
+                accountType = "Current";
                 break;
             case 3:
-                bankAccount = new BankAccount(getCustomerId(), getFirstName(), getLastName(), "Checking", "Active",pin);
+                accountType = "Checking";
                 break;
             default:
                 System.out.println("Invalid option. Try again.");
                 return; // Exit the method without adding an account
         }
-    
-        if (bankAccount != null) {
-            bankAccounts.add(bankAccount); // Add the new bank account to the list
-            System.out.println("Bank account created successfully!");
+
+        // Ask for PIN during bank account creation
+        System.out.println("Enter your PIN (4 digits): ");
+        this.pin = input.nextInt();
+        String pinStr = String.valueOf(pin);
+        if (pinStr.length() != 4 || !pinStr.matches("\\d+")) {
+            System.out.println("Invalid PIN format. Please ensure it is 4 digits.");
+            return; // Exit the method if PIN is invalid
         }
+
+        // Confirm PIN
+        System.out.println("Confirm your PIN: ");
+        int confirmPin = input.nextInt();
+        if (pin != confirmPin) {
+            System.out.println("PIN mismatch. Please try again.");
+            return; // Exit the method if PINs do not match
+        }
+
+        // Create a new bank account using the current logged-in customer's information
+        BankAccount newAccount = new BankAccount(
+            this.customerId,        // Use the current customer's ID
+            this.firstName,         // Use the current customer's first name
+            this.lastName,          // Use the current customer's last name
+            accountType,            // Use the selected account type
+            "Active",               // Set status as active
+            this.pin                // Use the newly provided PIN
+        );
+        
+        // Generate and set a unique account number using the method in BankAccount
+        int accountNumber = BankAccount.generateAccountNumber();
+        newAccount.setAccountNumber(accountNumber);
+        
+        // Save the new bank account to the database
+        bankAccountDAO.saveBankAccount(newAccount);
+        
+        // Add the new account to the customer's list of accounts
+        this.bankAccounts.add(newAccount);
+        
+        System.out.println("Bank account created successfully!");
+        System.out.println("Your new account number is: " + newAccount.getAccountNumber());
     }
+    
+    
 
     // Add this method to the Customer class in user/Customer.java
 
