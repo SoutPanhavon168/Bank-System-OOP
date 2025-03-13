@@ -146,44 +146,6 @@ public class BankAccountDAO {
     
         return accounts;
     }
-<<<<<<< HEAD
-    return -1; // Return -1 if no account or PIN found
-}
-
-public boolean freezeBankAccount(int accountId) {
-    String query = "UPDATE bankaccounts SET status = 'Frozen' WHERE account_number = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        ps.setInt(1, accountId);
-        int affectedRows = ps.executeUpdate();
-        
-        return affectedRows > 0; // Return true if update was successful
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-    }
-}
-
-public boolean unfreezeBankAccount(int accountId) {
-    String query = "UPDATE bankaccounts SET status = 'Active' WHERE account_number = ? AND status = 'Frozen'";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        ps.setInt(1, accountId);
-        int affectedRows = ps.executeUpdate();
-        
-        return affectedRows > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
-}
-
-    
-    
-=======
->>>>>>> origin/main
 
     // Method to retrieve the PIN for a bank account
     public int getPinForAccount(int accountNumber) {
@@ -222,6 +184,46 @@ public boolean unfreezeBankAccount(int accountId) {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean freezeBankAccount(int accountNumber) {
+        String query = "UPDATE bankaccounts SET status = 'Frozen' WHERE account_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, accountNumber);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Account frozen successfully.");
+                return true;
+            } else {
+                System.out.println("Failed to freeze account.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean unfreezeBankAccount(int accountNumber) {
+        String query = "UPDATE bankaccounts SET status = 'Active' WHERE account_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, accountNumber);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Account unfrozen successfully.");
+                return true;
+            } else {
+                System.out.println("Failed to unfreeze account.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

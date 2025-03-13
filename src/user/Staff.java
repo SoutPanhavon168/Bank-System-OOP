@@ -279,9 +279,8 @@ public class Staff extends User implements Management {
     public void freezeAccount(int accountId) {
         if (hasAccess(StaffRole.MANAGER)){
             // Logic to freeze a bank account based on account ID
-
-            System.out.println("Enter the account ID you want to freeze: ");
             Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter the account ID you want to freeze: ");
             int bankAccountId = scanner.nextInt();
             scanner.nextLine();
 
@@ -397,6 +396,38 @@ public class Staff extends User implements Management {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
+
+     //transaction
+     @Override
+    public void viewAllTransactions(){
+
+     }
+
+    @Override
+    public void viewSpecificTransaction(int transactionId){
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void refundTransaction(int transactionId){
+        // TODO Auto-generated method stub
+    }  
+
+    @Override
+    public void depositMoney(int accountId, double amount){
+        // TODO Auto-generated method stub
+    } 
+
+    @Override
+    public void withdrawMoney(int accountId, double amount){
+        // TODO Auto-generated method stub
+    }
+    
+    @Override// Admin & Staff
+    public void transferMoney(int fromAccountId, int toAccountId, double amount){
+        // TODO Auto-generated method stub
+    }
+
 
 
 }
