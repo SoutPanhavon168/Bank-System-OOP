@@ -241,4 +241,78 @@ public class TransactionDAO {
             return false;
         }
     }
+
+    public boolean transferFunds(int fromAccountNumber, int toAccountNumber, double amount) {
+        String debitQuery = "UPDATE bankaccounts SET balance = balance - ? WHERE account_number = ? AND balance >= ?";
+        String creditQuery = "UPDATE bankaccounts SET balance = balance + ? WHERE account_number = ?";
+        String insertTransactionQuery = "INSERT INTO transactions (transaction_id, account_number, type, amount, status, transaction_date) VALUES (?, ?, ?, ?, ?, ?)";
+    
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+    
+            try (PreparedStatement debitStmt = conn.prepareStatement(debitQuery);
+                 PreparedStatement creditStmt = conn.prepareStatement(creditQuery);
+                 PreparedStatement transactionStmt = conn.prepareStatement(insertTransactionQuery)) {
+    
+                // Deduct funds from sender
+                debitStmt.setDouble(1, amount);
+                debitStmt.setInt(2, fromAccountNumber);
+                debitStmt.setDouble(3, amount);
+                int debitResult = debitStmt.executeUpdate();
+                
+                if (debitResult == 0) {
+                    System.out.println("Insufficient funds for transfer.");
+                    conn.rollback();
+                    return false;
+                }
+    
+                // Add funds to recipient
+                creditStmt.setDouble(1, amount);
+                creditStmt.setInt(2, toAccountNumber);
+                int creditResult = creditStmt.executeUpdate();
+    
+                if (creditResult == 0) {
+                    System.out.println("Recipient account not found.");
+                    conn.rollback();
+                    return false;
+                }
+    
+                // Record transaction for sender
+                String transactionID = generateTransactionID();
+                transactionStmt.setString(1, transactionID);
+                transactionStmt.setInt(2, fromAccountNumber);
+                transactionStmt.setString(3, "TRANSFER"); // Use a generic transfer type
+                transactionStmt.setDouble(4, amount);
+                transactionStmt.setString(5, "COMPLETED");
+                transactionStmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                transactionStmt.executeUpdate();
+    
+                // Record transaction for recipient
+                transactionID = generateTransactionID();
+                transactionStmt.setString(1, transactionID);
+                transactionStmt.setInt(2, toAccountNumber);
+                transactionStmt.setString(3, "TRANSFER"); // Use a generic transfer type
+                transactionStmt.setDouble(4, amount);
+                transactionStmt.setString(5, "COMPLETED");
+                transactionStmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                transactionStmt.executeUpdate();
+    
+                conn.commit(); // Commit transaction
+                System.out.println("Transfer successful!");
+                return true;
+            } catch (SQLException e) {
+                conn.rollback(); // Rollback transaction if something goes wrong
+                System.out.println("Error during transfer: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            } finally {
+                conn.setAutoCommit(true); // Reset auto-commit mode
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error during transfer: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }

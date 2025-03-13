@@ -142,75 +142,71 @@ public class TransactionManager {
 
     public void transfer(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
-
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        
         try {
             System.out.println("Choose transfer type:");
             System.out.println("1. Transfer between my own accounts");
             System.out.println("2. Transfer to another person's account");
             System.out.print("Enter your choice: ");
             int transferType = input.nextInt();
-
+        
             BankAccount sender, recipient = null;
-
+        
             System.out.println("Select your account to transfer from:");
             listBankAccounts(bankAccounts);
             System.out.print("Enter the number of your account: ");
             int senderIndex = input.nextInt() - 1;
-
+        
             TransactionException.validateAccountSelection(senderIndex, bankAccounts.size()); // Validate selection
             sender = bankAccounts.get(senderIndex);
-
+        
             // Verify PIN before proceeding
             if (!verifyPin(sender)) {
                 return;
             }
-
+        
             if (transferType == 1) {
                 System.out.println("Select the account to transfer to:");
                 listBankAccounts(bankAccounts);
                 System.out.print("Enter the number of the recipient's account: ");
                 int recipientIndex = input.nextInt() - 1;
-
+        
                 TransactionException.validateAccountSelection(recipientIndex, bankAccounts.size()); // Validate recipient selection
                 if (recipientIndex == senderIndex) {
                     throw new TransactionException("Cannot transfer to the same account.");
                 }
-
+        
                 recipient = bankAccounts.get(recipientIndex);
-
+        
             } else if (transferType == 2) {
                 System.out.print("Enter the recipient's account number: ");
                 int recipientAccountNumber = input.nextInt();
-
-                for (BankAccount account : bankAccounts) {
-                    if (account.getAccountNumber() == recipientAccountNumber) {
-                        recipient = account;
-                        break;
-                    }
-                }
-
+        
+                recipient = bankAccountDAO.getBankAccountById(recipientAccountNumber); // Fetch recipient from DB
+        
                 TransactionException.validateRecipientAccount(recipient); // Validate recipient existence
             } else {
                 throw new TransactionException("Invalid transfer type.");
             }
-
+        
             System.out.print("Enter amount to transfer ($): ");
             double transferAmount = input.nextDouble();
-
+        
             TransactionException.validateAmount(transferAmount); // Validate transfer amount
             TransactionException.validateSufficientFunds(sender, transferAmount); // Validate sufficient funds
-
-            sender.setBalance(sender.getBalance() - transferAmount);
-            recipient.setBalance(recipient.getBalance() + transferAmount);
-
-            System.out.println("Transfer successful!");
-            System.out.println("New balance for sender: $" + sender.getBalance());
-
-            Transaction transaction = new Transaction(sender, "Transfer", transferAmount, "Completed");
-            addTransaction(transaction);
-            transactionDAO.saveTransaction(transaction);  // Save the transaction to the database
-            System.out.println(transaction.toString());
-
+        
+            // Perform fund transfer using TransactionDAO
+            boolean transferSuccess = transactionDAO.transferFunds(sender.getAccountNumber(), recipient.getAccountNumber(), transferAmount);
+        
+            if (transferSuccess) {     
+                // Fetch updated balances from DB
+                BankAccount updatedSender = bankAccountDAO.getBankAccountById(sender.getAccountNumber());
+                System.out.println("New balance for sender: $" + updatedSender.getBalance());
+            } else {
+                System.out.println("Transaction failed. Please try again.");
+            }
+        
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter numbers only.");
         } catch (TransactionException e) {
@@ -219,7 +215,7 @@ public class TransactionManager {
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
-
+    
     public void viewSpecificTransaction(String transactionID) {
         Transaction transaction = transactionDAO.getTransactionById(transactionID);
         if (transaction != null) {
@@ -230,17 +226,18 @@ public class TransactionManager {
     }
     
     public void viewTransactionHistory() {
-    List<Transaction> transactions = transactionDAO.getAllTransactions();
-    if (transactions.isEmpty()) {
-        System.out.println("No transactions found.");
-        return;
+        List<Transaction> transactions = transactionDAO.getAllTransactions();
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+    
+        System.out.println("===== Transaction History =====");
+        for (Transaction transaction : transactions) {
+            System.out.println(transaction);
+        }
     }
-
-    System.out.println("===== Transaction History =====");
-    for (Transaction transaction : transactions) {
-        System.out.println(transaction);
-    }
-}
+    
 
 
 public void sortTransactionsByAmount() {
@@ -272,7 +269,7 @@ public double getTotalDepositAmount() {
 public double getTotalWithdrawalAmount() {
     List<Transaction> transactions = transactionDAO.getAllTransactions();
     return transactions.stream()
-            .filter(transaction -> transaction.getType() == Transaction.TransactionType.WITHDRAWAL)
+            .filter(transaction -> transaction.getType() == Transaction.TransactionType.WITHDRAW)
             .mapToDouble(Transaction::getAmount)
             .sum();
 }

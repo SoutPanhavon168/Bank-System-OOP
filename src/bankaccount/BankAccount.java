@@ -2,6 +2,7 @@ package bankaccount;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 public class BankAccount {
 
@@ -119,7 +120,7 @@ public class BankAccount {
     }
 
     public int getCustomerId() {
-        return customerId + 1;
+        return customerId;
     }
 
     public void setCustomerId(int customerId) {
@@ -151,13 +152,10 @@ public class BankAccount {
         return account;
     }
 
-    private static int generateAccountNumber() {
-        int accountNumber;
-        do {
-            accountNumber = 1000000000 + random.nextInt(900000);
-        } while (accounts.containsKey(accountNumber));
-        return accountNumber;
-    }
+    public static int generateAccountNumber() {
+    return Math.abs(UUID.randomUUID().hashCode()); // Generates a large unique number
+}
+
 
     public static HashMap<Integer, BankAccount> getAccountsList() {
         return accounts;
