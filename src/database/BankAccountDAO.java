@@ -143,7 +143,6 @@ public class BankAccountDAO {
             e.printStackTrace();
             throw new RuntimeException("Error fetching bank accounts for customer: " + customerId, e);
         }
-    
         return accounts;
     }
 

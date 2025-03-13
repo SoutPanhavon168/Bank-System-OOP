@@ -1,31 +1,45 @@
 package user;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
+import database.CustomerDAO;
+import bankaccount.BankAccount;
+import database.TransactionDAO;
+import transaction.Transaction;
 //admin needs to login first before doing any action
-public class Admin extends User {
-    private String admin_username;
-    private String admin_password; 
-
+public class Admin extends Staff {
+    private String admin_username = "admin";
+    private String admin_password = "admin123";
+    static ArrayList<BankAccount> users = new ArrayList<>();
+    private CustomerDAO customerDAO = new CustomerDAO();
+    private int pin;
 
     static ArrayList<User> users = new ArrayList<User>();
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
-            String phoneNumber, LocalDate birthDate, String governmentId) {
-        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
+            String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role ) {
+        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId,staffId,role);
         this.admin_username = admin_username;
         this.admin_password = admin_password; 
     }
-
+    
+    public Admin() {
+        this.admin_username = admin_username;
+        this.admin_password = admin_password;
+    }
     public void admin_login(){
         Scanner sc = new Scanner(System.in);
+        admin_username = "admin";
+        admin_password = "admin123";
         try  {
             System.out.println("Enter the admin username: ");
             String username = sc.nextLine();
             System.out.println("Enter the admin password: ");
             String password = sc.nextLine();
             if(username.equals(this.admin_username) && password.equals(this.admin_password)){
-                while (isAdmin) {
+                while (true) {
                 System.out.println("========Admin Menu=======");
                 System.out.println("1. Add Account");
                 System.out.println("2. Remove Account");
@@ -73,65 +87,112 @@ public class Admin extends User {
             sc.close();
         }
     }
-    public void addAccount() {
-        try (Scanner sc = new Scanner(System.in)) {
-            System.out.println("Enter the first name: ");
-            String firstName = sc.nextLine();
-            this.firstName = firstName;
-            System.out.println("Enter the last name: ");
-            String lastName = sc.nextLine();
-            this.lastName = lastName;
-            System.out.println("Enter the email: ");
-            String email = sc.nextLine();
-            while(!isEmailValid(email)){
-                System.out.println("Invalid email. Please enter a valid email: ");
-                email = sc.nextLine();
+
+        public void addAccount() {
+        Scanner scanner = new Scanner(System.in);
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customers = new Customer();
+        try {
+            System.out.println("Enter your last name: ");
+            this.lastName = scanner.nextLine().trim();
+            if (lastName.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("Last name");
             }
-            System.out.println("Enter the phone number: ");
-            String phoneNumber = sc.nextLine();
-            if(!isPhoneNumberValid(phoneNumber)){
-                System.out.println("Invalid phone number. Please enter a valid phone number: ");
-                phoneNumber = sc.nextLine();
+            if (customers.isInputInvalid(lastName)){
+                throw new CustomerException.InvalidInputException("Last name");
             }
-            System.out.println("Enter the password: ");
-            String password = sc.nextLine();
-            do {
-                System.out.print("Confirm your password: ");
-                confirmPassword = sc.nextLine();
-                if (!confirmPassword.equals(password)) {
-                    System.out.println("Passwords do not match. Try again.");
-                }
-            }while (!confirmPassword.equals(password));
-            System.out.println("Enter the birth date: ");
-            String birthDate = sc.nextLine();
-            this.birthDate = LocalDate.parse(birthDate);
-            do {
-                System.out.println("Enter the government ID: ");
-                String governmentId = sc.nextLine();
-                if(!isGovernmentIdValid(governmentId)){
-                    System.out.println("Invalid government ID. Must be at least 6 characters long.");
-                    governmentId = sc.nextLine();
-                }
-            } while (!isGovernmentIdValid(governmentId));
-            System.out.println("Enter the user type: ");
-            String userType = sc.nextLine();
-            if (isAdmin) {
-                if(userType.equals("admin")){
-                    isAdmin = true;
-                }
-                else if(userType.equals("staff")){
-                    isStaff = true;
-                }
-                else{
-                    isAdmin = false;
-                    isStaff = false;
-                }
-                
+    
+            System.out.println("Enter your first name: ");
+            this.firstName = scanner.nextLine().trim();
+            if (firstName.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("First name");
             }
-        } catch (Exception e) {
-            System.out.println("Error!!!");
-        }
-        // Add account to database
+            
+            if (customers.isInputInvalid(firstName)){
+                throw new CustomerException.InvalidInputException("First name");
+            }
+    
+            System.out.println("Enter your email: ");
+            String email = scanner.nextLine().trim();
+            if (!isEmailValid(email)) {
+                throw new CustomerException.InvalidEmailException();
+            }
+    
+            System.out.println("Enter your password: ");
+            String password = scanner.nextLine();
+    
+            System.out.println("Confirm your password: ");
+            String confirmPassword = scanner.nextLine();
+            if (!password.equals(confirmPassword)) {
+                throw new CustomerException.PasswordMismatchException();
+            }
+    
+            System.out.println("Enter your phone number: ");
+            String phoneNumber = scanner.nextLine().trim();
+            if (!isPhoneNumberValid(phoneNumber)) {
+                throw new CustomerException.InvalidPhoneNumberException();
+            }
+    
+            System.out.println("Enter your birth date (YYYY-MM-DD): ");
+            LocalDate birthDate;
+            try {
+                birthDate = LocalDate.parse(scanner.nextLine().trim());
+                if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
+                    throw new CustomerException.UnderageException();
+                }
+            } catch (DateTimeParseException e) {
+                throw new CustomerException.InvalidBirthDateException();
+            }
+    
+            System.out.println("Enter your government ID: ");
+            String governmentId = scanner.nextLine().trim();
+            if (governmentId.isEmpty()) {
+                throw new CustomerException.EmptyFieldException("Government ID");
+            }
+
+            if (!isGovernmentIdValid(governmentId)){
+                throw new CustomerException.InvalidGovernmentIdException();
+            }
+    
+            // Ask for PIN
+            System.out.println("Enter your PIN (4 digits): ");
+            this.pin = scanner.nextInt();
+            String pinStr = String.valueOf(pin);
+            if (pinStr.length() != 4 || !pinStr.matches("\\d+")) {
+                throw new CustomerException.InvalidPinException();
+            }
+    
+            // Confirm PIN
+            System.out.println("Confirm your PIN: ");
+            int confirmPin = scanner.nextInt();
+            if (pin != confirmPin) {
+                throw new CustomerException.PinMismatchException();
+            }
+
+            List <Customer> customers1 = CustomerDAO.getAllCustomers();
+
+            for (Customer customer : customers1) {
+                if (customer.getGovernmentId().equals(governmentId)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                    }
+                if (customer.getEmail().equals(email)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                }
+                if (customer.getPhoneNumber().equals(phoneNumber)) {
+                    throw new CustomerException.CustomerAlreadyExistsException();
+                }
+            }
+    
+            // Create new customer with PIN
+            Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
+    
+            // Save customer to the database using CustomerDAO
+            customerDAO.saveCustomer(customer); // Store customer in DB
+    
+        } catch (CustomerException e) {
+            System.out.println("Registration failed: " + e.getMessage());
+    }
+        System.out.println("Registration successfully!!");
     }
     public void removeAccount() {
         Scanner sc = new Scanner(System.in);
@@ -139,96 +200,48 @@ public class Admin extends User {
         int accountNumber = sc.nextInt();
 
         //wait todo until we have the database
-        if(accountNumber == userId) {
-            System.out.println("Entet the password to confirm: ");
-            String password = sc.nextLine();
-            if(password.equals(this.password)) {
-                System.out.println("Account removed successfully");
-            }
-            else {
-                System.out.println("Incorrect password");
-            }
-        }
-        else {
-            System.out.println("Account not found");
-        }
-        sc.close();
+        CustomerDAO customerDAO = new CustomerDAO();
+        customerDAO.deleteCustomer(accountNumber);
         // Remove account from database
+        System.out.println("Account removed successfully");
     }
     public void updateAccount(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to update: ");
-        int accountNumber = sc.nextInt();
-
-        //wait todo until we have the database
-
-        if(accountNumber == userId) {
-            System.out.println("Enter the password to confirm: ");
-            String password = sc.nextLine();
-            if(password.equals(this.password)) {
-                System.out.println("Enter the new first name: ");
-                String firstName = sc.nextLine();
-                this.firstName = firstName;
-                System.out.println("Enter the new last name: ");
-                String lastName = sc.nextLine();
-                this.lastName = lastName;
-                System.out.println("Enter the new phone number: ");
-                String phoneNumber = sc.nextLine();
-                if(!isPhoneNumberValid(phoneNumber)){
-                    System.out.println("Invalid phone number. Please enter a valid phone number: ");
-                    phoneNumber = sc.nextLine();
-                }
-                System.out.println("Enter the new password: ");
-                String newPassword = sc.nextLine();
-                do {
-                    System.out.print("Confirm your new password: ");
-                    String newConfirmPassword = sc.nextLine();
-                    if (!newConfirmPassword.equals(newPassword)) {
-                        System.out.println("Passwords do not match. Try again.");
-                    }
-                System.out.println("Enter the new email: ");
-                String email = sc.nextLine();
-                while(!isEmailValid(email)){
-                    System.out.println("Invalid email. Please enter a valid email: ");
-                    email = sc.nextLine();
-                }
-                System.out.println("Enter the new birth date: ");
-                String birthDate = sc.nextLine();
-                this.birthDate = LocalDate.parse(birthDate);
-                System.out.println("Enter the new government ID: ");
-                String governmentId = sc.nextLine();
-                this.governmentId = governmentId;
-                System.out.println("Enter the new user type: ");
-                String userType = sc.nextLine();
-                if(userType.equals("admin")){
-                    isAdmin = true;
-                }
-                else if(userType.equals("staff")){
-                    isStaff = true;
-                }
-                else{
-                    isAdmin = false;
-                    isStaff = false;
-                }
-                //wait todo until we have the database
-                // Update account in database
-            } while (!confirmPassword.equals(password));
-        }
-            else {
-                System.out.println("Incorrect password");
+            CustomerDAO passcuCustomer = new CustomerDAO();
+            passcuCustomer.updatePasswordInDatabase();
             }
+    boolean approveLargeLoan(int loanId){
+        if(){
+            System.out.println("Loan approved successfully");
         }
-        else {
-            System.out.println("Account not found");
+        else{
+            System.out.println("Loan not found");
         }
-        sc.close();
+        return true;
+    }  // Only Admin
+    void viewAllTransactions() {
+        TransactionDAO transactionDAO = new TransactionDAO();
+        List<Transaction> transactions = transactionDAO.getAllTransactions();
+
+        for (Transaction transaction : transactions) {
+            System.out.println("Transaction ID: " + transaction.getTransactionID());
+            System.out.println("Account Number: " + transaction.getBankAccount().getAccountNumber());
+            System.out.println("Type: " + transaction.getType());
+            System.out.println("Amount: " + transaction.getAmount());
+            System.out.println("Status: " + transaction.getStatus());
+            System.out.println("Date: " + transaction.getTransactionDate());
+            System.out.println("----------------------------------");
+        }
     }
+
     boolean approveLargeLoan(int loanId){
         return true;
     };  // Only Admin
     void viewAllTransactions(){
         //fetch all transactions from the database
     };  // Only Admin
+      // Only Admin
     void viewAllPayments(){
         //fetch all payments from the database
     }; 
@@ -242,4 +255,5 @@ public class Admin extends User {
                " | Role: Admin" +
                " | Government ID: " + governmentId;
     }
+}
 }

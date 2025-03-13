@@ -61,34 +61,39 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
 }
 
 
-    // Method to retrieve a customer by their ID
-    public Customer getCustomerById(int customerID) {
-        String query = "SELECT * FROM customers WHERE customerID = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+public Customer getCustomerById(int customerID) {
+     // Add this log for debugging
 
-            ps.setInt(1, customerID);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                // Create and return the customer object using data from the result set
-                Customer customer = new Customer(
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("password"), // This may not be ideal, consider creating a setter method
-                        rs.getString("phoneNumber"),
-                        rs.getDate("birthDate").toLocalDate(),
-                        rs.getString("governmentId")
-                );
-                customer.setUserId(rs.getInt("customerID"));
-                return customer;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    String query = "SELECT * FROM customers WHERE customerId = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setInt(1, customerID); // Bind the customerID to the query
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            // Create and return the customer object from the ResultSet
+            Customer customer = new Customer(
+                    rs.getString("lastName"),
+                    rs.getString("firstName"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getString("password"), // This is a bit odd, make sure you handle passwords securely
+                    rs.getString("phoneNumber"),
+                    rs.getDate("birthDate").toLocalDate(),
+                    rs.getString("governmentId")
+            );
+            customer.setUserId(rs.getInt("customerId"));
+            return customer;  // Return the customer if found
+        } else {
+            System.out.println("No customer found with ID: " + customerID);  // Log if no customer is found
         }
-        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return null;  // Return null if no customer was found
+}
+
 
     // Method to retrieve all customers
     public static List<Customer> getAllCustomers() {
@@ -121,29 +126,37 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
 
     // Method to update customer information
     public void updateCustomer(Customer customer) {
-        String query = "UPDATE customers SET firstName = ?, lastName = ?, email = ?, phoneNumber = ?, birthDate = ?, governmentId = ? WHERE customerID = ?";
-
+        String query = "UPDATE customers SET lastName = ?, firstName = ?, email = ?, password = ?, phoneNumber = ?, birthDate = ?, governmentId = ? WHERE customerId = ?";
+    
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-
+    
             // Set the customer data in the PreparedStatement
-            ps.setString(1, customer.getFirstName());
-            ps.setString(2, customer.getLastName());
+            ps.setString(1, customer.getLastName());
+            ps.setString(2, customer.getFirstName());
             ps.setString(3, customer.getEmail());
-            ps.setString(4, customer.getPhoneNumber());
-            ps.setDate(5, Date.valueOf(customer.getBirthDate())); // Convert LocalDate to SQL Date
-            ps.setString(6, customer.getMaskedGovernmentId());
-            ps.setInt(7, customer.getUserId());
+            ps.setString(4, customer.getPassword()); // Ensure this is the full password, not masked
+            ps.setString(5, customer.getPhoneNumber());
+            ps.setDate(6, Date.valueOf(customer.getBirthDate())); // Convert LocalDate to SQL Date
+            ps.setString(7, customer.getGovernmentId()); // Ensure the full government ID is stored
+            ps.setInt(8, customer.getCustomerId()); // Use the correct customer ID
+    
             // Execute the update query
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Customer updated successfully.");
+            } else {
+                System.out.println("No customer found with the given ID.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+    
 
     // Method to delete a customer from the database
     public void deleteCustomer(int customerID) {
-        String query = "DELETE FROM customers WHERE user_id = ?";
+        String query = "DELETE FROM customers WHERE customerId = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
