@@ -179,6 +179,37 @@ public int getPinForAccount(int accountNumber) {
     }
     return -1; // Return -1 if no account or PIN found
 }
+
+public boolean freezeBankAccount(int accountId) {
+    String query = "UPDATE bankaccounts SET status = 'Frozen' WHERE account_number = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setInt(1, accountId);
+        int affectedRows = ps.executeUpdate();
+        
+        return affectedRows > 0; // Return true if update was successful
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+public boolean unfreezeBankAccount(int accountId) {
+    String query = "UPDATE bankaccounts SET status = 'Active' WHERE account_number = ? AND status = 'Frozen'";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setInt(1, accountId);
+        int affectedRows = ps.executeUpdate();
+        
+        return affectedRows > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
     
     
 
