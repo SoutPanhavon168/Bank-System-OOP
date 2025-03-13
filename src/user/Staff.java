@@ -20,6 +20,9 @@ public class Staff extends User implements Management {
         this.staffId = staffId;
         this.role = role;
     }
+    public Staff(){
+        
+    }
 
     // Getter and Setter methods for new attributes
     public int getStaffId() {

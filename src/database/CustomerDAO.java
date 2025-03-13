@@ -143,7 +143,7 @@ public void updatePasswordInDatabase(int customerID, String newPassword) {
 
     // Method to delete a customer from the database
     public void deleteCustomer(int customerID) {
-        String query = "DELETE FROM customers WHERE user_id = ?";
+        String query = "DELETE FROM customers WHERE customerId = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
