@@ -14,7 +14,7 @@ public class Customer extends User {
 
     private int customerId;
     private BankAccount bankAccount;
-    private ArrayList<BankAccount> bankAccounts;
+    public ArrayList<BankAccount> bankAccounts;
     private int pin; // Store the PIN
 
     public Customer() {
@@ -33,7 +33,7 @@ public class Customer extends User {
         this.customerId = getUserId();
     }
 
-    private boolean isInputInvalid(String input){
+    public boolean isInputInvalid(String input){
         return input.matches(".*\\d.*");
     }
 
