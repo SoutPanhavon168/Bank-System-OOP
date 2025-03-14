@@ -36,6 +36,12 @@ public class Staff extends User implements Management {
         return staffId;
     }
 
+    public String getPassword(){
+        return password;
+    }
+    public String getPosition(){
+        return role.toString();
+    }
     public void setStaffId(int staffId) {
         this.staffId = staffId;
     }
