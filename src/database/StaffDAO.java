@@ -6,7 +6,7 @@ import user.Staff;
 public class StaffDAO {
     // Method to save a staff member to the database
     public void saveStaff(Staff staff) {
-        String sql = "INSERT INTO staff (staffId,lastName, firstName, email, password, phoneNumber, birthDate, governmentId, role) " +
+        String sql = "INSERT INTO staff (staffId ,lastName, firstName, email, password, phoneNumber, birthDate, governmentId, role) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
