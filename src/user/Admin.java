@@ -270,7 +270,6 @@ public class Admin extends Staff {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to remove: ");
         int accountNumber = sc.nextInt();
-
         //wait todo until we have the database
         CustomerDAO customerDAO = new CustomerDAO();
         customerDAO.deleteCustomer(accountNumber);

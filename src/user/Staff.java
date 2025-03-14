@@ -326,54 +326,6 @@ public class Staff extends User implements Management {
         }
     }
 
-    @Override
-    public boolean approveSmallLoan(int loanId) {
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
-            // Logic to approve small loans
-            System.out.println("Approving small loan with Loan ID " + loanId);
-            // Approve loan logic here
-            return true;
-        } else {
-            System.out.println("Access denied: Your role does not have permission to approve small loans.");
-            return false;
-        }
-    }
-
-    @Override
-    public boolean rejectLoan(int loanId) {
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
-            // Logic to reject loans
-            System.out.println("Rejecting loan with Loan ID " + loanId);
-            // Reject loan logic here
-            return true;
-        } else {
-            System.out.println("Access denied: Your role does not have permission to reject loans.");
-            return false;
-        }
-    }
-
-    @Override
-    public void viewAllLoans() {
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
-            // Logic to view all loans
-            System.out.println("Viewing all loans:");
-            // Fetch and display all loans from the database
-        } else {
-            System.out.println("Access denied: Your role does not have permission to view loans.");
-        }
-    }
-
-    @Override
-    public void viewAllRequests() {
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
-            // Logic to view all requests (e.g., loan applications, account requests)
-            System.out.println("Viewing all requests:");
-            // Fetch and display all requests from the database
-        } else {
-            System.out.println("Access denied: Your role does not have permission to view requests.");
-        }
-    }
-
     // Additional Staff-specific methods
     public void viewStaffDetails() {
         // Display staff details (ID, role)

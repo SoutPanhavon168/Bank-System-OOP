@@ -23,11 +23,7 @@ public interface Management {
     void withdrawMoney(int accountId, double amount);  // Admin & Staff
     void transferMoney(int fromAccountId, int toAccountId, double amount);  // Admin & Staff
 
-    // Loan handling
-    boolean approveSmallLoan(int loanId);  // Admin & Staff
-    boolean rejectLoan(int loanId);  // Admin & Staff
-    void viewAllLoans();  // Both Admin & Staff
-    void viewAllRequests();  // Both Admin & Staff
+    
 }
 
 
