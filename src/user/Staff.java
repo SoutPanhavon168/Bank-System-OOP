@@ -4,9 +4,11 @@ import Interfaces.Management;
 import bankaccount.BankAccount;
 import database.BankAccountDAO;
 import database.CustomerDAO;
+import database.TransactionDAO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+import transaction.Transaction;
 
 public class Staff extends User implements Management {
     
@@ -22,7 +24,7 @@ public class Staff extends User implements Management {
     }
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
-                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, StaffRole role) {
+                 String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
@@ -46,6 +48,8 @@ public class Staff extends User implements Management {
         this.staffId = staffId;
     }
 
+    public String getGovernmentId(){return governmentId;}
+
     public StaffRole getRole() {
         return role;
     }
@@ -57,6 +61,8 @@ public class Staff extends User implements Management {
     public String getFullName(){
         return this.getFirstName() + " " + this.getLastName();
     }
+
+    public LocalDate getBirthDate(){return birthDate;}
 
     private boolean hasAccess(StaffRole role){
         return this.role == role;
@@ -326,6 +332,10 @@ public class Staff extends User implements Management {
         }
     }
 
+<<<<<<< HEAD
+   
+=======
+>>>>>>> origin/main
     // Additional Staff-specific methods
     public void viewStaffDetails() {
         // Display staff details (ID, role)
@@ -342,8 +352,7 @@ public class Staff extends User implements Management {
         } else {
             System.out.println("Access denied: Your role does not have permission to create bank account.");
         }
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
+\        throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
     }
 
     @Override
@@ -354,41 +363,193 @@ public class Staff extends User implements Management {
         else{
             System.out.println("Access denied: You do not have permission to delete bank accounts.");
         }
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
 
      //transaction
      @Override
     public void viewAllTransactions(){
+        TransactionDAO transactionDAO = new TransactionDAO();
 
-     }
+        if(hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)){
 
-    @Override
-    public void viewSpecificTransaction(int transactionId){
-        // TODO Auto-generated method stub
+            List<Transaction> transactions = transactionDAO.getAllTransactions();
+
+            if (transactions.isEmpty()) {
+                System.out.println("No transactions found.");
+                return;
+            }
+
+            System.out.println("All transactions:");
+            for (Transaction transaction : transactions) {
+                System.out.println(transaction.toString());
+            }
+
+        }
+        else{
+            System.out.println("Access denied: Your role does not have permission to view transactions.");
+        }
     }
 
     @Override
-    public void refundTransaction(int transactionId){
+    public void viewSpecificTransaction(String transactionId){
         // TODO Auto-generated method stub
+        Scanner scanner = new Scanner(System.in);
+        TransactionDAO transactionDAO = new TransactionDAO();
+        if(hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)){
+
+            System.out.println("Enter the transaction ID: ");
+            String transactionID = scanner.nextLine();
+
+            Transaction transaction = transactionDAO.getTransactionById(transactionID);
+            if (transaction == null) {
+                System.out.println("Transaction with ID " + transactionID + " not found.");
+                return;
+            }
+
+            System.out.println(transaction.toString());
+        }
+        else{
+            System.out.println("Access denied: Your role does not have permission to view transactions.");
+        }
+       
+    }
+
+    @Override
+    public void refundTransaction(String transactionId){
+        Scanner scanner = new Scanner(System.in);
+        TransactionDAO transactionDAO = new TransactionDAO();
+    
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
+            // Retrieve the transaction
+            Transaction transaction = transactionDAO.getTransactionById(transactionId);
+            if (transaction == null) {
+                System.out.println("Transaction with ID " + transactionId + " not found.");
+                return;
+            }
+    
+            // Check if a reverse transaction already exists
+            if (transactionDAO.isRefunded(transactionId)) {
+                System.out.println("Transaction has already been refunded.");
+                return;
+            }
+    
+
+
+        } else {
+            System.out.println("Access denied: You do not have permission to process refunds.");
+        } 
     }  
 
     @Override
-    public void depositMoney(int accountId, double amount){
-        // TODO Auto-generated method stub
+    public void depositMoney(int accountNumber, double amount){
+
+        TransactionDAO transactionDAO = new TransactionDAO();
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        Scanner scanner = new Scanner(System.in);
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
+
+            System.out.println("Enter the account number: ");
+            int accountNumberInput = scanner.nextInt();
+            scanner.nextLine();
+
+            BankAccount bankAccount = bankAccountDAO.getBankAccountById(accountNumberInput);
+            if (bankAccount == null) {
+                System.out.println("Account with ID " + accountNumber + " not found.");
+                return;
+            }
+
+            System.out.println("Enter the amount to deposit: ");
+            double depositAmount = scanner.nextDouble();
+            scanner.nextLine();
+
+            if (depositAmount <= 0) {
+                System.out.println("Invalid amount. Deposit amount must be greater than zero.");
+                return;
+            }
+
+            double currentBalance = bankAccount.getBalance();
+            double newBalance = currentBalance + depositAmount;
+
+            bankAccount.setBalance(newBalance);
+            
+            Transaction depositTransaction = new Transaction(bankAccount, "DEPOSIT", depositAmount, "Completed");
+            String transactionId = transactionDAO.generateTransactionID();
+            depositTransaction.setTransactionID(transactionId);
+
+            transactionDAO.updateAccountBalance(bankAccount, depositTransaction);
+
+            transactionDAO.saveTransaction(depositTransaction);
+
+            System.out.println("Deposit successful. New balance: " + newBalance);
+        }  
+
+        else {
+            System.out.println("Access denied: You do not have permission to deposit money.");
+        }
+        
     } 
 
-    @Override
-    public void withdrawMoney(int accountId, double amount){
-        // TODO Auto-generated method stub
-    }
-    
-    @Override// Admin & Staff
-    public void transferMoney(int fromAccountId, int toAccountId, double amount){
-        // TODO Auto-generated method stub
-    }
+    @Override 
+    public void transferMoney(String fromAccountNumber, String toAccountNumber, double amount){
+        TransactionDAO transactionDAO = new TransactionDAO();
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        Scanner scanner = new Scanner(System.in);
 
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
+            System.out.println("Enter the account number to transfer from: ");
+            int fromAccountNumberInput = scanner.nextInt();
+            scanner.nextLine();
 
+            BankAccount fromBankAccount = bankAccountDAO.getBankAccountById(fromAccountNumberInput);
+            if (fromBankAccount == null) {
+                System.out.println("Account with ID " + fromAccountNumber + " not found.");
+                return;
+            }
+
+            System.out.println("Enter the account number to transfer to: ");
+            int toAccountNumberInput = scanner.nextInt();
+            scanner.nextLine();
+
+            BankAccount toBankAccount = bankAccountDAO.getBankAccountById(toAccountNumberInput);
+            if (toBankAccount == null) {
+                System.out.println("Account with ID " + toAccountNumber + " not found.");
+                return;
+            }
+
+            System.out.println("Enter the amount to transfer: ");
+            double transferAmount = scanner.nextDouble();
+            scanner.nextLine();
+
+            if (transferAmount <= 0) {
+                System.out.println("Invalid amount. Transfer amount must be greater than zero.");
+                return;
+            }
+
+            double fromAccountBalance = fromBankAccount.getBalance();
+            if (fromAccountBalance < transferAmount) {
+                System.out.println("Insufficient funds. Transfer amount exceeds account balance.");
+                return;
+            }
+
+            double newFromAccountBalance = fromAccountBalance - transferAmount;
+            fromBankAccount.setBalance(newFromAccountBalance);
+
+            double toAccountBalance = toBankAccount.getBalance();
+            double newToAccountBalance = toAccountBalance + transferAmount;
+            toBankAccount.setBalance(newToAccountBalance);
+
+            Transaction transferTransaction = new Transaction(fromBankAccount, toBankAccount, "TRANSFER", transferAmount, "Completed");
+            String transactionId = transactionDAO.generateTransactionID();
+            transferTransaction.setTransactionID(transactionId);
+
+            transactionDAO.updateAccountBalance(fromBankAccount, transferTransaction);
+            transactionDAO.updateAccountBalance(toBankAccount, transferTransaction);
+
+            transactionDAO.saveTransaction(transferTransaction);
+
+            System.out.println("Transfer successful. New balance for account " + fromAccountNumber + ": " + newFromAccountBalance);
+            System.out.println("New balance for account " + toAccountNumber + ": " + new
+    }
 
 }

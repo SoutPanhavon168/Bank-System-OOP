@@ -67,7 +67,7 @@ public class TransactionDAO {
         }
     }
 
-    private void updateAccountBalance(BankAccount account, Transaction transaction) {
+    public void updateAccountBalance(BankAccount account, Transaction transaction) {
         String updateQuery = "UPDATE bankaccounts SET balance = ? WHERE account_number = ?";
 
         // Calculate the new balance based on the transaction type
@@ -99,7 +99,7 @@ public class TransactionDAO {
     }
 
     // Method to generate a unique transaction ID (for each new transaction)
-    private String generateTransactionID() {
+    public String generateTransactionID() {
         return "TXN-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + "-" + System.currentTimeMillis();
     }
 
@@ -314,5 +314,30 @@ public class TransactionDAO {
             return false;
         }
     }
+
+    public boolean isRefunded(String transactionId) {
+        String query = "SELECT COUNT(*) FROM transactions WHERE sender_account_id = " +
+                       "(SELECT recipient_account_id FROM transactions WHERE transaction_id = ?) " +
+                       "AND recipient_account_id = (SELECT sender_account_id FROM transactions WHERE transaction_id = ?) " +
+                       "AND amount = (SELECT amount FROM transactions WHERE transaction_id = ?)";
+    
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, transactionId);
+            stmt.setString(2, transactionId);
+            stmt.setString(3, transactionId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true; // Refund transaction exists
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    
+    
     
 }
