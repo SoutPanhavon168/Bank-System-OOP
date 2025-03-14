@@ -183,7 +183,6 @@ public class Admin extends Staff {
     
             // Create new customer with PIN
             Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
-    
             // Save customer to the database using CustomerDAO
             customerDAO.saveCustomer(customer); // Store customer in DB
     
@@ -206,18 +205,27 @@ public class Admin extends Staff {
     public void updateAccount(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to update: ");
+        String InputuserId = sc.nextLine();
+        if(userId == Integer.parseInt(InputuserId)){
+            System.out.println("Enter the new password: ");
+            String newPassword = sc.nextLine();
             CustomerDAO passcuCustomer = new CustomerDAO();
-            passcuCustomer.updatePasswordInDatabase();
+            passcuCustomer.updatePasswordInDatabase(userId,newPassword);
+            } else {
+                System.out.println("Account not found");
             }
-    boolean approveLargeLoan(int loanId){
-        if(){
-            System.out.println("Loan approved successfully");
         }
-        else{
+
+    public boolean approveLargeLoan(int loanId) {
+        // Add logic to approve large loan
+        boolean loanApproved = true; // Placeholder for actual logic
+        if (loanApproved) {
+            System.out.println("Loan approved successfully");
+        } else {
             System.out.println("Loan not found");
         }
-        return true;
-    }  // Only Admin
+        return loanApproved;
+    } 
     void viewAllTransactions() {
         TransactionDAO transactionDAO = new TransactionDAO();
         List<Transaction> transactions = transactionDAO.getAllTransactions();
@@ -247,4 +255,4 @@ public class Admin extends Staff {
                " | Government ID: " + governmentId;
     }
 }
-}
+
