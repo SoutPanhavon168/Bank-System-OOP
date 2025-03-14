@@ -17,12 +17,14 @@ public class Admin extends Staff {
     private CustomerDAO customerDAO = new CustomerDAO();
     private int pin;
 
+    static ArrayList<User> users = new ArrayList<User>();
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role ) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId,staffId,role);
         this.admin_username = admin_username;
         this.admin_password = admin_password; 
     }
+    
     public Admin() {
         this.admin_username = admin_username;
         this.admin_password = admin_password;
@@ -195,7 +197,6 @@ public class Admin extends Staff {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to remove: ");
         int accountNumber = sc.nextInt();
-
         //wait todo until we have the database
         CustomerDAO customerDAO = new CustomerDAO();
         customerDAO.deleteCustomer(accountNumber);
@@ -240,6 +241,13 @@ public class Admin extends Staff {
             System.out.println("----------------------------------");
         }
     }
+
+    boolean approveLargeLoan(int loanId){
+        return true;
+    };  // Only Admin
+    void viewAllTransactions(){
+        //fetch all transactions from the database
+    };  // Only Admin
       // Only Admin
     void viewAllPayments(){
         //fetch all payments from the database

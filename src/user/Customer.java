@@ -183,52 +183,72 @@ public class Customer extends User {
 
     public void updateOwnAccount() {
         Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("\nUpdate Account Information: ");
+        System.out.println("1. Update Email");
+        System.out.println("2. Update Phone Number");
+        System.out.println("3. Update Password");
+        System.out.print("Please choose an option (1-3): ");
     
-           
-        if (authenticateWithRetries(scanner)) {
-            // Prompt the user for which information they want to update
-            System.out.println("\nUpdate Account Information: ");
-            System.out.println("1. Update Email");
-            System.out.println("2. Update Phone Number");
-            System.out.println("3. Update Password");
-            System.out.println("Please choose an option (1-3): ");
-            
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
     
-            switch (choice) {
-                case 1:
-                    System.out.println("Enter your new email: ");
-                    String newEmail = scanner.nextLine();
-                    if (isEmailValid(newEmail)) {
-                        setEmail(newEmail); // Update email in the Customer object
-                        System.out.println("Email updated successfully!");
-                    } else {
-                        System.out.println("Invalid email format.");
-                    }
-                    break;
-                case 2:
-                    System.out.println("Enter your new phone number: ");
-                    String newPhoneNumber = scanner.nextLine();
-                    if (isPhoneNumberValid(newPhoneNumber)) {
-                        setPhoneNumber(newPhoneNumber); // Update phone number in the Customer object
-                        System.out.println("Phone number updated successfully!");
-                    } else {
-                        System.out.println("Invalid phone number format.");
-                    }
-                    break;
-                case 3:
-                    System.out.println("Enter your new password: ");
-                    String newPassword = scanner.nextLine();
-                    setPassword(newPassword); // Update password in the Customer object
+        CustomerDAO customerDAO = new CustomerDAO(); // Create a DAO instance
+    
+        // Fetch the current customer from the database to ensure it's updated correctly
+        Customer currentCustomer = customerDAO.getCustomerById(this.customerId);
+    
+        if (currentCustomer == null) {
+            System.out.println("Error: No customer found with the given ID.");
+            return;
+        }
+    
+        switch (choice) {
+            case 1:
+                System.out.print("Enter your new email: ");
+                String newEmail = scanner.nextLine();
+                if (isEmailValid(newEmail)) {
+                    currentCustomer.setEmail(newEmail); // Update email
+                    customerDAO.updateCustomer(currentCustomer); // Save changes
+                    System.out.println("Email updated successfully!");
+                } else {
+                    System.out.println("Invalid email format.");
+                }
+                break;
+            case 2:
+                System.out.print("Enter your new phone number: ");
+                String newPhoneNumber = scanner.nextLine();
+                if (isPhoneNumberValid(newPhoneNumber)) {
+                    currentCustomer.setPhoneNumber(newPhoneNumber); // Update phone number
+                    customerDAO.updateCustomer(currentCustomer); // Save changes
+                    System.out.println("Phone number updated successfully!");
+                } else {
+                    System.out.println("Invalid phone number format.");
+                }
+                break;
+            case 3:
+                System.out.print("Enter your new password: ");
+                String newPassword = scanner.nextLine();
+                System.out.print("Confirm your new password: ");
+                String confirmPassword = scanner.nextLine();
+    
+                if (newPassword.equals(confirmPassword)) {
+                    currentCustomer.setPassword(newPassword); // Update password
+                    customerDAO.updateCustomer(currentCustomer); // Save changes
                     System.out.println("Password updated successfully!");
-                    break;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
-            }
+                } else {
+                    System.out.println("Passwords do not match. Please try again.");
+                }
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                break;
         }
     }
+    
+    
+    
+    
 
     // Method to allow customers to change their PIN
     public void changePin() {
@@ -250,25 +270,37 @@ public class Customer extends User {
 
     private boolean authenticateWithRetries(Scanner scanner) {
         int attempts = 3;
+        CustomerDAO customerDAO = new CustomerDAO();
+    
         while (attempts > 0) {
-            System.out.println("Enter your PIN to proceed: ");
-            String enteredPin = scanner.nextLine();
+            System.out.print("Enter your email or phone number: ");
+            String emailOrPhone = scanner.nextLine();
+    
+            System.out.print("Enter your password: ");
+            String enteredPassword = scanner.nextLine();
+    
             try {
-                if (authenticatePin(Integer.parseInt(enteredPin))) {
-                    return true;
+                // Retrieve customer by email or phone
+                Customer customer = customerDAO.getCustomerByEmailOrPhone(emailOrPhone);
+    
+                if (customer != null && customer.getPassword().equals(enteredPassword)) {
+                    return true; // Authentication successful
+                } else {
+                    attempts--;
+                    System.out.println("Invalid credentials.");
+                    if (attempts > 0) {
+                        System.out.println("You have " + attempts + " attempts remaining.");
+                    } else {
+                        System.out.println("Too many failed attempts. Access denied.");
+                    }
                 }
             } catch (Exception e) {
-                attempts--;
-                System.out.println(e.getMessage());
-                if (attempts > 0) {
-                    System.out.println("You have " + attempts + " attempts remaining.");
-                } else {
-                    System.out.println("Too many failed attempts. Access denied.");
-                }
+                e.printStackTrace();
             }
         }
-        return false;
+        return false; // Authentication failed
     }
+    
     
     
     // Method to view account details and associated bank accounts
@@ -291,10 +323,7 @@ public class Customer extends User {
         }
     }
 
-    public boolean login() {
-        // Implement login logic
-        return true;
-    }
+   
     
     public void updatePassword() {
         Scanner scanner = new Scanner(System.in);
