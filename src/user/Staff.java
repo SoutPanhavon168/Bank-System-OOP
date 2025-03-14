@@ -22,7 +22,7 @@ public class Staff extends User implements Management {
     }
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
-                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, StaffRole role) {
+                 String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
@@ -46,6 +46,8 @@ public class Staff extends User implements Management {
         this.staffId = staffId;
     }
 
+    public String getGovernmentId(){return governmentId;}
+
     public StaffRole getRole() {
         return role;
     }
@@ -57,6 +59,8 @@ public class Staff extends User implements Management {
     public String getFullName(){
         return this.getFirstName() + " " + this.getLastName();
     }
+
+    public LocalDate getBirthDate(){return birthDate;}
 
     private boolean hasAccess(StaffRole role){
         return this.role == role;

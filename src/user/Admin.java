@@ -1,14 +1,14 @@
 package user;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
+import bankaccount.BankAccount;
 import database.CustomerDAO;
 import database.StaffDAO;
-import bankaccount.BankAccount;
 import database.TransactionDAO;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import transaction.Transaction;
 //admin needs to login first before doing any action
 public class Admin extends Staff {
@@ -18,14 +18,14 @@ public class Admin extends Staff {
     private int pin;
 
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
-            String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role ) {
-        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, staffId, role);
+            String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role ) {
+        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
         this.admin_username = admin_username;
         this.admin_password = admin_password; 
     }
     public Admin() {
         this.admin_username = admin_username;
-        this.admin_password = admin_password
+        this.admin_password = admin_password;
     }
 
     public void admin_login(){
@@ -87,79 +87,91 @@ public class Admin extends Staff {
     }
 }
     
-    public void addStaffAccount(){
-            Scanner scanner = new Scanner(System.in);
-            Customer staff = new Customer();
-            StaffDAO  staffDAO = new StaffDAO();
-            try {
-                System.out.println("Enter your last name: ");
-                this.lastName = scanner.nextLine().trim();
-                if (lastName.isEmpty()) {
-                    throw new CustomerException.EmptyFieldException("Last name");
-                }
-                if (staff.isInputInvalid(lastName)){
-                    throw new CustomerException.InvalidInputException("Last name");
-                }
-        
-                System.out.println("Enter your first name: ");
-                this.firstName = scanner.nextLine().trim();
-                if (firstName.isEmpty()) {
-                    throw new CustomerException.EmptyFieldException("First name");
-                }
-                
-                if (staff.isInputInvalid(firstName)){
-                    throw new CustomerException.InvalidInputException("First name");
-                }
-        
-                System.out.println("Enter your email: ");
-                String email = scanner.nextLine().trim();
-                if (!isEmailValid(email)) {
-                    throw new CustomerException.InvalidEmailException();
-                }
-        
-                System.out.println("Enter your password: ");
-                String password = scanner.nextLine();
-        
-                System.out.println("Confirm your password: ");
-                String confirmPassword = scanner.nextLine();
-                if (!password.equals(confirmPassword)) {
-                    throw new CustomerException.PasswordMismatchException();
-                }
-        
-                System.out.println("Enter your phone number: ");
-                String phoneNumber = scanner.nextLine().trim();
-                if (!isPhoneNumberValid(phoneNumber)) {
-                    throw new CustomerException.InvalidPhoneNumberException();
-                }
-        
-                System.out.println("Enter your birth date (YYYY-MM-DD): ");
-                LocalDate birthDate;
-                try {
-                    birthDate = LocalDate.parse(scanner.nextLine().trim());
-                    if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
-                        throw new CustomerException.UnderageException();
-                    }
-                } catch (DateTimeParseException e) {
-                    throw new CustomerException.InvalidBirthDateException();
-                }
-        
-                System.out.println("Enter your government ID: ");
-                String governmentId = scanner.nextLine().trim();
-                if (governmentId.isEmpty()) {
-                    throw new CustomerException.EmptyFieldException("Government ID");
-                }
-    
-                if (!isGovernmentIdValid(governmentId)){
-                    throw new CustomerException.InvalidGovernmentIdException();
-                }
-            } catch (CustomerException e) {
-                System.out.println("Registration failed: " + e.getMessage());
+public void addStaffAccount() {
+    Scanner scanner = new Scanner(System.in);
+    StaffDAO staffDAO = new StaffDAO();
+    Staff staff = null;
+
+    try {
+        System.out.println("Enter your last name: ");
+        this.lastName = scanner.nextLine().trim();
+        if (lastName.isEmpty()) {
+            throw new CustomerException.EmptyFieldException("Last name");
+        }
+        /* if (staff.isInputInvalid(lastName)) {
+            throw new CustomerException.InvalidInputException("Last name");
+        } */
+
+        System.out.println("Enter your first name: ");
+        this.firstName = scanner.nextLine().trim();
+        if (firstName.isEmpty()) {
+            throw new CustomerException.EmptyFieldException("First name");
+        }
+        /* if (staff.isInputInvalid(firstName)) {
+            throw new CustomerException.InvalidInputException("First name");
+        } */
+
+        System.out.println("Enter your email: ");
+        String email = scanner.nextLine().trim();
+        if (!isEmailValid(email)) {
+            throw new CustomerException.InvalidEmailException();
+        }
+
+        System.out.println("Enter your password: ");
+        String password = scanner.nextLine();
+
+        System.out.println("Confirm your password: ");
+        String confirmPassword = scanner.nextLine();
+        if (!password.equals(confirmPassword)) {
+            throw new CustomerException.PasswordMismatchException();
+        }
+
+        System.out.println("Enter your phone number: ");
+        String phoneNumber = scanner.nextLine().trim();
+        if (!isPhoneNumberValid(phoneNumber)) {
+            throw new CustomerException.InvalidPhoneNumberException();
+        }
+
+        System.out.println("Enter your birth date (YYYY-MM-DD): ");
+        LocalDate birthDate;
+        try {
+            birthDate = LocalDate.parse(scanner.nextLine().trim());
+            if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
+                throw new CustomerException.UnderageException();
+            }
+        } catch (DateTimeParseException e) {
+            throw new CustomerException.InvalidBirthDateException();
+        }
+
+        System.out.println("Enter your government ID: ");
+        String governmentId = scanner.nextLine().trim();
+        if (governmentId.isEmpty()) {
+            throw new CustomerException.EmptyFieldException("Government ID");
+        }
+        if (!isGovernmentIdValid(governmentId)) {
+            throw new CustomerException.InvalidGovernmentIdException();
+        }
+
+        // Ask for Role using enum
+        System.out.println("Select Role: ");
+        for (StaffRole role : StaffRole.values()) {
+            System.out.println(role.ordinal() + 1 + ". " + role);
+        }
+
+        int roleChoice = scanner.nextInt();
+        StaffRole role = StaffRole.values()[roleChoice - 1]; // Get the role based on the user's choice
+
+        // Create the Staff object
+        staff = new Staff(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
+        staffDAO.saveStaff(staff); // Save staff to the database
+
+        System.out.println("Staff account created successfully!");
+
+    } catch (CustomerException e) {
+        System.out.println("Registration failed: " + e.getMessage());
     }
-        
-    Staff staff1 = new Staff(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
-    staffDAO.saveStaff(staff1);
-    System.out.println("Staff account created successfully");
 }
+
     public void addAccount() {
         Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
