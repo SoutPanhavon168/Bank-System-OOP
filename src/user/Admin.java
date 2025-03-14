@@ -6,29 +6,28 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import database.CustomerDAO;
+import database.StaffDAO;
 import bankaccount.BankAccount;
 import database.TransactionDAO;
 import transaction.Transaction;
 //admin needs to login first before doing any action
 public class Admin extends Staff {
-    private String admin_username = "admin";
-    private String admin_password = "admin123";
+    private String admin_username;
+    private String admin_password;
     static ArrayList<BankAccount> users = new ArrayList<>();
-    private CustomerDAO customerDAO = new CustomerDAO();
     private int pin;
 
-    static ArrayList<User> users = new ArrayList<User>();
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
-            String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role ) {
-        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId,staffId,role);
+            String phoneNumber, LocalDate birthDate, String governmentId, int staffId, StaffRole role ) {
+        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, staffId, role);
         this.admin_username = admin_username;
         this.admin_password = admin_password; 
     }
-    
     public Admin() {
         this.admin_username = admin_username;
         this.admin_password = admin_password;
     }
+
     public void admin_login(){
         Scanner sc = new Scanner(System.in);
         admin_username = "admin";
@@ -79,16 +78,89 @@ public class Admin extends Staff {
                 }
             }
         }else{
-                System.out.println("Invalid username or password");
-            }
-        } catch (Exception e) {
-            System.out.println("Error!!!");
-        } finally {
-            sc.close();
+            System.out.println("Invalid username or password");
         }
+    } catch (Exception e) {
+        System.out.println("Error!!!");
+    } finally {
+        sc.close();
     }
-
-        public void addAccount() {
+}
+    
+    public void addStaffAccount(){
+            Scanner scanner = new Scanner(System.in);
+            Customer staff = new Customer();
+            StaffDAO  staffDAO = new StaffDAO();
+            try {
+                System.out.println("Enter your last name: ");
+                this.lastName = scanner.nextLine().trim();
+                if (lastName.isEmpty()) {
+                    throw new CustomerException.EmptyFieldException("Last name");
+                }
+                if (staff.isInputInvalid(lastName)){
+                    throw new CustomerException.InvalidInputException("Last name");
+                }
+        
+                System.out.println("Enter your first name: ");
+                this.firstName = scanner.nextLine().trim();
+                if (firstName.isEmpty()) {
+                    throw new CustomerException.EmptyFieldException("First name");
+                }
+                
+                if (staff.isInputInvalid(firstName)){
+                    throw new CustomerException.InvalidInputException("First name");
+                }
+        
+                System.out.println("Enter your email: ");
+                String email = scanner.nextLine().trim();
+                if (!isEmailValid(email)) {
+                    throw new CustomerException.InvalidEmailException();
+                }
+        
+                System.out.println("Enter your password: ");
+                String password = scanner.nextLine();
+        
+                System.out.println("Confirm your password: ");
+                String confirmPassword = scanner.nextLine();
+                if (!password.equals(confirmPassword)) {
+                    throw new CustomerException.PasswordMismatchException();
+                }
+        
+                System.out.println("Enter your phone number: ");
+                String phoneNumber = scanner.nextLine().trim();
+                if (!isPhoneNumberValid(phoneNumber)) {
+                    throw new CustomerException.InvalidPhoneNumberException();
+                }
+        
+                System.out.println("Enter your birth date (YYYY-MM-DD): ");
+                LocalDate birthDate;
+                try {
+                    birthDate = LocalDate.parse(scanner.nextLine().trim());
+                    if (birthDate.isAfter(LocalDate.now().minusYears(16))) {
+                        throw new CustomerException.UnderageException();
+                    }
+                } catch (DateTimeParseException e) {
+                    throw new CustomerException.InvalidBirthDateException();
+                }
+        
+                System.out.println("Enter your government ID: ");
+                String governmentId = scanner.nextLine().trim();
+                if (governmentId.isEmpty()) {
+                    throw new CustomerException.EmptyFieldException("Government ID");
+                }
+    
+                if (!isGovernmentIdValid(governmentId)){
+                    throw new CustomerException.InvalidGovernmentIdException();
+                }
+            } catch (CustomerException e) {
+                System.out.println("Registration failed: " + e.getMessage());
+    }
+        
+    Staff staff1 = new Staff(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId,staffId, role);
+    staffDAO.saveStaff(staff1);
+    System.out.println("Staff account created successfully");
+}
+    public void addAccount() {
         Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customers = new Customer();
@@ -185,6 +257,7 @@ public class Admin extends Staff {
     
             // Create new customer with PIN
             Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
+    
             // Save customer to the database using CustomerDAO
             customerDAO.saveCustomer(customer); // Store customer in DB
     
@@ -197,7 +270,6 @@ public class Admin extends Staff {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to remove: ");
         int accountNumber = sc.nextInt();
-
         //wait todo until we have the database
         CustomerDAO customerDAO = new CustomerDAO();
         customerDAO.deleteCustomer(accountNumber);
@@ -228,7 +300,7 @@ public class Admin extends Staff {
         }
         return loanApproved;
     } 
-    void viewAllTransactions() {
+    public void viewAllTransactions() {
         TransactionDAO transactionDAO = new TransactionDAO();
         List<Transaction> transactions = transactionDAO.getAllTransactions();
 
@@ -242,13 +314,6 @@ public class Admin extends Staff {
             System.out.println("----------------------------------");
         }
     }
-
-    boolean approveLargeLoan(int loanId){
-        return true;
-    };  // Only Admin
-    void viewAllTransactions(){
-        //fetch all transactions from the database
-    };  // Only Admin
       // Only Admin
     void viewAllPayments(){
         //fetch all payments from the database
