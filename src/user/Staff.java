@@ -12,10 +12,17 @@ public class Staff extends User implements Management {
     
     // Additional attributes for Staff
     protected int staffId;
-    protected String role;
+    protected StaffRole role;
+
+    public enum StaffRole {
+        MANAGER,
+        LOAN_OFFICER,
+        CUSTOMER_SERVICE,
+        TELLER
+    }
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
-                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, String role) {
+                 String phoneNumber, LocalDate birthDate, String governmentId, int staffId, StaffRole role) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
@@ -33,11 +40,11 @@ public class Staff extends User implements Management {
         this.staffId = staffId;
     }
 
-    public String getRole() {
+    public StaffRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(StaffRole role) {
         this.role = role;
     }
 
@@ -45,45 +52,51 @@ public class Staff extends User implements Management {
         return this.getFirstName() + " " + this.getLastName();
     }
 
-    private boolean hasAccess(String requiredRole){
-        return this.role.equals(requiredRole);
+    private boolean hasAccess(StaffRole role){
+        return this.role == role;
     }
 
     @Override
     public void viewCustomerDetails() {
         Scanner scanner = new Scanner(System.in);
 
-        if (!hasAccess("Manager") && !hasAccess("Customer Service")) {
+        if ((!hasAccess(StaffRole.MANAGER)) && !hasAccess(StaffRole.CUSTOMER_SERVICE)){
             System.out.println("You do not have access to view customer details.");
             scanner.close();
             return;
         }
-
-        System.out.println("Would you like to: \n1. View all customers \n2. Search for a customer");
-        System.out.println("Enter your choice (1 or 2): ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-
-        if(choice == 1){
-            System.out.println("All customers:");
-            viewAllCustomers();
-        }
-        else if(choice == 2){
-            System.out.println("Enter the customer's ID: ");
-            int ID = scanner.nextInt();
+        int choice;
+        do {
+            System.out.println("Would you like to: \n1. View all customers \n2. Search for a specific customer");
+            System.out.print("Enter your choice (1 or 2): ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number (1 or 2).");
+                scanner.next();
+            }
+            choice = scanner.nextInt();
             scanner.nextLine();
-            viewSpecificCustomerDetails(ID);
-        }
-        else{
-            System.out.println("Invalid choice. Please enter 1 or 2.");
-        } 
-        
-        scanner.close();
+            
+            if (choice == 1) {
+                viewAllCustomers();
+            } else if (choice == 2) {
+                System.out.print("Enter customer ID: ");
+                while (!scanner.hasNextInt()) {
+                    System.out.println("Invalid input. Please enter a valid customer ID.");
+                    scanner.next();
+                }
+                int customerId = scanner.nextInt();
+                scanner.nextLine();
+                viewSpecificCustomerDetails(customerId);
+            } else {
+                System.out.println("Invalid choice. Please enter 1 or 2.");
+            }
+        } while (choice != 1 && choice != 2);
     }
+
 
     @Override
     public void updateCustomerAccount() {
-        if(hasAccess("Manager") && hasAccess("Customer Service")){
+        if(hasAccess(StaffRole.MANAGER) && hasAccess(StaffRole.CUSTOMER_SERVICE)){
             System.out.println("You do not have access to update customer accounts.");
             return;
         }
@@ -191,7 +204,7 @@ public class Staff extends User implements Management {
     public void viewbankAccounts() {
         Scanner scanner = new Scanner(System.in);
 
-        if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             System.out.println("Would you like to: \n1. View all bank accounts \n2. Search for a bank account");
             System.out.println("Enter your choice (1 or 2): ");
             int choice = scanner.nextInt();
@@ -218,7 +231,7 @@ public class Staff extends User implements Management {
     @Override
     public void viewSpecificbankAccount(int accountId) {
     // Check if the user has the appropriate access
-    if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+    if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
         // Fetch the bank account details from the database using a DAO method
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         BankAccount bankAccount = bankAccountDAO.getBankAccountById(accountId);
@@ -243,7 +256,7 @@ public class Staff extends User implements Management {
     @Override
     public void viewAllbankAccounts() {
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
-        if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             // Fetch and print all bank accounts' details from the BankAccountDAO
             System.out.println("All bank accounts:");
 
@@ -267,10 +280,20 @@ public class Staff extends User implements Management {
 
     @Override
     public void freezeAccount(int accountId) {
-        if (hasAccess("Manager")) {
+        if (hasAccess(StaffRole.MANAGER)){
             // Logic to freeze a bank account based on account ID
-            System.out.println("Freezing Bank Account ID " + accountId);
-            // Call the relevant logic to freeze the account
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter the account ID you want to freeze: ");
+            int bankAccountId = scanner.nextInt();
+            scanner.nextLine();
+
+            BankAccountDAO bankAccountDAO = new BankAccountDAO();
+            boolean success = bankAccountDAO.freezeBankAccount(bankAccountId);
+            if (success) {
+                System.out.println("Bank Account ID " + accountId + " has been frozen.");
+            } else {
+                System.out.println("Failed to freeze Bank Account ID " + bankAccountId);
+            }
         } else {
             System.out.println("Access denied: Your role does not have permission to freeze bank accounts.");
         }
@@ -278,10 +301,20 @@ public class Staff extends User implements Management {
 
     @Override
     public void unfreezeAccount(int accountId) {
-        if (hasAccess("Manager")) {
+        if (hasAccess(StaffRole.MANAGER)){
             // Logic to unfreeze a bank account based on account ID
-            System.out.println("Unfreezing Bank Account ID " + accountId);
-            // Call the relevant logic to unfreeze the account
+            System.out.println("Enter the account ID you want to unfreeze: ");
+            Scanner scanner = new Scanner(System.in);
+            int bankAccountId = scanner.nextInt();
+            scanner.nextLine();
+
+            BankAccountDAO bankAccountDAO = new BankAccountDAO();
+            boolean success = bankAccountDAO.unfreezeBankAccount(bankAccountId);
+            if (success) {
+                System.out.println("Bank Account ID " + bankAccountId + " has been unfrozen.");
+            } else {
+                System.out.println("Failed to unfreeze Bank Account ID " + bankAccountId);
+            }
         } else {
             System.out.println("Access denied: Your role does not have permission to unfreeze bank accounts.");
         }
@@ -289,7 +322,7 @@ public class Staff extends User implements Management {
 
     @Override
     public boolean approveSmallLoan(int loanId) {
-        if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             // Logic to approve small loans
             System.out.println("Approving small loan with Loan ID " + loanId);
             // Approve loan logic here
@@ -302,7 +335,7 @@ public class Staff extends User implements Management {
 
     @Override
     public boolean rejectLoan(int loanId) {
-        if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             // Logic to reject loans
             System.out.println("Rejecting loan with Loan ID " + loanId);
             // Reject loan logic here
@@ -315,7 +348,7 @@ public class Staff extends User implements Management {
 
     @Override
     public void viewAllLoans() {
-        if (hasAccess("Manager") || hasAccess("Loan Officer")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             // Logic to view all loans
             System.out.println("Viewing all loans:");
             // Fetch and display all loans from the database
@@ -326,7 +359,7 @@ public class Staff extends User implements Management {
 
     @Override
     public void viewAllRequests() {
-        if (hasAccess("Manager")) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
             // Logic to view all requests (e.g., loan applications, account requests)
             System.out.println("Viewing all requests:");
             // Fetch and display all requests from the database
@@ -346,15 +379,58 @@ public class Staff extends User implements Management {
 
     @Override
     public void createBankAccount() {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.CUSTOMER_SERVICE)) {
+            
+        } else {
+            System.out.println("Access denied: Your role does not have permission to create bank account.");
+        }
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
     }
 
     @Override
     public void deleteBankAccount(int accountId) {
+        if(hasAccess(StaffRole.MANAGER)){
+            // Logic to delete bank account
+        }
+        else{
+            System.out.println("Access denied: You do not have permission to delete bank accounts.");
+        }
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
+
+     //transaction
+     @Override
+    public void viewAllTransactions(){
+
+     }
+
+    @Override
+    public void viewSpecificTransaction(int transactionId){
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void refundTransaction(int transactionId){
+        // TODO Auto-generated method stub
+    }  
+
+    @Override
+    public void depositMoney(int accountId, double amount){
+        // TODO Auto-generated method stub
+    } 
+
+    @Override
+    public void withdrawMoney(int accountId, double amount){
+        // TODO Auto-generated method stub
+    }
+    
+    @Override// Admin & Staff
+    public void transferMoney(int fromAccountId, int toAccountId, double amount){
+        // TODO Auto-generated method stub
+    }
+
 
 
 }

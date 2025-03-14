@@ -143,7 +143,6 @@ public class BankAccountDAO {
             e.printStackTrace();
             throw new RuntimeException("Error fetching bank accounts for customer: " + customerId, e);
         }
-    
         return accounts;
     }
 
@@ -184,6 +183,46 @@ public class BankAccountDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean freezeBankAccount(int accountNumber) {
+        String query = "UPDATE bankaccounts SET status = 'Frozen' WHERE account_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, accountNumber);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Account frozen successfully.");
+                return true;
+            } else {
+                System.out.println("Failed to freeze account.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean unfreezeBankAccount(int accountNumber) {
+        String query = "UPDATE bankaccounts SET status = 'Active' WHERE account_number = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, accountNumber);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Account unfrozen successfully.");
+                return true;
+            } else {
+                System.out.println("Failed to unfreeze account.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

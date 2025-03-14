@@ -15,11 +15,19 @@ public interface Management {
     void freezeAccount(int accountId);  // Both Admin & Staff
     void unfreezeAccount(int accountId);
 
+    //transaction
+    void viewAllTransactions();
+    void viewSpecificTransaction(int transactionId);
+    void refundTransaction(int transactionId);  // Admin & Staff
+    void depositMoney(int accountId, double amount);  // Admin & Staff
+    void withdrawMoney(int accountId, double amount);  // Admin & Staff
+    void transferMoney(int fromAccountId, int toAccountId, double amount);  // Admin & Staff
+
     // Loan handling
     boolean approveSmallLoan(int loanId);  // Admin & Staff
     boolean rejectLoan(int loanId);  // Admin & Staff
     void viewAllLoans();  // Both Admin & Staff
-    void viewAllRequests();  // Both Admin & Staf
+    void viewAllRequests();  // Both Admin & Staff
 }
 
 
