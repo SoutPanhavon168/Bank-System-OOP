@@ -245,11 +245,6 @@ public class Customer extends User {
                 break;
         }
     }
-    
-    
-    
-    
-
     // Method to allow customers to change their PIN
     public void changePin() {
         Scanner scanner = new Scanner(System.in);

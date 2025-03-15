@@ -389,6 +389,4 @@ public class Staff extends User implements Management {
         // TODO Auto-generated method stub
     }
 
-
-
 }
