@@ -22,9 +22,5 @@ public interface Management {
     void depositMoney(int accountNumber, double amount);  // Admin & Staff
     void transferMoney(String fromAccountNumber, String toAccountNumber, double amount);  // Admin & Staff
 
-<<<<<<< HEAD
-=======
-    
->>>>>>> origin/main
 }
 

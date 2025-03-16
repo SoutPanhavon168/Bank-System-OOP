@@ -18,8 +18,8 @@ public class Admin extends Staff {
     private int pin;
 
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
-            String phoneNumber, LocalDate birthDate, String governmentId, int staffId, StaffRole role ) {
-        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, staffId, role);
+            String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role ) {
+        super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
         this.admin_username = admin_username;
         this.admin_password = admin_password; 
     }
@@ -170,10 +170,6 @@ public void addStaffAccount() {
     } catch (CustomerException e) {
         System.out.println("Registration failed: " + e.getMessage());
     }
-        
-    Staff staff1 = new Staff(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId,staffId, role);
-    staffDAO.saveStaff(staff1);
-    System.out.println("Staff account created successfully");
 }
 
     public void addAccount() {
