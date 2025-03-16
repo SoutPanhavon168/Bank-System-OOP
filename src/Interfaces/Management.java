@@ -17,14 +17,14 @@ public interface Management {
 
     //transaction
     void viewAllTransactions();
-    void viewSpecificTransaction(int transactionId);
-    void refundTransaction(int transactionId);  // Admin & Staff
-    void depositMoney(int accountId, double amount);  // Admin & Staff
-    void withdrawMoney(int accountId, double amount);  // Admin & Staff
-    void transferMoney(int fromAccountId, int toAccountId, double amount);  // Admin & Staff
+    void viewSpecificTransaction(String transactionId);
+    void refundTransaction(String transactionId);  // Admin & Staff
+    void depositMoney(int accountNumber, double amount);  // Admin & Staff
+    void transferMoney(String fromAccountNumber, String toAccountNumber, double amount);  // Admin & Staff
 
+<<<<<<< HEAD
+=======
     
+>>>>>>> origin/main
 }
-
-
 

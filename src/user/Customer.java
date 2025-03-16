@@ -161,27 +161,7 @@
                 }
             }
         }
-
-        public void updateOwnAccount() {
-            Scanner scanner = new Scanner(System.in);
-            
-            System.out.println("\nUpdate Account Information: ");
-            System.out.println("1. Update Email");
-            System.out.println("2. Update Phone Number");
-            System.out.println("3. Update Password");
-            System.out.print("Please choose an option (1-3): ");
-        
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline
-        
-            CustomerDAO customerDAO = new CustomerDAO(); // Create a DAO instance
-        
-            // Fetch the current customer from the database to ensure it's updated correctly
-            Customer currentCustomer = customerDAO.getCustomerById(this.customerId);
-        
-            if (currentCustomer == null) {
-                System.out.println("Error: No customer found with the given ID.");
-                return;
+        System.out.println("Enter your current PIN to change it: ");
             }
         
             switch (choice) {
