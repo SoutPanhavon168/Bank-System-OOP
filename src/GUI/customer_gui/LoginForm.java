@@ -1,6 +1,7 @@
 package GUI.customer_gui;
 import user.Customer;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -10,6 +11,7 @@ public class LoginForm extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
+    private Color brandGreen = new Color(0, 175, 0);
 
     public LoginForm() {
         setTitle("Bank App - Login");
@@ -33,20 +35,20 @@ public class LoginForm extends JFrame {
         // Set the positions and sizes manually (controls the gap between components)
         JLabel welcomeLabel = new JLabel("Welcome to Bank 10", JLabel.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 25));
-        welcomeLabel.setForeground(new Color(0,175,0));
+        welcomeLabel.setForeground(brandGreen);
         welcomeLabel.setBounds(30, 90, 300, 30);  // Positioned at the top with some margin
         add(welcomeLabel);  // Add the label to the frame
-        
+
         emailField.setBounds(30, 200, 300, 40);   // Position the email field below the label
         passwordField.setBounds(30, 280, 300, 40); // Position the password field
         loginButton.setBounds(30, 330, 300, 50);   // Position the login button
         registerButton.setBounds(30, 390, 300, 50); // Position the register button
 
         // Set button colors
-        loginButton.setBackground(new Color(0,175,0));  // Blue background for login button
+        loginButton.setBackground(brandGreen);  // Green background for login button
         loginButton.setForeground(Color.WHITE);  // White text for login button
         registerButton.setBackground(Color.WHITE);  // White background for register button
-        registerButton.setForeground(new Color(0,175,0));  // Blue text for register button
+        registerButton.setForeground(brandGreen);  // Green text for register button
 
         // Add components to the frame
         add(new JLabel("Email or Phone:")).setBounds(30, 170, 300, 20);
@@ -66,10 +68,10 @@ public class LoginForm extends JFrame {
                 Customer customer = Customer.login(emailOrPhone, password);
 
                 if (customer != null) {
-                    JOptionPane.showMessageDialog(LoginForm.this, "Login successful! Welcome, " + customer.getFullName());
+                    showStyledDialog("Login successful! Welcome, " + customer.getFullName(), true);
                     // Proceed to the next screen after successful login
                 } else {
-                    JOptionPane.showMessageDialog(LoginForm.this, "Login failed. Please check your credentials.");
+                    showStyledDialog("Login failed. Please check your credentials.", false);
                 }
             }
         });
@@ -83,6 +85,51 @@ public class LoginForm extends JFrame {
                 dispose();  // Close the current login screen
             }
         });
+    }
+
+    // Custom method to show styled dialog
+    private void showStyledDialog(String message, boolean isSuccess) {
+        JDialog dialog = new JDialog(this, isSuccess ? "Success" : "Error", true);
+        dialog.setSize(320, 180);
+        dialog.setLayout(new BorderLayout());
+        dialog.setLocationRelativeTo(this);
+
+        // Create a panel with the message
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Create message label
+        JLabel messageLabel = new JLabel(message, JLabel.CENTER);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        panel.add(messageLabel, BorderLayout.CENTER);
+
+        // Create OK button
+        JButton okButton = new JButton("OK");
+        okButton.setPreferredSize(new Dimension(100, 40));
+        okButton.setBackground(isSuccess ? brandGreen : Color.RED);
+        okButton.setForeground(Color.WHITE);
+        okButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+                if (isSuccess) {
+                    // Here you can add code to navigate to the next screen
+                }
+            }
+        });
+
+        // Add button to a panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(okButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+        // Add panels to dialog
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.add(panel);
+
+        // Make dialog border match the app style
+        ((JPanel)dialog.getContentPane()).setBorder(new LineBorder(isSuccess ? brandGreen : Color.RED, 2));
+
+        dialog.setVisible(true);
     }
 
     public static void main(String[] args) {

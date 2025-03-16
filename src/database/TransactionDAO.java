@@ -250,6 +250,9 @@ public class TransactionDAO {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
     
+            String senderTxnID = generateTransactionID();
+            String receiverTxnID = generateTransactionID();
+    
             try (PreparedStatement debitStmt = conn.prepareStatement(debitQuery);
                  PreparedStatement creditStmt = conn.prepareStatement(creditQuery);
                  PreparedStatement transactionStmt = conn.prepareStatement(insertTransactionQuery)) {
@@ -259,7 +262,7 @@ public class TransactionDAO {
                 debitStmt.setInt(2, fromAccountNumber);
                 debitStmt.setDouble(3, amount);
                 int debitResult = debitStmt.executeUpdate();
-                
+    
                 if (debitResult == 0) {
                     System.out.println("Insufficient funds for transfer.");
                     conn.rollback();
@@ -277,24 +280,25 @@ public class TransactionDAO {
                     return false;
                 }
     
+                LocalDateTime now = LocalDateTime.now();
+                Timestamp timestamp = Timestamp.valueOf(now);
+    
                 // Record transaction for sender
-                String transactionID = generateTransactionID();
-                transactionStmt.setString(1, transactionID);
+                transactionStmt.setString(1, senderTxnID);
                 transactionStmt.setInt(2, fromAccountNumber);
-                transactionStmt.setString(3, "TRANSFER"); // Use a generic transfer type
+                transactionStmt.setString(3, "TRANSFER");
                 transactionStmt.setDouble(4, amount);
                 transactionStmt.setString(5, "COMPLETED");
-                transactionStmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                transactionStmt.setTimestamp(6, timestamp);
                 transactionStmt.executeUpdate();
     
                 // Record transaction for recipient
-                transactionID = generateTransactionID();
-                transactionStmt.setString(1, transactionID);
+                transactionStmt.setString(1, receiverTxnID);
                 transactionStmt.setInt(2, toAccountNumber);
-                transactionStmt.setString(3, "TRANSFER"); // Use a generic transfer type
+                transactionStmt.setString(3, "TRANSFER");
                 transactionStmt.setDouble(4, amount);
                 transactionStmt.setString(5, "COMPLETED");
-                transactionStmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                transactionStmt.setTimestamp(6, timestamp);
                 transactionStmt.executeUpdate();
     
                 conn.commit(); // Commit transaction
@@ -314,6 +318,7 @@ public class TransactionDAO {
             return false;
         }
     }
+    
 
     public boolean isRefunded(String transactionId) {
         String query = "SELECT COUNT(*) FROM transactions WHERE sender_account_id = " +

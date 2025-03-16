@@ -24,7 +24,7 @@ public class Staff extends User implements Management {
     }
     
     public Staff(String lastName, String firstName, String email, String password, String confirmPassword, 
-                 String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role) {
+    String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
@@ -332,10 +332,7 @@ public class Staff extends User implements Management {
         }
     }
 
-<<<<<<< HEAD
    
-=======
->>>>>>> origin/main
     // Additional Staff-specific methods
     public void viewStaffDetails() {
         // Display staff details (ID, role)
@@ -352,7 +349,7 @@ public class Staff extends User implements Management {
         } else {
             System.out.println("Access denied: Your role does not have permission to create bank account.");
         }
-\        throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
+        throw new UnsupportedOperationException("Unimplemented method 'createBankAccount'");
     }
 
     @Override
@@ -539,7 +536,7 @@ public class Staff extends User implements Management {
             double newToAccountBalance = toAccountBalance + transferAmount;
             toBankAccount.setBalance(newToAccountBalance);
 
-            Transaction transferTransaction = new Transaction(fromBankAccount, toBankAccount, "TRANSFER", transferAmount, "Completed");
+            Transaction transferTransaction = new Transaction(fromBankAccount, "TRANSFER", transferAmount, "Completed");
             String transactionId = transactionDAO.generateTransactionID();
             transferTransaction.setTransactionID(transactionId);
 
@@ -549,7 +546,10 @@ public class Staff extends User implements Management {
             transactionDAO.saveTransaction(transferTransaction);
 
             System.out.println("Transfer successful. New balance for account " + fromAccountNumber + ": " + newFromAccountBalance);
-            System.out.println("New balance for account " + toAccountNumber + ": " + new
+            System.out.println("New balance for account " + toAccountNumber + ": " + newToAccountBalance);
     }
-
+    else {
+        System.out.println("Access denied: You do not have permission to transfer money.");
+    }
+    }
 }
