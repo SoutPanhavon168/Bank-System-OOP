@@ -180,7 +180,6 @@
                 }
             }
         }
-        
 
         public void updateOwnAccount() {
             Scanner scanner = new Scanner(System.in);
