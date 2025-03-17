@@ -143,70 +143,79 @@ public class TransactionManager {
     public void transfer(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
-        
+        TransactionDAO transactionDAO = new TransactionDAO(); // assuming you have a TransactionDAO class for transfer logic
+    
         try {
             System.out.println("Choose transfer type:");
             System.out.println("1. Transfer between my own accounts");
             System.out.println("2. Transfer to another person's account");
             System.out.print("Enter your choice: ");
             int transferType = input.nextInt();
-        
-            BankAccount sender, recipient = null;
-        
+    
+            BankAccount sender = null, recipient = null;
+    
+            // Select the sender account
             System.out.println("Select your account to transfer from:");
             listBankAccounts(bankAccounts);
             System.out.print("Enter the number of your account: ");
             int senderIndex = input.nextInt() - 1;
-        
-            TransactionException.validateAccountSelection(senderIndex, bankAccounts.size()); // Validate selection
+    
+            // Validate sender account selection
+            TransactionException.validateAccountSelection(senderIndex, bankAccounts.size()); 
             sender = bankAccounts.get(senderIndex);
-        
+    
             // Verify PIN before proceeding
             if (!verifyPin(sender)) {
                 return;
             }
-        
+    
             if (transferType == 1) {
+                // Transfer between own accounts
                 System.out.println("Select the account to transfer to:");
-                listBankAccounts(bankAccounts);
+    
+                // Show only accounts excluding the sender's account
+                ArrayList<BankAccount> recipientOptions = new ArrayList<>(bankAccounts);
+                recipientOptions.remove(sender); // Exclude the sender from the recipient list
+    
+                listBankAccounts(recipientOptions);
                 System.out.print("Enter the number of the recipient's account: ");
                 int recipientIndex = input.nextInt() - 1;
-        
-                TransactionException.validateAccountSelection(recipientIndex, bankAccounts.size()); // Validate recipient selection
-                if (recipientIndex == senderIndex) {
-                    throw new TransactionException("Cannot transfer to the same account.");
-                }
-        
-                recipient = bankAccounts.get(recipientIndex);
-        
+    
+                // Validate recipient account selection
+                TransactionException.validateAccountSelection(recipientIndex, recipientOptions.size()); 
+                recipient = recipientOptions.get(recipientIndex);
+    
             } else if (transferType == 2) {
+                // Transfer to another person's account
                 System.out.print("Enter the recipient's account number: ");
                 int recipientAccountNumber = input.nextInt();
-        
-                recipient = bankAccountDAO.getBankAccountById(recipientAccountNumber); // Fetch recipient from DB
-        
-                TransactionException.validateRecipientAccount(recipient); // Validate recipient existence
+    
+                recipient = bankAccountDAO.getBankAccountById(recipientAccountNumber); 
+                TransactionException.validateRecipientAccount(recipient);
+    
             } else {
                 throw new TransactionException("Invalid transfer type.");
             }
-        
+    
+            // Enter transfer amount
             System.out.print("Enter amount to transfer ($): ");
             double transferAmount = input.nextDouble();
-        
-            TransactionException.validateAmount(transferAmount); // Validate transfer amount
-            TransactionException.validateSufficientFunds(sender, transferAmount); // Validate sufficient funds
-        
-            // Perform fund transfer using TransactionDAO
+    
+            // Validate transfer amount and sufficient funds
+            TransactionException.validateAmount(transferAmount);
+            TransactionException.validateSufficientFunds(sender, transferAmount);
+    
+            // Perform transfer
             boolean transferSuccess = transactionDAO.transferFunds(sender.getAccountNumber(), recipient.getAccountNumber(), transferAmount);
-        
-            if (transferSuccess) {     
-                // Fetch updated balances from DB
+    
+            if (transferSuccess) {
+                // Get updated sender balance
                 BankAccount updatedSender = bankAccountDAO.getBankAccountById(sender.getAccountNumber());
                 System.out.println("New balance for sender: $" + updatedSender.getBalance());
             } else {
                 System.out.println("Transaction failed. Please try again.");
             }
-        
+    
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter numbers only.");
         } catch (TransactionException e) {
@@ -215,6 +224,8 @@ public class TransactionManager {
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
+    
+    
     
     public void viewSpecificTransaction(String transactionID) {
         Transaction transaction = transactionDAO.getTransactionById(transactionID);

@@ -1,19 +1,16 @@
 package GUI.customer_gui;
 
-import user.Customer;
 import bankaccount.BankAccount;
-import transaction.TransactionManager;
-import transaction.Transaction;
-import database.TransactionDAO;
 import database.BankAccountDAO;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import database.TransactionDAO;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import transaction.Transaction;
+import transaction.TransactionManager;
+import user.Customer;
 
 public class TransactionsForm extends JFrame {
     private Customer currentCustomer;
@@ -255,33 +252,39 @@ public class TransactionsForm extends JFrame {
             showStyledDialog("Please select an account first", false);
             return;
         }
-        
+    
         // Create transfer dialog with multiple fields
         JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
-        
+    
         ButtonGroup transferType = new ButtonGroup();
         JRadioButton ownAccountsRadio = new JRadioButton("Transfer between my accounts");
         JRadioButton otherAccountRadio = new JRadioButton("Transfer to another account");
         transferType.add(ownAccountsRadio);
         transferType.add(otherAccountRadio);
-        ownAccountsRadio.setSelected(true);
-        
+        ownAccountsRadio.setSelected(true);  // Default to own account transfer
+    
+        JComboBox<String> senderAccountSelector = new JComboBox<>();
         JComboBox<String> recipientAccountSelector = new JComboBox<>();
         ArrayList<BankAccount> accounts = currentCustomer.getBankAccounts();
+    
+        // Populate sender account selector
         for (BankAccount account : accounts) {
-            if (account.getAccountNumber() != getSelectedAccount().getAccountNumber()) {
-                recipientAccountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
-            }
+            senderAccountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
         }
-        
+    
+        // Initially populate recipient account list (excluding the selected sender account)
+        updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
+    
         JTextField accountNumberField = new JTextField(10);
         JTextField amountField = new JTextField(10);
         JPasswordField pinField = new JPasswordField(4);
-        
+    
         panel.add(new JLabel("Transfer Type:"));
         panel.add(ownAccountsRadio);
         panel.add(otherAccountRadio);
+        panel.add(new JLabel("Sender Account:"));
+        panel.add(senderAccountSelector);
         panel.add(new JLabel("Recipient Account:"));
         panel.add(recipientAccountSelector);
         panel.add(new JLabel("OR Enter Account Number:"));
@@ -290,16 +293,37 @@ public class TransactionsForm extends JFrame {
         panel.add(amountField);
         panel.add(new JLabel("Enter PIN:"));
         panel.add(pinField);
-        
-        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds", 
+    
+        // Add an ActionListener to update the recipient list immediately when the sender account is changed
+        senderAccountSelector.addActionListener(e -> {
+            updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
+        });
+    
+        // Show only relevant account selectors based on selected transfer type
+        ownAccountsRadio.addActionListener(e -> {
+            senderAccountSelector.setEnabled(true);
+            recipientAccountSelector.setEnabled(true);
+            accountNumberField.setEnabled(false);
+            
+            // Update recipient list when transfer type changes to "own accounts"
+            updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
+        });
+    
+        otherAccountRadio.addActionListener(e -> {
+            senderAccountSelector.setEnabled(false);
+            recipientAccountSelector.setEnabled(false);
+            accountNumberField.setEnabled(true);
+        });
+    
+        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        
+    
         if (result == JOptionPane.OK_OPTION) {
             try {
                 double amount = Double.parseDouble(amountField.getText());
                 String pinText = new String(pinField.getPassword());
                 int pin = Integer.parseInt(pinText);
-                
+    
                 // Verify PIN
                 if (pin == getSelectedAccount().getPin()) {
                     // Check if there are sufficient funds
@@ -307,48 +331,48 @@ public class TransactionsForm extends JFrame {
                         showStyledDialog("Insufficient funds", false);
                         return;
                     }
-                    
+    
+                    BankAccount senderAccount = null;
                     BankAccount recipientAccount = null;
                     BankAccountDAO bankAccountDAO = new BankAccountDAO();
-                    
+    
                     if (ownAccountsRadio.isSelected()) {
-                        // Get selected recipient account from dropdown
+                        // Get selected sender and recipient accounts from dropdown
+                        int senderIndex = senderAccountSelector.getSelectedIndex();
                         int recipientIndex = recipientAccountSelector.getSelectedIndex();
-                        int accountIndex = 0;
-                        
-                        for (BankAccount account : accounts) {
-                            if (account.getAccountNumber() != getSelectedAccount().getAccountNumber()) {
-                                if (accountIndex == recipientIndex) {
-                                    recipientAccount = account;
-                                    break;
-                                }
-                                accountIndex++;
-                            }
-                        }
+    
+                        // Retrieve selected sender account
+                        senderAccount = accounts.get(senderIndex);
+    
+                        // Retrieve selected recipient account
+                        recipientAccount = accounts.get(recipientIndex);
+    
                     } else {
                         // Get recipient account from entered account number
                         int recipientAccountNumber = Integer.parseInt(accountNumberField.getText());
                         recipientAccount = bankAccountDAO.getBankAccountById(recipientAccountNumber);
-                        
+    
                         if (recipientAccount == null) {
                             showStyledDialog("Recipient account not found", false);
                             return;
                         }
+    
+                        senderAccount = getSelectedAccount(); // Sender account is already selected in this case
                     }
-                    
+    
                     // Perform transfer
                     TransactionDAO transactionDAO = new TransactionDAO();
                     boolean success = transactionDAO.transferFunds(
-                            getSelectedAccount().getAccountNumber(), 
-                            recipientAccount.getAccountNumber(), 
+                            senderAccount.getAccountNumber(),
+                            recipientAccount.getAccountNumber(),
                             amount);
-                    
+    
                     if (success) {
                         // Get updated account information
-                        BankAccount updatedAccount = bankAccountDAO.getBankAccountById(getSelectedAccount().getAccountNumber());
-                        
+                        BankAccount updatedAccount = bankAccountDAO.getBankAccountById(senderAccount.getAccountNumber());
+    
                         showStyledDialog("Transfer successful! New balance: $" + updatedAccount.getBalance(), true);
-                        
+    
                         // Update the customer's account list
                         ArrayList<BankAccount> updatedAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
                         currentCustomer.setBankAccounts(updatedAccounts);
@@ -365,6 +389,31 @@ public class TransactionsForm extends JFrame {
             }
         }
     }
+    
+    private void updateRecipientList(JComboBox<String> senderAccountSelector, JComboBox<String> recipientAccountSelector, ArrayList<BankAccount> accounts) {
+        // Clear the existing items in recipient list
+        recipientAccountSelector.removeAllItems();
+    
+        // Get selected sender account number
+        int senderAccountNumber = Integer.parseInt(senderAccountSelector.getSelectedItem().toString().split(" ")[1].substring(1));
+    
+        // Populate recipient account list excluding the sender account
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() != senderAccountNumber) {
+                recipientAccountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     private void handleViewHistory() {
         // Create a new dialog to display transaction history
@@ -392,10 +441,10 @@ public class TransactionsForm extends JFrame {
     int rowIndex = 0;
     for (Transaction transaction : transactions) {
         // Only include transactions for this customer's accounts
-        if (accountNumbers.contains(transaction.getAccount().getAccountNumber())) {
+        if (accountNumbers.contains(transaction.getBankAccount().getAccountNumber())) {
             data[rowIndex][0] = transaction.getTransactionId();
-            data[rowIndex][1] = transaction.getAccount().getAccountNumber();
-            data[rowIndex][2] = transaction.getTransactionType();
+            data[rowIndex][1] = transaction.getBankAccount().getAccountNumber();
+            data[rowIndex][2] = transaction.getType();
             data[rowIndex][3] = "$" + transaction.getAmount();
             data[rowIndex][4] = transaction.getTransactionDate();
             data[rowIndex][5] = transaction.getStatus();

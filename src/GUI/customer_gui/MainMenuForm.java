@@ -13,34 +13,27 @@ public class MainMenuForm extends JFrame {
     private JButton accountsButton;
     private JButton transactionsButton;
     private JButton profileButton;
+    private JButton createAccountButton;
     private JButton logoutButton;
     private Color brandGreen = new Color(0, 175, 0);
 
     public MainMenuForm(Customer customer) {
-        // Fetch customer details from the database
         CustomerDAO customerDAO = new CustomerDAO();
         this.currentCustomer = customerDAO.getCustomerById(customer.getCustomerId());
 
-        // Fetch bank accounts from the database
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
-        currentCustomer.setBankAccounts(accounts); // Update the customer object with fetched accounts
+        currentCustomer.setBankAccounts(accounts);
 
-        // Set up the main menu window
         setTitle("Bank App - Main Menu");
         setLayout(null);
         setSize(360, 812);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        // Add header and subheader
         addHeader("Welcome, " + currentCustomer.getFirstName() + "!");
         addSubheader("Customer ID: " + currentCustomer.getCustomerId(), accounts != null ? accounts.size() : 0);
-
-        // Add menu buttons
         addMenuButtons();
-
-        // Add action listeners
         addActionListeners();
     }
 
@@ -68,21 +61,25 @@ public class MainMenuForm extends JFrame {
         accountsButton = new JButton("My Accounts");
         transactionsButton = new JButton("Transactions");
         profileButton = new JButton("My Profile");
+        createAccountButton = new JButton("Create Account");
         logoutButton = new JButton("Logout");
 
         accountsButton.setBounds(30, 180, 300, 80);
         transactionsButton.setBounds(30, 280, 300, 80);
         profileButton.setBounds(30, 380, 300, 80);
+        createAccountButton.setBounds(30, 480, 300, 80);
         logoutButton.setBounds(30, 700, 300, 50);
 
         styleButton(accountsButton, true);
         styleButton(transactionsButton, true);
         styleButton(profileButton, true);
+        styleButton(createAccountButton, true);
         styleButton(logoutButton, false);
 
         add(accountsButton);
         add(transactionsButton);
         add(profileButton);
+        add(createAccountButton);
         add(logoutButton);
     }
 
@@ -90,6 +87,7 @@ public class MainMenuForm extends JFrame {
         accountsButton.addActionListener(e -> handleAccounts());
         transactionsButton.addActionListener(e -> handleTransactions());
         profileButton.addActionListener(e -> handleProfile());
+        createAccountButton.addActionListener(e -> createBankAccount());
         logoutButton.addActionListener(e -> handleLogout());
     }
 
@@ -105,6 +103,40 @@ public class MainMenuForm extends JFrame {
         button.setBorder(BorderFactory.createLineBorder(brandGreen, 1));
         button.setFocusPainted(false);
     }
+
+    private void createBankAccount() {
+        String[] options = {"Saving", "Current", "Checking"};
+        String accountType = (String) JOptionPane.showInputDialog(this, "Select an account type:", "Create Account", 
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        
+        if (accountType == null) return;
+        
+        String pin = JOptionPane.showInputDialog(this, "Enter your 4-digit PIN:");
+        if (pin == null || !pin.matches("\\d{4}")) {
+            JOptionPane.showMessageDialog(this, "Invalid PIN. Please enter exactly 4 digits.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String confirmPin = JOptionPane.showInputDialog(this, "Confirm your PIN:");
+        if (!pin.equals(confirmPin)) {
+            JOptionPane.showMessageDialog(this, "PIN mismatch. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        BankAccount newAccount = new BankAccount(currentCustomer.getCustomerId(),
+                                                 currentCustomer.getFirstName(),
+                                                 currentCustomer.getLastName(),
+                                                 accountType, "Active", Integer.parseInt(pin));
+        newAccount.setAccountNumber(BankAccount.generateAccountNumber());
+        bankAccountDAO.saveBankAccount(newAccount);
+        currentCustomer.getBankAccounts().add(newAccount);
+        
+        JOptionPane.showMessageDialog(this, "Bank account created successfully!\nYour new account number is: " + newAccount.getAccountNumber(),
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
 
     private void handleAccounts() {
         // Fetch bank accounts associated with the current customer
@@ -161,18 +193,11 @@ public class MainMenuForm extends JFrame {
 
     public static void main(String[] args) {
         // For testing purposes
-        SwingUtilities.invokeLater(() -> {
-            try {
-                // Simulate fetching a customer from the database
-                CustomerDAO customerDAO = new CustomerDAO();
-                Customer testCustomer = customerDAO.getCustomerById(2);
-
-                MainMenuForm mainMenu = new MainMenuForm(testCustomer);
-                mainMenu.setVisible(true);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), 
-                                              "Error", JOptionPane.ERROR_MESSAGE);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new LoginForm().setVisible(true);
             }
         });
+        
     }
 }

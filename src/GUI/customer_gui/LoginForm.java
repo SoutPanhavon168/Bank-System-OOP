@@ -63,18 +63,23 @@ public class LoginForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String emailOrPhone = emailField.getText();
                 String password = new String(passwordField.getPassword());
-
+        
                 // Call the login method from Customer class
                 Customer customer = Customer.login(emailOrPhone, password);
-
+        
                 if (customer != null) {
+                    // Login successful, show MainMenuForm
                     showStyledDialog("Login successful! Welcome, " + customer.getFullName(), true);
-                    // Proceed to the next screen after successful login
+                    // Open MainMenuForm and pass the customer object
+                    MainMenuForm mainMenuForm = new MainMenuForm(customer);
+                    mainMenuForm.setVisible(true);
+                    dispose();  // Close the LoginForm
                 } else {
                     showStyledDialog("Login failed. Please check your credentials.", false);
                 }
             }
         });
+        
 
         // Action listener for registration
         registerButton.addActionListener(new ActionListener() {
