@@ -180,6 +180,7 @@
                 }
             }
         }
+        
 
         public void updateOwnAccount() {
             Scanner scanner = new Scanner(System.in);
@@ -432,7 +433,6 @@
         // Add this method to the Customer class in user/Customer.java
 
     public static Customer login(String emailOrPhone, String password) {
-        Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
         
         try {
@@ -494,7 +494,6 @@
         }
 
         public void setUserId(int int1) {
-            // TODO Auto-generated method stub
             this.customerId = int1;
         }
 

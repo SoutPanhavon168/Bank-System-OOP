@@ -2,7 +2,6 @@ package GUI.customer_gui;
 
 import bankaccount.BankAccount;
 import database.BankAccountDAO;
-import database.CustomerDAO;
 import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -13,34 +12,27 @@ public class MainMenuForm extends JFrame {
     private JButton accountsButton;
     private JButton transactionsButton;
     private JButton profileButton;
+    private JButton createAccountButton;
     private JButton logoutButton;
     private Color brandGreen = new Color(0, 175, 0);
 
     public MainMenuForm(Customer customer) {
-        // Fetch customer details from the database
-        CustomerDAO customerDAO = new CustomerDAO();
-        this.currentCustomer = customerDAO.getCustomerById(customer.getCustomerId());
-
-        // Fetch bank accounts from the database
-        BankAccountDAO bankAccountDAO = new BankAccountDAO();
-        ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
-        currentCustomer.setBankAccounts(accounts); // Update the customer object with fetched accounts
-
-        // Set up the main menu window
+        this.currentCustomer = customer;
         setTitle("Bank App - Main Menu");
         setLayout(null);
         setSize(360, 812);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        // Add header and subheader
+        // Initialize the bank accounts for the current customer
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
+        currentCustomer.setBankAccounts(accounts);
+
+        // Set up the user interface
         addHeader("Welcome, " + currentCustomer.getFirstName() + "!");
         addSubheader("Customer ID: " + currentCustomer.getCustomerId(), accounts != null ? accounts.size() : 0);
-
-        // Add menu buttons
         addMenuButtons();
-
-        // Add action listeners
         addActionListeners();
     }
 
@@ -68,21 +60,25 @@ public class MainMenuForm extends JFrame {
         accountsButton = new JButton("My Accounts");
         transactionsButton = new JButton("Transactions");
         profileButton = new JButton("My Profile");
+        createAccountButton = new JButton("Create Account");
         logoutButton = new JButton("Logout");
 
         accountsButton.setBounds(30, 180, 300, 80);
         transactionsButton.setBounds(30, 280, 300, 80);
         profileButton.setBounds(30, 380, 300, 80);
+        createAccountButton.setBounds(30, 480, 300, 80);
         logoutButton.setBounds(30, 700, 300, 50);
 
         styleButton(accountsButton, true);
         styleButton(transactionsButton, true);
         styleButton(profileButton, true);
+        styleButton(createAccountButton, true);
         styleButton(logoutButton, false);
 
         add(accountsButton);
         add(transactionsButton);
         add(profileButton);
+        add(createAccountButton);
         add(logoutButton);
     }
 
@@ -90,6 +86,7 @@ public class MainMenuForm extends JFrame {
         accountsButton.addActionListener(e -> handleAccounts());
         transactionsButton.addActionListener(e -> handleTransactions());
         profileButton.addActionListener(e -> handleProfile());
+        createAccountButton.addActionListener(e -> createBankAccount());
         logoutButton.addActionListener(e -> handleLogout());
     }
 
@@ -106,47 +103,92 @@ public class MainMenuForm extends JFrame {
         button.setFocusPainted(false);
     }
 
+    private void createBankAccount() {
+        String[] options = {"Saving", "Current", "Checking"};
+        String accountType = (String) JOptionPane.showInputDialog(this, "Select an account type:", "Create Account", 
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        
+        if (accountType == null) return;
+        
+        String pin = JOptionPane.showInputDialog(this, "Enter your 4-digit PIN:");
+        if (pin == null || !pin.matches("\\d{4}")) {
+            JOptionPane.showMessageDialog(this, "Invalid PIN. Please enter exactly 4 digits.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String confirmPin = JOptionPane.showInputDialog(this, "Confirm your PIN:");
+        if (!pin.equals(confirmPin)) {
+            JOptionPane.showMessageDialog(this, "PIN mismatch. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BankAccountDAO bankAccountDAO = new BankAccountDAO();
+        BankAccount newAccount = new BankAccount(currentCustomer.getCustomerId(),
+                                                 currentCustomer.getFirstName(),
+                                                 currentCustomer.getLastName(),
+                                                 accountType, "Active", Integer.parseInt(pin));
+        newAccount.setAccountNumber(BankAccount.generateAccountNumber());
+        bankAccountDAO.saveBankAccount(newAccount);
+        currentCustomer.getBankAccounts().add(newAccount);
+        
+        JOptionPane.showMessageDialog(this, "Bank account created successfully!\nYour new account number is: " + newAccount.getAccountNumber(),
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void handleAccounts() {
-        // Fetch bank accounts associated with the current customer
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
 
-        // Check if the customer has any accounts
         if (accounts == null || accounts.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No accounts found for this customer.", 
                 "Accounts", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        // Build a string to display account details
         StringBuilder accountsInfo = new StringBuilder("Bank Accounts:\n");
         for (BankAccount account : accounts) {
             accountsInfo.append(account.toString()).append("\n");
         }
 
-        // Show the accounts in a dialog
-        JOptionPane.showMessageDialog(this, accountsInfo.toString(), 
-            "Accounts", JOptionPane.INFORMATION_MESSAGE);
+        // Customized styling for the dialog box
+        JTextArea accountsTextArea = new JTextArea(accountsInfo.toString());
+        accountsTextArea.setEditable(false);
+        accountsTextArea.setBackground(Color.WHITE);
+        accountsTextArea.setForeground(brandGreen);
+        accountsTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JScrollPane scrollPane = new JScrollPane(accountsTextArea);
+        scrollPane.setPreferredSize(new Dimension(300, 400));
+
+        JOptionPane.showMessageDialog(this, scrollPane, "Accounts", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleTransactions() {
-        // Navigate to Transactions Form
+        // Navigate to Transactions Form with consistent style
         TransactionsForm transactionsForm = new TransactionsForm(currentCustomer);
         transactionsForm.setVisible(true);
         dispose();
     }
 
     private void handleProfile() {
-        // Show a dialog with user information
         String message = "Name: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName() + "\n" +
                          "Email: " + currentCustomer.getEmail() + "\n" +
                          "Phone: " + currentCustomer.getPhoneNumber();
 
-        JOptionPane.showMessageDialog(this, message, "Profile Information", JOptionPane.INFORMATION_MESSAGE);
+        // Style the profile view with consistent green
+        JTextArea profileTextArea = new JTextArea(message);
+        profileTextArea.setEditable(false);
+        profileTextArea.setBackground(Color.WHITE);
+        profileTextArea.setForeground(brandGreen);
+        profileTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JScrollPane scrollPane = new JScrollPane(profileTextArea);
+        scrollPane.setPreferredSize(new Dimension(300, 200));
+
+        JOptionPane.showMessageDialog(this, scrollPane, "Profile Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleLogout() {
-        // Confirm logout
         int confirm = JOptionPane.showConfirmDialog(this, 
                                                    "Are you sure you want to logout?", 
                                                    "Confirm Logout", 
@@ -160,19 +202,6 @@ public class MainMenuForm extends JFrame {
     }
 
     public static void main(String[] args) {
-        // For testing purposes
-        SwingUtilities.invokeLater(() -> {
-            try {
-                // Simulate fetching a customer from the database
-                CustomerDAO customerDAO = new CustomerDAO();
-                Customer testCustomer = customerDAO.getCustomerById(2);
-
-                MainMenuForm mainMenu = new MainMenuForm(testCustomer);
-                mainMenu.setVisible(true);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), 
-                                              "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
     }
 }
