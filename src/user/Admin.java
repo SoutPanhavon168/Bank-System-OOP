@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import transaction.Transaction;
+import user.Customer;
 //admin needs to login first before doing any action
 public class Admin extends Staff {
     private String admin_username;
@@ -27,7 +28,6 @@ public class Admin extends Staff {
         this.admin_username = admin_username;
         this.admin_password = admin_password;
     }
-
     public void admin_login(){
         Scanner sc = new Scanner(System.in);
         admin_username = "admin";
@@ -43,10 +43,8 @@ public class Admin extends Staff {
                 System.out.println("1. Add Account");
                 System.out.println("2. Remove Account");
                 System.out.println("3. Update Account");
-                System.out.println("4. Approve Large Loan");
-                System.out.println("5. View All Transactions");
-                System.out.println("6. View All Payments");
-                System.out.println("7. Exit");
+                System.out.println("4. View All Transactions");
+                System.out.println("5. Exit");
                 System.out.println("Please choose an option (1-7): ");
                 int choice = sc.nextInt();
                 sc.nextLine();
@@ -61,16 +59,10 @@ public class Admin extends Staff {
                         updateAccount();
                         break;
                     case 4:
-                        approveLargeLoan(1);
-                        break;
-                    case 5:
                         viewAllTransactions();
                         break;
-                    case 6:
-                        viewAllPayments();
-                        break;
-                    case 7:
-                        System.out.println("Exiting Admin Menu");
+                    case 5:
+                        System.out.println("Exiting...");
                         return;
                     default:
                         System.out.println("Invalid option");
@@ -171,7 +163,14 @@ public void addStaffAccount() {
         System.out.println("Registration failed: " + e.getMessage());
     }
 }
-
+public void removeStaffAccount() {
+    Scanner sc = new Scanner(System.in);
+    System.out.println("Enter the account number(UserID) to remove: ");
+    int accountNumber = sc.nextInt();
+    StaffDAO staffDAO = new StaffDAO();
+    staffDAO.deleteStaff(accountNumber);
+    System.out.println("Account removed successfully");
+}
     public void addAccount() {
         Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
@@ -282,36 +281,42 @@ public void addStaffAccount() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the account number(UserID) to remove: ");
         int accountNumber = sc.nextInt();
-        //wait todo until we have the database
         CustomerDAO customerDAO = new CustomerDAO();
         customerDAO.deleteCustomer(accountNumber);
-        // Remove account from database
         System.out.println("Account removed successfully");
     }
     public void updateAccount(){
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter the account number(UserID) to update: ");
+        System.out.println("Enter the account number(customerId) to update: ");
         String InputuserId = sc.nextLine();
-        if(userId == Integer.parseInt(InputuserId)){
+        CustomerDAO customerDAO = new CustomerDAO();
+        int customerId = customerDAO.getCustomerIdBycustomerId(Integer.parseInt(InputuserId)); // Retrieve customerId from database
+        if(customerId != -1){
             System.out.println("Enter the new password: ");
             String newPassword = sc.nextLine();
             CustomerDAO passcuCustomer = new CustomerDAO();
-            passcuCustomer.updatePasswordInDatabase(userId,newPassword);
+            passcuCustomer.updatePasswordInDatabase(customerId,newPassword);
+            System.out.println("Password updated successfully");
             } else {
                 System.out.println("Account not found");
             }
         }
-
-    public boolean approveLargeLoan(int loanId) {
-        // Add logic to approve large loan
-        boolean loanApproved = true; // Placeholder for actual logic
-        if (loanApproved) {
-            System.out.println("Loan approved successfully");
-        } else {
-            System.out.println("Loan not found");
+    public void updateStaffAccount(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the account number(staffId) to update: ");
+        String InputstaffId = sc.nextLine();
+        StaffDAO staffDAO = new StaffDAO();
+        int staffId = staffDAO.getStaffIdBystaffId(Integer.parseInt(InputstaffId)); // Retrieve staffId from database
+        if(staffId != -1){
+            System.out.println("Enter the new password: ");
+            String newPassword = sc.nextLine();
+            StaffDAO passcuStaff = new StaffDAO();
+            passcuStaff.updateStaffPassword(staffId,newPassword);
+            System.out.println("Password updated successfully");
+            } else {
+                System.out.println("Account not found");
+            }
         }
-        return loanApproved;
-    } 
     public void viewAllTransactions() {
         TransactionDAO transactionDAO = new TransactionDAO();
         List<Transaction> transactions = transactionDAO.getAllTransactions();
@@ -325,20 +330,6 @@ public void addStaffAccount() {
             System.out.println("Date: " + transaction.getTransactionDate());
             System.out.println("----------------------------------");
         }
-    }
-      // Only Admin
-    void viewAllPayments(){
-        //fetch all payments from the database
-    }; 
-    @Override
-    public String toString() {
-        return "User ID: " + userId +
-               " | Name: " + firstName + " " + lastName +
-               " | Email: " + email +
-               " | Phone: " + phoneNumber +
-               " | Birth Date: " + birthDate +
-               " | Role: Admin" +
-               " | Government ID: " + governmentId;
     }
 }
 

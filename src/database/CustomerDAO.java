@@ -123,8 +123,20 @@ public Customer getCustomerById(int customerID) {
         }
         return customerList;
     }
-
-    // Method to update customer information
+    public int getCustomerIdBycustomerId(int customerId) {
+        String query = "SELECT customerId FROM customers WHERE customerId = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, customerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("customerId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
     public void updateCustomer(Customer customer) {
         String query = "UPDATE customers SET lastName = ?, firstName = ?, email = ?, password = ?, phoneNumber = ?, birthDate = ?, governmentId = ? WHERE customerId = ?";
     

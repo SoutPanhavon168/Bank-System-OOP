@@ -45,5 +45,41 @@ public class StaffDAO {
             e.printStackTrace();
         }
     }
+    public void deleteStaff(int staffId) {
+        String sql = "DELETE FROM Staff WHERE staffId = ?";
     
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateStaffPassword(int staffId, String newPassword) {
+        String query = "UPDATE Staff SET password = ? WHERE staffId = ?";
+    
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, staffId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public int getStaffIdBystaffId(int staffId) {
+        String query = "SELECT staffId FROM Staff WHERE staffId = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) { 
+            ps.setInt(1, staffId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("StaffId"); // Return the found customerId
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Log the exception (consider using a logger in real applications)
+        }
+        return -1; // Return -1 if customerId is not found
+    }
 }
