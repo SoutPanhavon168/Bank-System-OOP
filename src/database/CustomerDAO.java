@@ -96,7 +96,7 @@ public Customer getCustomerById(int customerID) {
 
 
     // Method to retrieve all customers
-    public static List<Customer> getAllCustomers() {
+    public List<Customer> getAllCustomers() {
         List<Customer> customerList = new ArrayList<>();
         String query = "SELECT * FROM customers";
         try (Connection conn = DatabaseConnection.getConnection();

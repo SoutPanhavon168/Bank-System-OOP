@@ -81,6 +81,12 @@ public class Transaction {
     public double getAmount() {
         return amount;
     }
+
+    public String getTransactionId() {
+        // Get transaction details from the database
+        return transactionID;
+
+    }
     
     public String getStatus() {
         return status;

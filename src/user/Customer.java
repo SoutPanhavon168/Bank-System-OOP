@@ -35,6 +35,13 @@
         public boolean isInputInvalid(String input){
             return input.matches(".*\\d.*");
         }
+        public void setFirstName(String firstName){
+            this.firstName = firstName;
+        }
+
+        public void setLastName(String lastName){
+            this.lastName = lastName;
+        }
 
         public void setPassword(String password) {
             // You can add password validation here (e.g., minimum length, special characters, etc.)
@@ -142,17 +149,29 @@
         }
 
         public void viewOwnAccount() {
+            CustomerDAO customerDAO = new CustomerDAO(); // Create a DAO instance
+            BankAccountDAO bankAccountDAO = new BankAccountDAO(); // Create a bank account DAO instance
+            
+            // Fetch the current customer from the database using customer ID
+            Customer currentCustomer = customerDAO.getCustomerById(this.customerId);
+            
+            if (currentCustomer == null) {
+                System.out.println("Error: No customer found with the given ID.");
+                return;
+            }
+            
             // Display the personal information of the customer
             System.out.println("===== Account Details =====");
-            System.out.println("User ID: " + getUserId());
-            System.out.println("Name: " + getFirstName() + " " + getLastName());
-            System.out.println("Email: " + getEmail());
-            System.out.println("Phone Number: " + getPhoneNumber());
-            System.out.println("Birth Date: " + getBirthDate());
-            System.out.println("Government ID: " + getMaskedGovernmentId());
-        
-            // Display the bank account details
+            System.out.println("User ID: " + currentCustomer.getUserId());
+            System.out.println("Name: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName());
+            System.out.println("Email: " + currentCustomer.getEmail());
+            System.out.println("Phone Number: " + currentCustomer.getPhoneNumber());
+            System.out.println("Birth Date: " + currentCustomer.getBirthDate());
+            System.out.println("Government ID: " + currentCustomer.getMaskedGovernmentId());
+            
+            // Fetch and display the bank account details from the database
             System.out.println("\n===== Bank Accounts =====");
+            List<BankAccount> bankAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
             if (bankAccounts.isEmpty()) {
                 System.out.println("No bank accounts found.");
             } else {
@@ -161,6 +180,7 @@
                 }
             }
         }
+        
 
         public void updateOwnAccount() {
             Scanner scanner = new Scanner(System.in);
@@ -411,8 +431,8 @@
         
 
         // Add this method to the Customer class in user/Customer.java
-
-    public static Customer login(String emailOrPhone, String password) {
+    @Override
+    public Customer login(String emailOrPhone, String password) {
         Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
         
@@ -475,7 +495,6 @@
         }
 
         public void setUserId(int int1) {
-            // TODO Auto-generated method stub
             this.customerId = int1;
         }
 

@@ -55,11 +55,6 @@ public class StaffException extends Exception {
         }
     }
 
-    public static class DatabaseAccessException extends StaffException {
-        public DatabaseAccessException() {
-            super("Error accessing the database.");
-        }
-    }
 
     public static class InvalidLoanIdException extends StaffException {
         public InvalidLoanIdException() {
@@ -72,4 +67,11 @@ public class StaffException extends Exception {
             super("Invalid transaction data. Please check the input values.");
         }
     }
+    
+    public static class DatabaseAccessException extends StaffException {
+        public DatabaseAccessException(String message, Throwable cause) {
+            super(message);
+        }
+    }
+
 }

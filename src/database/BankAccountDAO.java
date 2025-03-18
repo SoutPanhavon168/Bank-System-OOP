@@ -187,14 +187,25 @@ public class BankAccountDAO {
     }
 
     public boolean freezeBankAccount(int accountNumber) {
-        String query = "UPDATE bankaccounts SET status = 'Frozen' WHERE account_number = ?";
+        System.out.println("Fetching account details before freezing...");
+        BankAccount account = getBankAccountById(accountNumber);
+    
+        if (account == null) {
+            System.out.println("Account ID " + accountNumber + " does not exist.");
+            return false;
+        }
+    
+        System.out.println("Attempting to freeze account ID: " + accountNumber);
+        String query = "UPDATE bankaccounts SET status = 'Inactive' WHERE account_number = ?";
+        
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             
             ps.setInt(1, accountNumber);
             int rowsAffected = ps.executeUpdate();
+            
             if (rowsAffected > 0) {
-                System.out.println("Account frozen successfully.");
+                System.out.println("Account " + accountNumber + " frozen successfully.");
                 return true;
             } else {
                 System.out.println("Failed to freeze account.");
@@ -205,16 +216,28 @@ public class BankAccountDAO {
             return false;
         }
     }
-
+    
+    
     public boolean unfreezeBankAccount(int accountNumber) {
+        System.out.println("Fetching account details before unfreezing...");
+        BankAccount account = getBankAccountById(accountNumber);
+    
+        if (account == null) {
+            System.out.println("Account ID " + accountNumber + " does not exist.");
+            return false;
+        }
+    
+        System.out.println("Attempting to unfreeze account ID: " + accountNumber);
         String query = "UPDATE bankaccounts SET status = 'Active' WHERE account_number = ?";
+        
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             
             ps.setInt(1, accountNumber);
             int rowsAffected = ps.executeUpdate();
+            
             if (rowsAffected > 0) {
-                System.out.println("Account unfrozen successfully.");
+                System.out.println("Account " + accountNumber + " unfrozen successfully.");
                 return true;
             } else {
                 System.out.println("Failed to unfreeze account.");
@@ -225,4 +248,5 @@ public class BankAccountDAO {
             return false;
         }
     }
+    
 }
