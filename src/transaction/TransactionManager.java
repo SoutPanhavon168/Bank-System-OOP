@@ -164,6 +164,12 @@ public class TransactionManager {
             TransactionException.validateAccountSelection(senderIndex, bankAccounts.size()); 
             sender = bankAccounts.get(senderIndex);
     
+            // Check if sender account is active
+            if (!sender.isActive()) {
+                System.out.println("Transaction failed. Sender account is not active.");
+                return;
+            }
+    
             // Verify PIN before proceeding
             if (!verifyPin(sender)) {
                 return;
@@ -172,11 +178,8 @@ public class TransactionManager {
             if (transferType == 1) {
                 // Transfer between own accounts
                 System.out.println("Select the account to transfer to:");
-    
-                // Show only accounts excluding the sender's account
                 ArrayList<BankAccount> recipientOptions = new ArrayList<>(bankAccounts);
                 recipientOptions.remove(sender); // Exclude the sender from the recipient list
-    
                 listBankAccounts(recipientOptions);
                 System.out.print("Enter the number of the recipient's account: ");
                 int recipientIndex = input.nextInt() - 1;
@@ -197,6 +200,12 @@ public class TransactionManager {
                 throw new TransactionException("Invalid transfer type.");
             }
     
+            // Check if recipient account is active
+            if (!recipient.isActive()) {
+                System.out.println("Transaction failed. Recipient account is not active.");
+                return;
+            }
+    
             // Enter transfer amount
             System.out.print("Enter amount to transfer ($): ");
             double transferAmount = input.nextDouble();
@@ -209,7 +218,6 @@ public class TransactionManager {
             boolean transferSuccess = transactionDAO.transferFunds(sender.getAccountNumber(), recipient.getAccountNumber(), transferAmount);
     
             if (transferSuccess) {
-                // Get updated sender balance
                 BankAccount updatedSender = bankAccountDAO.getBankAccountById(sender.getAccountNumber());
                 System.out.println("New balance for sender: $" + updatedSender.getBalance());
             } else {
@@ -224,6 +232,7 @@ public class TransactionManager {
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
+    
     
     
     

@@ -81,6 +81,10 @@ public class BankAccount {
     
         this.pin = pin;  // Set the PIN if valid
     }
+
+    public boolean isActive(){
+        return accountStatus.equalsIgnoreCase("Active");
+    }
     
 
     public String getFirstName() {

@@ -81,7 +81,8 @@ public class LoginForm extends JFrame {
             String password = new String(passwordField.getPassword());
 
             // Simulate the login method from Customer class
-            Customer customer = Customer.login(emailOrPhone, password);
+            Customer customerInstance = new Customer();
+            Customer customer = customerInstance.login(emailOrPhone, password);
             if (customer != null) {
                 onLoginSuccessful(customer);  // Call the onLoginSuccessful method
             } else {
