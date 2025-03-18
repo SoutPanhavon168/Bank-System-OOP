@@ -4,6 +4,7 @@ import Interfaces.Management;
 import bankaccount.BankAccount;
 import database.BankAccountDAO;
 import database.CustomerDAO;
+import database.StaffDAO;
 import database.TransactionDAO;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +19,6 @@ public class Staff extends User implements Management {
 
     public enum StaffRole {
         MANAGER,
-        LOAN_OFFICER,
         CUSTOMER_SERVICE,
         TELLER
     }
@@ -32,6 +32,8 @@ public class Staff extends User implements Management {
     public Staff(){
         
     }
+
+    private StaffDAO staffDAO = new StaffDAO(); // Create instance of StaffDAO
 
     // Getter and Setter methods for new attributes
     public int getStaffId() {
@@ -104,11 +106,33 @@ public class Staff extends User implements Management {
             }
         } while (choice != 1 && choice != 2);
     }
+    
+
+    @Override
+    public Staff login(String email, String password) {
+    StaffDAO staffDAO = new StaffDAO();
+
+    try {
+        // Verify credentials using StaffDAO
+        Staff staff = staffDAO.verifyCredentials(email, password);
+
+        if (staff != null) {
+            System.out.println("Login successful. Welcome, " + staff.getFirstName() + "!");
+            return staff; // Return the authenticated Staff object
+        } else {
+            System.out.println("Invalid email or password.");
+            return null;
+        }
+    } catch (StaffException.DatabaseAccessException e) {
+        System.out.println("Login failed: " + e.getMessage());
+        return null;
+    }
+    }
 
 
     @Override
     public void updateCustomerAccount() {
-        if(hasAccess(StaffRole.MANAGER) && hasAccess(StaffRole.CUSTOMER_SERVICE)){
+        if((!hasAccess(StaffRole.MANAGER)) && (!hasAccess(StaffRole.CUSTOMER_SERVICE))){
             System.out.println("You do not have access to update customer accounts.");
             return;
         }
@@ -161,6 +185,7 @@ public class Staff extends User implements Management {
             break;
             default:
             System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+
         }
 
         customerDAO.updateCustomer(customer);
@@ -174,7 +199,7 @@ public class Staff extends User implements Management {
     public void viewSpecificCustomerDetails(int customerId) {
         // Logic to view a specific customer's details based on their ID
         CustomerDAO customerDAO = new CustomerDAO();
-        Customer customer = customerDAO.getCustomerById(userId);
+        Customer customer = customerDAO.getCustomerById(customerId);
 
         if(customer == null){
             System.out.println("Customer with ID: " + userId + "not found.");
@@ -193,7 +218,8 @@ public class Staff extends User implements Management {
     @Override
     public void viewAllCustomers() {
         // Logic to view all customers' details
-        List<Customer> customers = CustomerDAO.getAllCustomers();
+        CustomerDAO customerDAO = new CustomerDAO();
+        List <Customer> customers = customerDAO.getAllCustomers();
 
         if(customers.isEmpty()){
             System.out.println("No customers found.");
@@ -216,7 +242,7 @@ public class Staff extends User implements Management {
     public void viewbankAccounts() {
         Scanner scanner = new Scanner(System.in);
 
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
             System.out.println("Would you like to: \n1. View all bank accounts \n2. Search for a bank account");
             System.out.println("Enter your choice (1 or 2): ");
             int choice = scanner.nextInt();
@@ -243,7 +269,7 @@ public class Staff extends User implements Management {
     @Override
     public void viewSpecificbankAccount(int accountId) {
     // Check if the user has the appropriate access
-    if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
+    if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
         // Fetch the bank account details from the database using a DAO method
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
         BankAccount bankAccount = bankAccountDAO.getBankAccountById(accountId);
@@ -268,7 +294,7 @@ public class Staff extends User implements Management {
     @Override
     public void viewAllbankAccounts() {
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
-        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.LOAN_OFFICER)) {
+        if (hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)) {
             // Fetch and print all bank accounts' details from the BankAccountDAO
             System.out.println("All bank accounts:");
 
@@ -294,17 +320,12 @@ public class Staff extends User implements Management {
     public void freezeAccount(int accountId) {
         if (hasAccess(StaffRole.MANAGER)){
             // Logic to freeze a bank account based on account ID
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter the account ID you want to freeze: ");
-            int bankAccountId = scanner.nextInt();
-            scanner.nextLine();
-
             BankAccountDAO bankAccountDAO = new BankAccountDAO();
-            boolean success = bankAccountDAO.freezeBankAccount(bankAccountId);
+            boolean success = bankAccountDAO.freezeBankAccount(accountId);
             if (success) {
                 System.out.println("Bank Account ID " + accountId + " has been frozen.");
             } else {
-                System.out.println("Failed to freeze Bank Account ID " + bankAccountId);
+                System.out.println("Failed to freeze Bank Account ID " + accountId);
             }
         } else {
             System.out.println("Access denied: Your role does not have permission to freeze bank accounts.");
@@ -315,17 +336,12 @@ public class Staff extends User implements Management {
     public void unfreezeAccount(int accountId) {
         if (hasAccess(StaffRole.MANAGER)){
             // Logic to unfreeze a bank account based on account ID
-            System.out.println("Enter the account ID you want to unfreeze: ");
-            Scanner scanner = new Scanner(System.in);
-            int bankAccountId = scanner.nextInt();
-            scanner.nextLine();
-
             BankAccountDAO bankAccountDAO = new BankAccountDAO();
-            boolean success = bankAccountDAO.unfreezeBankAccount(bankAccountId);
+            boolean success = bankAccountDAO.unfreezeBankAccount(accountId);
             if (success) {
-                System.out.println("Bank Account ID " + bankAccountId + " has been unfrozen.");
+                System.out.println("Bank Account ID " + accountId + " has been unfrozen.");
             } else {
-                System.out.println("Failed to unfreeze Bank Account ID " + bankAccountId);
+                System.out.println("Failed to unfreeze Bank Account ID " + accountId);
             }
         } else {
             System.out.println("Access denied: Your role does not have permission to unfreeze bank accounts.");
@@ -391,16 +407,11 @@ public class Staff extends User implements Management {
     @Override
     public void viewSpecificTransaction(String transactionId){
         // TODO Auto-generated method stub
-        Scanner scanner = new Scanner(System.in);
         TransactionDAO transactionDAO = new TransactionDAO();
         if(hasAccess(StaffRole.MANAGER) || hasAccess(StaffRole.TELLER)){
-
-            System.out.println("Enter the transaction ID: ");
-            String transactionID = scanner.nextLine();
-
-            Transaction transaction = transactionDAO.getTransactionById(transactionID);
+            Transaction transaction = transactionDAO.getTransactionById(transactionId);
             if (transaction == null) {
-                System.out.println("Transaction with ID " + transactionID + " not found.");
+                System.out.println("Transaction with ID " + transactionId + " not found.");
                 return;
             }
 
@@ -551,5 +562,10 @@ public class Staff extends User implements Management {
     else {
         System.out.println("Access denied: You do not have permission to transfer money.");
     }
+    }
+
+    @Override
+    public String toString(){
+        return super.toString() + "\nStaff ID: " + staffId + "\nRole: " + role;
     }
 }

@@ -46,6 +46,14 @@ public abstract class User implements Authentication{
             return "********" + governmentId.substring(8);   
     }
 
+    public void setFirstName(String firstName){
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName){
+        this.lastName = lastName;
+    }
+
     //setters 
     public void setEmail(String email){
         this.email = email;
@@ -85,42 +93,6 @@ public abstract class User implements Authentication{
 
         return false;
     } 
-    
-    @Override
-    public boolean login() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter email or phone number: ");
-        String Identifier = scanner.nextLine();
-
-        System.out.println("Enter password: ");
-        String inputPassword = scanner.nextLine();
-
-        scanner.close();
-
-        for(User user : users){
-            if (user.getEmail().equals(Identifier) || user.getPhoneNumber().equals(Identifier) && user.password.equals(inputPassword)){
-                System.out.println("Login successful! Welcome " + user.getFirstName());
-                
-                if(user.isAdmin){
-                    System.out.println("You are an admin.");
-                    //adminMenu();
-                }
-                else if(user.isStaff){
-                    System.out.println("You are a staff.");
-                    //staffMenu();
-                }
-                else{
-                    System.out.println("You are a customer.");
-                    //customerMenu();
-                }
-
-                return true;
-            }
-        }
-        System.out.println("Invalid credentials. Please try again.");
-        return false;   
-    }
 
     // method to update password when the user forget password, put on public to allow external access
     public void forgotPassword(){

@@ -431,8 +431,8 @@
         
 
         // Add this method to the Customer class in user/Customer.java
-
-    public static Customer login(String emailOrPhone, String password) {
+    @Override
+    public Customer login(String emailOrPhone, String password) {
         Scanner scanner = new Scanner(System.in);
         CustomerDAO customerDAO = new CustomerDAO();
         
