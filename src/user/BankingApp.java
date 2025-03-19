@@ -1,9 +1,10 @@
 package user;
 
-import java.util.Scanner;
 import Interfaces.Authentication;
 import database.BankAccountDAO;
 import database.CustomerDAO;
+import java.util.Scanner;
+import user.staff.Staff;
 
 public class BankingApp {
     public static void main(String[] args) {
@@ -36,6 +37,7 @@ public class BankingApp {
         BankAccountDAO bankAccountDAO = new BankAccountDAO();
 
         while (true) {
+            int choice = scanner.nextInt();
             System.out.println("\n=== Staff Dashboard ===");
             System.out.println("1. View Customer Details");
             System.out.println("2. Update Customer Information");
@@ -43,7 +45,6 @@ public class BankingApp {
             System.out.println("4. Logout");
             System.out.print("Choose an option: ");
 
-            int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
             switch (choice) {

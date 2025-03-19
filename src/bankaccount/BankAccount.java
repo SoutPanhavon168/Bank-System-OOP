@@ -1,5 +1,6 @@
 package bankaccount;
 
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class BankAccount {
     private String firstName;
     private String lastName;
     private int customerId;
+    private Date createdDate;
 
     // Primary Constructor (with PIN)
     public BankAccount(String accountName, String accountType, String accountStatus, int pin) {
@@ -87,6 +89,10 @@ public class BankAccount {
     }
     
 
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -148,6 +154,8 @@ public class BankAccount {
         this.accountType = accountType;
     }
 
+    
+
     public static BankAccount getAccountByNumber(int accountNumber) {
         BankAccount account = accounts.get(accountNumber);
         if (account == null) {
@@ -188,4 +196,23 @@ public class BankAccount {
                 + "Account Status: " + accountStatus + '\n'
                 + "========================================" + '\n';
     }
+
+    public void setCreatedDate(Date createdDate2) {
+        this.createdDate = Date.valueOf(createdDate2.toLocalDate());
+    }
+
+    public String viewDetails() {
+        return "===== Bank Account Details =====\n" +
+               "Account Number: " + accountNumber + "\n" +
+               "Account Name: " + getAccountName() + "\n" +
+               "First Name: " + firstName + "\n" +
+               "Last Name: " + lastName + "\n" +
+               "Balance: $" + String.format("%.2f", balance) + "\n" +
+               "Account Type: " + accountType + "\n" +
+               "Account Status: " + accountStatus + "\n" +
+               "Customer ID: " + customerId + "\n" +
+               "Created Date: " + (createdDate != null ? createdDate.toString() : "N/A") + "\n" +
+               "=================================";
+    }
+    
 }

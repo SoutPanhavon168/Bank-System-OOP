@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Transaction {
     public enum TransactionType {
-        DEPOSIT, WITHDRAW, TRANSFER;
+        DEPOSIT, WITHDRAW, TRANSFER, UNKNOWN;
     }
     
     private String transactionID;
@@ -28,6 +28,10 @@ public class Transaction {
         // PIN verification happens at creation time
     }
     
+    public Transaction(BankAccount account, TransactionType type2, double double1, String string) {
+        //TODO Auto-generated constructor stub
+    }
+
     public boolean verifyPin() {
       Scanner scanner = new Scanner(System.in);
       System.out.print("Please enter your 4-digit PIN to authorize this transaction: ");
@@ -78,6 +82,10 @@ public class Transaction {
         return type;
     }
     
+    public String getTypes() {
+        return this.type.toString(); // Converts enum to a string
+    }
+
     public double getAmount() {
         return amount;
     }
@@ -103,6 +111,41 @@ public class Transaction {
     public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
     }
+
+    public String getDate() {
+        return transactionDate.toString();
+    }
+
+    public void setType(TransactionType transactionType) {
+        
+    }
     
+ 
+
+    @Override
+public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Transaction ID: ").append(transactionID != null ? transactionID : "N/A").append("\n");
+    
+    // Handle null bankAccount
+    if (bankAccount != null) {
+        sb.append("Account: ").append(bankAccount.getAccountNumber()).append("\n");
+    } else {
+        sb.append("Account: N/A\n");
+    }
+    
+    // Handle null type
+    if (type != null) {
+        sb.append("Type: ").append(type.toString()).append("\n");
+    } else {
+        sb.append("Type: N/A\n");
+    }
+    
+    sb.append("Amount: $").append(String.format("%.2f", amount)).append("\n");
+    sb.append("Status: ").append(status != null ? status : "N/A").append("\n");
+    sb.append("Date: ").append(transactionDate != null ? transactionDate : "N/A").append("\n");
+    sb.append("----------------------------------------\n");
+    return sb.toString();
+}
     
 }
