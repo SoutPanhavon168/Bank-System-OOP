@@ -4,102 +4,201 @@ import bankaccount.BankAccount;
 import database.BankAccountDAO;
 import database.TransactionDAO;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.FontUIResource;
 import transaction.Transaction;
 import transaction.TransactionManager;
 import user.Customer;
 
 public class TransactionsForm extends JFrame {
     private Customer currentCustomer;
+    private JPanel mainPanel;
     private JComboBox<String> accountSelector;
+    private TransactionManager transactionManager;
+    
+    // Colors to match MainMenuForm
+    private Color brandGreen = new Color(0, 175, 0);
+    private Color darkGreen = new Color(0, 125, 0);
+    
+    // Transaction buttons
     private JButton depositButton;
     private JButton withdrawButton;
     private JButton transferButton;
     private JButton viewHistoryButton;
     private JButton backButton;
-    private Color brandGreen = new Color(0, 175, 0);
-    private TransactionManager transactionManager;
 
     public TransactionsForm(Customer customer) {
         this.currentCustomer = customer;
         this.transactionManager = new TransactionManager();
         
         setTitle("Bank App - Transactions");
-        setLayout(null);
-        setSize(360, 812);
+        setSize(1024, 768);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setResizable(false);
+        setLayout(new BorderLayout());
+        
+        createHeader();
+        createMainPanel();
+        
+        // Display the transactions content
+        displayTransactionOptions();
+    }
+    
+    private void createHeader() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(darkGreen);
+        headerPanel.setPreferredSize(new Dimension(1024, 80));
+        headerPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+        
+        JLabel titleLabel = new JLabel("BANK TRANSACTION CENTER");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        
+        JPanel userInfoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        userInfoPanel.setOpaque(false);
+        
+        JLabel customerInfoLabel = new JLabel(currentCustomer.getFirstName() + " " + currentCustomer.getLastName() + " | Customer");
+        customerInfoLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        customerInfoLabel.setForeground(Color.WHITE);
+        userInfoPanel.add(customerInfoLabel);
+        
+        headerPanel.add(userInfoPanel, BorderLayout.EAST);
+        add(headerPanel, BorderLayout.NORTH);
+    }
+    
+    private void createMainPanel() {
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+        
+        add(mainPanel, BorderLayout.CENTER);
+    }
+    
+    private void displayTransactionOptions() {
+        mainPanel.removeAll();
+        
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
         
         // Header
         JLabel headerLabel = new JLabel("Banking Transactions", JLabel.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         headerLabel.setForeground(brandGreen);
-        headerLabel.setBounds(30, 30, 300, 40);
-        add(headerLabel);
+        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(headerLabel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         
-        // Account selector
+        // Account selector panel
+        JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        selectorPanel.setBackground(Color.WHITE);
+        selectorPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+        
         JLabel selectAccountLabel = new JLabel("Select Account:");
-        selectAccountLabel.setBounds(30, 90, 300, 20);
-        add(selectAccountLabel);
+        selectAccountLabel.setFont(new Font("Arial", Font.BOLD, 14));
         
         accountSelector = new JComboBox<>();
         updateAccountSelector();
-        accountSelector.setBounds(30, 115, 300, 40);
-        add(accountSelector);
+        accountSelector.setPreferredSize(new Dimension(500, 30));
+        accountSelector.setFont(new Font("Arial", Font.PLAIN, 14));
         
-        // Transaction buttons
-        depositButton = new JButton("Deposit");
-        withdrawButton = new JButton("Withdraw");
-        transferButton = new JButton("Transfer");
-        viewHistoryButton = new JButton("Transaction History");
-        backButton = new JButton("Back to Main Menu");
+        selectorPanel.add(selectAccountLabel);
+        selectorPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        selectorPanel.add(accountSelector);
         
-        // Set positions
-        depositButton.setBounds(30, 180, 300, 60);
-        withdrawButton.setBounds(30, 250, 300, 60);
-        transferButton.setBounds(30, 320, 300, 60);
-        viewHistoryButton.setBounds(30, 390, 300, 60);
-        backButton.setBounds(30, 700, 300, 50);
+        contentPanel.add(selectorPanel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
         
-        // Style buttons
-        styleButton(depositButton, true);
-        styleButton(withdrawButton, true);
-        styleButton(transferButton, true);
-        styleButton(viewHistoryButton, true);
-        styleButton(backButton, false);
+        // Transaction buttons panel
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new GridLayout(4, 1, 0, 15));
+        buttonsPanel.setBackground(Color.WHITE);
+        buttonsPanel.setBorder(new EmptyBorder(0, 50, 0, 50));
+        buttonsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         
-        // Add buttons
-        add(depositButton);
-        add(withdrawButton);
-        add(transferButton);
-        add(viewHistoryButton);
-        add(backButton);
+        // Create transaction buttons
+        depositButton = createTransactionButton("Deposit Funds", "deposit.png");
+        withdrawButton = createTransactionButton("Withdraw Funds", "withdraw.png");
+        transferButton = createTransactionButton("Transfer Funds", "transfer.png");
+        viewHistoryButton = createTransactionButton("View Transaction History", "history.png");
         
-        // Action listeners
+        // Add buttons to panel
+        buttonsPanel.add(depositButton);
+        buttonsPanel.add(withdrawButton);
+        buttonsPanel.add(transferButton);
+        buttonsPanel.add(viewHistoryButton);
+        
+        contentPanel.add(buttonsPanel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        
+        // Add action listeners
         depositButton.addActionListener(e -> handleDeposit());
         withdrawButton.addActionListener(e -> handleWithdraw());
         transferButton.addActionListener(e -> handleTransfer());
         viewHistoryButton.addActionListener(e -> handleViewHistory());
         
+        // Back button panel
+        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        backPanel.setBackground(Color.WHITE);
+        
+        backButton = new JButton("Back to Main Menu");
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setBackground(Color.WHITE);
+        backButton.setForeground(darkGreen);
+        backButton.setFocusPainted(false);
+        backButton.setPreferredSize(new Dimension(200, 40));
         backButton.addActionListener(e -> {
             MainMenuForm mainMenu = new MainMenuForm(currentCustomer);
             mainMenu.setVisible(true);
             dispose();
         });
+        
+        backPanel.add(backButton);
+        
+        contentPanel.add(backPanel);
+        
+        // Add scrolling if needed
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
     
-    private void styleButton(JButton button, boolean isPrimary) {
-        if (isPrimary) {
-            button.setBackground(brandGreen);
-            button.setForeground(Color.WHITE);
-        } else {
-            button.setBackground(Color.WHITE);
-            button.setForeground(brandGreen);
-        }
+    private JButton createTransactionButton(String text, String iconName) {
+        JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBackground(brandGreen);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setPreferredSize(new Dimension(300, 50));
+        
+        // Add hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(darkGreen);
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(brandGreen);
+            }
+        });
+        
+        return button;
     }
     
     private void updateAccountSelector() {
@@ -110,7 +209,7 @@ public class TransactionsForm extends JFrame {
             accountSelector.addItem("No accounts available");
         } else {
             for (BankAccount account : accounts) {
-                accountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
+                accountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType() + " - Balance: $" + String.format("%.2f", account.getBalance()));
             }
         }
     }
@@ -124,24 +223,53 @@ public class TransactionsForm extends JFrame {
         }
         return null;
     }
-    
+
+    // Handle Deposit
     private void handleDeposit() {
         if (getSelectedAccount() == null) {
             showStyledDialog("Please select an account first", false);
             return;
         }
+        if(!getSelectedAccount().isActive()) {
+            showStyledDialog("This account is not active. Please activate the account first.", false);
+            return;
+        }
         
-        JTextField amountField = new JTextField(10);
-        JPasswordField pinField = new JPasswordField(4);
-        JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        // Create deposit dialog with clean interface
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        panel.setBackground(Color.WHITE);
         
-        panel.add(new JLabel("Enter amount to deposit:"));
-        panel.add(amountField);
-        panel.add(new JLabel("Enter PIN:"));
-        panel.add(pinField);
+        // Amount field with panel
+        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        amountPanel.setBackground(Color.WHITE);
+        JLabel amountLabel = new JLabel("Enter amount to deposit:");
+        amountLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JTextField amountField = new JTextField(15);
+        amountField.setFont(new Font("Arial", Font.PLAIN, 14));
+        amountPanel.add(amountLabel);
+        amountPanel.add(amountField);
         
-        int result = JOptionPane.showConfirmDialog(this, panel, "Deposit", 
+        // PIN field with panel
+        JPanel pinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pinPanel.setBackground(Color.WHITE);
+        JLabel pinLabel = new JLabel("Enter PIN:");
+        pinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JPasswordField pinField = new JPasswordField(15);
+        pinField.setFont(new Font("Arial", Font.PLAIN, 14));
+        pinPanel.add(pinLabel);
+        pinPanel.add(pinField);
+        
+        panel.add(amountPanel);
+        panel.add(pinPanel);
+        
+        // Customized JOptionPane
+        UIManager.put("OptionPane.background", Color.WHITE);
+        UIManager.put("Panel.background", Color.WHITE);
+        UIManager.put("OptionPane.buttonFont", new FontUIResource("Arial", Font.BOLD, 14));
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, "Deposit Funds", 
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         
         if (result == JOptionPane.OK_OPTION) {
@@ -164,11 +292,12 @@ public class TransactionsForm extends JFrame {
                         BankAccountDAO bankAccountDAO = new BankAccountDAO();
                         BankAccount updatedAccount = bankAccountDAO.getBankAccountById(getSelectedAccount().getAccountNumber());
                         
-                        showStyledDialog("Deposit successful! New balance: $" + updatedAccount.getBalance(), true);
+                        showStyledDialog("Deposit successful! New balance: $" + String.format("%.2f", updatedAccount.getBalance()), true);
                         
                         // Update the customer's account list
                         ArrayList<BankAccount> updatedAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
                         currentCustomer.setBankAccounts(updatedAccounts);
+                        updateAccountSelector(); // Refresh the account selector with updated balances
                     } else {
                         showStyledDialog("Transaction failed. Please try again.", false);
                     }
@@ -183,23 +312,52 @@ public class TransactionsForm extends JFrame {
         }
     }
     
+    // Handle Withdraw
     private void handleWithdraw() {
         if (getSelectedAccount() == null) {
             showStyledDialog("Please select an account first", false);
             return;
         }
+        if(!getSelectedAccount().isActive()) {
+            showStyledDialog("This account is not active. Please activate the account first.", false);
+            return;
+        }
         
-        JTextField amountField = new JTextField(10);
-        JPasswordField pinField = new JPasswordField(4);
-        JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        // Create withdraw dialog with clean interface
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        panel.setBackground(Color.WHITE);
         
-        panel.add(new JLabel("Enter amount to withdraw:"));
-        panel.add(amountField);
-        panel.add(new JLabel("Enter PIN:"));
-        panel.add(pinField);
+        // Amount field with panel
+        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        amountPanel.setBackground(Color.WHITE);
+        JLabel amountLabel = new JLabel("Enter amount to withdraw:");
+        amountLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JTextField amountField = new JTextField(15);
+        amountField.setFont(new Font("Arial", Font.PLAIN, 14));
+        amountPanel.add(amountLabel);
+        amountPanel.add(amountField);
         
-        int result = JOptionPane.showConfirmDialog(this, panel, "Withdraw", 
+        // PIN field with panel
+        JPanel pinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pinPanel.setBackground(Color.WHITE);
+        JLabel pinLabel = new JLabel("Enter PIN:");
+        pinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JPasswordField pinField = new JPasswordField(15);
+        pinField.setFont(new Font("Arial", Font.PLAIN, 14));
+        pinPanel.add(pinLabel);
+        pinPanel.add(pinField);
+        
+        panel.add(amountPanel);
+        panel.add(pinPanel);
+        
+        // Customized JOptionPane
+        UIManager.put("OptionPane.background", Color.WHITE);
+        UIManager.put("Panel.background", Color.WHITE);
+        UIManager.put("OptionPane.buttonFont", new FontUIResource("Arial", Font.BOLD, 14));
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, "Withdraw Funds", 
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         
         if (result == JOptionPane.OK_OPTION) {
@@ -228,11 +386,12 @@ public class TransactionsForm extends JFrame {
                         BankAccountDAO bankAccountDAO = new BankAccountDAO();
                         BankAccount updatedAccount = bankAccountDAO.getBankAccountById(getSelectedAccount().getAccountNumber());
                         
-                        showStyledDialog("Withdrawal successful! New balance: $" + updatedAccount.getBalance(), true);
+                        showStyledDialog("Withdrawal successful! New balance: $" + String.format("%.2f", updatedAccount.getBalance()), true);
                         
                         // Update the customer's account list
                         ArrayList<BankAccount> updatedAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
                         currentCustomer.setBankAccounts(updatedAccounts);
+                        updateAccountSelector(); // Refresh the account selector with updated balances
                     } else {
                         showStyledDialog("Transaction failed. Please try again.", false);
                     }
@@ -246,286 +405,156 @@ public class TransactionsForm extends JFrame {
             }
         }
     }
-    
+
+    // Handle Transfer
     private void handleTransfer() {
         if (getSelectedAccount() == null) {
             showStyledDialog("Please select an account first", false);
             return;
         }
-    
-        // Create transfer dialog with multiple fields
-        JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
-        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
-    
-        ButtonGroup transferType = new ButtonGroup();
-        JRadioButton ownAccountsRadio = new JRadioButton("Transfer between my accounts");
-        JRadioButton otherAccountRadio = new JRadioButton("Transfer to another account");
-        transferType.add(ownAccountsRadio);
-        transferType.add(otherAccountRadio);
-        ownAccountsRadio.setSelected(true);  // Default to own account transfer
-    
-        JComboBox<String> senderAccountSelector = new JComboBox<>();
-        JComboBox<String> recipientAccountSelector = new JComboBox<>();
-        ArrayList<BankAccount> accounts = currentCustomer.getBankAccounts();
-    
-        // Populate sender account selector
-        for (BankAccount account : accounts) {
-            senderAccountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
+        if(!getSelectedAccount().isActive()) {
+            showStyledDialog("This account is not active. Please activate the account first.", false);
+            return;
         }
     
-        // Initially populate recipient account list (excluding the selected sender account)
-        updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
-    
-        JTextField accountNumberField = new JTextField(10);
-        JTextField amountField = new JTextField(10);
-        JPasswordField pinField = new JPasswordField(4);
-    
-        panel.add(new JLabel("Transfer Type:"));
-        panel.add(ownAccountsRadio);
-        panel.add(otherAccountRadio);
-        panel.add(new JLabel("Sender Account:"));
-        panel.add(senderAccountSelector);
-        panel.add(new JLabel("Recipient Account:"));
-        panel.add(recipientAccountSelector);
-        panel.add(new JLabel("OR Enter Account Number:"));
-        panel.add(accountNumberField);
-        panel.add(new JLabel("Enter amount to transfer:"));
-        panel.add(amountField);
-        panel.add(new JLabel("Enter PIN:"));
-        panel.add(pinField);
-    
-        // Add an ActionListener to update the recipient list immediately when the sender account is changed
-        senderAccountSelector.addActionListener(e -> {
-            updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
-        });
-    
-        // Show only relevant account selectors based on selected transfer type
-        ownAccountsRadio.addActionListener(e -> {
-            senderAccountSelector.setEnabled(true);
-            recipientAccountSelector.setEnabled(true);
-            accountNumberField.setEnabled(false);
-            
-            // Update recipient list when transfer type changes to "own accounts"
-            updateRecipientList(senderAccountSelector, recipientAccountSelector, accounts);
-        });
-    
-        otherAccountRadio.addActionListener(e -> {
-            senderAccountSelector.setEnabled(false);
-            recipientAccountSelector.setEnabled(false);
-            accountNumberField.setEnabled(true);
-        });
-    
-        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds",
+        // Create transfer dialog with clean interface
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        panel.setBackground(Color.WHITE);
+        
+        // Recipient account field with panel
+        JPanel recipientPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        recipientPanel.setBackground(Color.WHITE);
+        JLabel recipientLabel = new JLabel("Recipient Account Number:");
+        recipientLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JTextField recipientAccountField = new JTextField(15);
+        recipientAccountField.setFont(new Font("Arial", Font.PLAIN, 14));
+        recipientPanel.add(recipientLabel);
+        recipientPanel.add(recipientAccountField);
+        
+        // Amount field with panel
+        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        amountPanel.setBackground(Color.WHITE);
+        JLabel amountLabel = new JLabel("Amount:");
+        amountLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JTextField amountField = new JTextField(15);
+        amountField.setFont(new Font("Arial", Font.PLAIN, 14));
+        amountPanel.add(amountLabel);
+        amountPanel.add(amountField);
+        
+        // PIN field with panel
+        JPanel pinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pinPanel.setBackground(Color.WHITE);
+        JLabel pinLabel = new JLabel("PIN:");
+        pinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JPasswordField pinField = new JPasswordField(15);
+        pinField.setFont(new Font("Arial", Font.PLAIN, 14));
+        pinPanel.add(pinLabel);
+        pinPanel.add(pinField);
+        
+        panel.add(recipientPanel);
+        panel.add(amountPanel);
+        panel.add(pinPanel);
+        
+        // Customized JOptionPane
+        UIManager.put("OptionPane.background", Color.WHITE);
+        UIManager.put("Panel.background", Color.WHITE);
+        UIManager.put("OptionPane.buttonFont", new FontUIResource("Arial", Font.BOLD, 14));
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds", 
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
     
         if (result == JOptionPane.OK_OPTION) {
-            try {
-                double amount = Double.parseDouble(amountField.getText());
-                String pinText = new String(pinField.getPassword());
-                int pin = Integer.parseInt(pinText);
-    
-                // Verify PIN
-                if (pin == getSelectedAccount().getPin()) {
-                    // Check if there are sufficient funds
-                    if (amount > getSelectedAccount().getBalance()) {
-                        showStyledDialog("Insufficient funds", false);
-                        return;
-                    }
-    
-                    BankAccount senderAccount = null;
-                    BankAccount recipientAccount = null;
-                    BankAccountDAO bankAccountDAO = new BankAccountDAO();
-    
-                    if (ownAccountsRadio.isSelected()) {
-                        // Get selected sender and recipient accounts from dropdown
-                        int senderIndex = senderAccountSelector.getSelectedIndex();
-                        int recipientIndex = recipientAccountSelector.getSelectedIndex();
-    
-                        // Retrieve selected sender account
-                        senderAccount = accounts.get(senderIndex);
-    
-                        // Retrieve selected recipient account
-                        recipientAccount = accounts.get(recipientIndex);
-    
-                    } else {
-                        // Get recipient account from entered account number
-                        int recipientAccountNumber = Integer.parseInt(accountNumberField.getText());
-                        recipientAccount = bankAccountDAO.getBankAccountById(recipientAccountNumber);
-    
-                        if (recipientAccount == null) {
-                            showStyledDialog("Recipient account not found", false);
-                            return;
-                        }
-    
-                        senderAccount = getSelectedAccount(); // Sender account is already selected in this case
-                    }
-    
-                    // Perform transfer
-                    TransactionDAO transactionDAO = new TransactionDAO();
-                    boolean success = transactionDAO.transferFunds(
-                            senderAccount.getAccountNumber(),
-                            recipientAccount.getAccountNumber(),
-                            amount);
-    
-                    if (success) {
-                        // Get updated account information
-                        BankAccount updatedAccount = bankAccountDAO.getBankAccountById(senderAccount.getAccountNumber());
-    
-                        showStyledDialog("Transfer successful! New balance: $" + updatedAccount.getBalance(), true);
-    
-                        // Update the customer's account list
-                        ArrayList<BankAccount> updatedAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
-                        currentCustomer.setBankAccounts(updatedAccounts);
-                    } else {
-                        showStyledDialog("Transfer failed. Please try again.", false);
-                    }
-                } else {
-                    showStyledDialog("Incorrect PIN. Transaction cancelled.", false);
-                }
-            } catch (NumberFormatException e) {
-                showStyledDialog("Please enter valid numbers", false);
-            } catch (Exception e) {
-                showStyledDialog("Error: " + e.getMessage(), false);
-            }
+            showStyledDialog("Transfer feature is currently being implemented. Please try again later.", false);
+            
+            // Note: Implementation for transfer would go here
+            // Similar to the commented out code in the original TransactionsForm
         }
     }
     
-    private void updateRecipientList(JComboBox<String> senderAccountSelector, JComboBox<String> recipientAccountSelector, ArrayList<BankAccount> accounts) {
-        // Clear the existing items in recipient list
-        recipientAccountSelector.removeAllItems();
-    
-        // Get selected sender account number
-        int senderAccountNumber = Integer.parseInt(senderAccountSelector.getSelectedItem().toString().split(" ")[1].substring(1));
-    
-        // Populate recipient account list excluding the sender account
-        for (BankAccount account : accounts) {
-            if (account.getAccountNumber() != senderAccountNumber) {
-                recipientAccountSelector.addItem("Account #" + account.getAccountNumber() + " - " + account.getAccountType());
-            }
-        }
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    // Handle Transaction History
     private void handleViewHistory() {
-        // Create a new dialog to display transaction history
-        JDialog historyDialog = new JDialog(this, "Transaction History", true);
-        historyDialog.setSize(500, 500);
-        historyDialog.setLayout(new BorderLayout());
-        historyDialog.setLocationRelativeTo(this);
+        showStyledDialog("This feature is not implemented yet", false);
+        /* if (getSelectedAccount() == null) {
+            showStyledDialog("Please select an account first", false);
+            return;
+        } */
+        /* if(!getSelectedAccount().isActive()) {
+            showStyledDialog("This account is not active. Please activate the account first.", false);
+            return;
+        } */
+        List<Transaction> history = transactionManager.viewCurrentUserTransactionHistory(getSelectedAccount().getAccountNumber());
+        if (history.isEmpty()) {
+            showStyledDialog("No transactions found for this account.", false);
+            return;
+        }
+
         
-        // Get transaction history
-        TransactionDAO transactionDAO = new TransactionDAO();
-        List<Transaction> transactions = transactionDAO.getAllTransactions();
+        // Create styled transaction history table
+        String[] columnNames = {"Date", "Type", "Amount", "Status"};
+        String[][] data = new String[history.size()][4];
         
-        // Filter transactions for current customer if needed
-        ArrayList<BankAccount> accounts = currentCustomer.getBankAccounts();
-        List<Integer> accountNumbers = new ArrayList<>();
-        for (BankAccount account : accounts) {
-            accountNumbers.add(account.getAccountNumber());
+        for (int i = 0; i < history.size(); i++) {
+            Transaction transaction = history.get(i);
+            data[i][0] = transaction.getDate();
+            // Fix null pointer exception by adding null check
+            data[i][1] = transaction.getType() != null ? transaction.getType().toString() : "N/A";
+            data[i][2] = String.format("$%.2f", transaction.getAmount());
+            data[i][3] = transaction.getStatus();
         }
         
-        // Create table model
-        // Create table model
-    String[] columnNames = {"ID", "Account", "Type", "Amount", "Date", "Status"};
-    Object[][] data = new Object[transactions.size()][6];
-    
-    int rowIndex = 0;
-    for (Transaction transaction : transactions) {
-        // Only include transactions for this customer's accounts
-        if (accountNumbers.contains(transaction.getBankAccount().getAccountNumber())) {
-            data[rowIndex][0] = transaction.getTransactionId();
-            data[rowIndex][1] = transaction.getBankAccount().getAccountNumber();
-            data[rowIndex][2] = transaction.getType();
-            data[rowIndex][3] = "$" + transaction.getAmount();
-            data[rowIndex][4] = transaction.getTransactionDate();
-            data[rowIndex][5] = transaction.getStatus();
-            rowIndex++;
-        }
+        JTable table = new JTable(data, columnNames);
+        table.setFillsViewportHeight(true);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(25);
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        table.getTableHeader().setBackground(brandGreen);
+        table.getTableHeader().setForeground(Color.WHITE);
+        
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(600, 300));
+        
+        // Create a panel for the table with a header
+        JPanel historyPanel = new JPanel(new BorderLayout());
+        historyPanel.setBackground(Color.WHITE);
+        JLabel historyHeader = new JLabel("Transaction History", JLabel.CENTER);
+        historyHeader.setFont(new Font("Arial", Font.BOLD, 18));
+        historyHeader.setForeground(brandGreen);
+        historyHeader.setBorder(new EmptyBorder(10, 0, 10, 0));
+        historyPanel.add(historyHeader, BorderLayout.NORTH);
+        historyPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        // Customized JOptionPane
+        UIManager.put("OptionPane.background", Color.WHITE);
+        UIManager.put("Panel.background", Color.WHITE);
+        JOptionPane.showMessageDialog(this, historyPanel, "Transaction History", JOptionPane.PLAIN_MESSAGE);
     }
     
-    // Create the table with the filtered data
-    JTable transactionTable = new JTable(data, columnNames);
-    JScrollPane scrollPane = new JScrollPane(transactionTable);
-    
-    // Add table to dialog
-    historyDialog.add(scrollPane, BorderLayout.CENTER);
-    
-    // Add close button
-    JButton closeButton = new JButton("Close");
-    closeButton.setBackground(brandGreen);
-    closeButton.setForeground(Color.WHITE);
-    closeButton.addActionListener(e -> historyDialog.dispose());
-    
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.add(closeButton);
-    historyDialog.add(buttonPanel, BorderLayout.SOUTH);
-    
-    // Show dialog
-    historyDialog.setVisible(true);
-}
-
-private void showStyledDialog(String message, boolean isSuccess) {
-    JDialog dialog = new JDialog(this, "Message", true);
-    dialog.setSize(300, 150);
-    dialog.setLayout(new BorderLayout());
-    dialog.setLocationRelativeTo(this);
-    
-    // Create panel for message
-    JPanel messagePanel = new JPanel(new GridBagLayout());
-    messagePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-    
-    // Create message label
-    JLabel messageLabel = new JLabel(message);
-    messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-    
-    // Set icon based on status
-    if (isSuccess) {
-        messageLabel.setForeground(brandGreen);
-    } else {
-        messageLabel.setForeground(Color.RED);
+    private void showStyledDialog(String message, boolean isSuccess) {
+        // Create a custom panel for the message
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 30, 20, 30));
+        
+        JLabel iconLabel = new JLabel();
+        iconLabel.setIcon(isSuccess ? 
+                UIManager.getIcon("OptionPane.informationIcon") : 
+                UIManager.getIcon("OptionPane.errorIcon"));
+        
+        JLabel messageLabel = new JLabel(message);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        messageLabel.setBorder(new EmptyBorder(0, 10, 0, 0));
+        
+        panel.add(iconLabel, BorderLayout.WEST);
+        panel.add(messageLabel, BorderLayout.CENTER);
+        
+        // Customized JOptionPane
+        UIManager.put("OptionPane.background", Color.WHITE);
+        UIManager.put("Panel.background", Color.WHITE);
+        UIManager.put("OptionPane.buttonFont", new FontUIResource("Arial", Font.BOLD, 14));
+        
+        JOptionPane.showMessageDialog(this, panel, isSuccess ? "Success" : "Notification", 
+                JOptionPane.PLAIN_MESSAGE);
     }
-    
-    messagePanel.add(messageLabel);
-    dialog.add(messagePanel, BorderLayout.CENTER);
-    
-    // Add OK button
-    JButton okButton = new JButton("OK");
-    okButton.setBackground(brandGreen);
-    okButton.setForeground(Color.WHITE);
-    okButton.addActionListener(e -> dialog.dispose());
-    
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.add(okButton);
-    dialog.add(buttonPanel, BorderLayout.SOUTH);
-    
-    // Show dialog
-    dialog.setVisible(true);
-}
-
-public static void main(String[] args) {
-    // For testing purposes
-    SwingUtilities.invokeLater(() -> {
-        Customer testCustomer = new Customer();
-        testCustomer.setCustomerId(1);
-        testCustomer.setFirstName("John");
-        testCustomer.setLastName("Doe");
-        
-        // Load accounts for test customer
-        BankAccountDAO bankAccountDAO = new BankAccountDAO();
-        ArrayList<BankAccount> accounts = bankAccountDAO.getBankAccountsByCustomerId(testCustomer.getCustomerId());
-        testCustomer.setBankAccounts(accounts);
-        
-        TransactionsForm form = new TransactionsForm(testCustomer);
-        form.setVisible(true);
-    });
-}
 }

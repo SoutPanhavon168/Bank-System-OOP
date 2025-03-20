@@ -1,177 +1,183 @@
 package GUI.customer_gui;
-import user.Customer;
-import javax.swing.*;
+
 import java.awt.*;
-import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import javax.swing.*;
+import user.Customer;
 
 public class RegisterForm extends JFrame {
-    private JTextField lastNameField, firstNameField, emailField, phoneField, govIdField, birthDateField;
+    private JTextField lastNameField, firstNameField, phoneField, birthDateField, emailField, govIdField;
     private JPasswordField passwordField, confirmPasswordField;
-    private JButton registerButton, backButton;
+    private JButton nextButton, backButton, registerButton, prevButton;
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+    private Color brandGreen = new Color(0, 175, 0);
 
     public RegisterForm() {
-        setTitle("Bank App - Register");
-        setLayout(null);  // Use absolute positioning like in LoginForm
-        setSize(360, 812);
+        setTitle("Bank Customer Portal - Register");
+        setSize(1024, 768);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);  // Prevent resizing
-
-        // Create components
-        lastNameField = new JTextField(20);
-        firstNameField = new JTextField(20);
-        emailField = new JTextField(20);
-        phoneField = new JTextField(20);
-        govIdField = new JTextField(20);
-        birthDateField = new JTextField(20);
-        passwordField = new JPasswordField(20);
-        confirmPasswordField = new JPasswordField(20);
-        registerButton = new JButton("Register");
-        backButton = new JButton("Back to Login");
-
-        // Set component sizes
-        lastNameField.setPreferredSize(new Dimension(300, 40));
-        firstNameField.setPreferredSize(new Dimension(300, 40));
-        emailField.setPreferredSize(new Dimension(300, 40));
-        phoneField.setPreferredSize(new Dimension(300, 40));
-        govIdField.setPreferredSize(new Dimension(300, 40));
-        birthDateField.setPreferredSize(new Dimension(300, 40));
-        passwordField.setPreferredSize(new Dimension(300, 40));
-        confirmPasswordField.setPreferredSize(new Dimension(300, 40));
-        registerButton.setPreferredSize(new Dimension(300, 50));
-        backButton.setPreferredSize(new Dimension(300, 50));
-
-        // Set button colors
-        registerButton.setBackground(new Color(0,175,0));  // Green background
-        registerButton.setForeground(Color.WHITE);         // White text
-        backButton.setBackground(Color.WHITE);             // White background
-        backButton.setForeground(new Color(0,175,0));      // Green text
-
-        // Add header
-        JLabel welcomeLabel = new JLabel("Create Account", JLabel.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 25));
-        welcomeLabel.setForeground(new Color(0,175,0));
-        welcomeLabel.setBounds(30, 30, 300, 30);
-        add(welcomeLabel);
-
-        // Position components with increased spacing to prevent overlapping
-        int startY = 70;
-        int fieldHeight = 30;
-        int labelHeight = 20;
-        int fieldSpacing = 17;  // Space between label and field
-        int groupSpacing = 10;  // Space between field and next label
-
-        // Calculate total height needed for each group (label + field + spacing)
-        int groupHeight = labelHeight + fieldHeight + groupSpacing;
-
-        // Last Name
-        add(new JLabel("Last Name:")).setBounds(30, startY, 300, labelHeight);
-        lastNameField.setBounds(30, startY + fieldSpacing, 300, fieldHeight);
-        add(lastNameField);
-
-        // First Name
-        int posY = startY + fieldSpacing + fieldHeight + groupSpacing;
-        add(new JLabel("First Name:")).setBounds(30, posY + 10, 300, labelHeight);
-        firstNameField.setBounds(30, posY + 10 + fieldSpacing, 300, fieldHeight);
-        add(firstNameField);
-
-        // Email
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Email:")).setBounds(30, posY, 300, labelHeight);
-        emailField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(emailField);
-
-        // Phone Number
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Phone Number:")).setBounds(30, posY, 300, labelHeight);
-        phoneField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(phoneField);
-
-        // Birth Date
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Birth Date (YYYY-MM-DD):")).setBounds(30, posY, 300, labelHeight);
-        birthDateField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(birthDateField);
-
-        // Government ID
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Government ID:")).setBounds(30, posY, 300, labelHeight);
-        govIdField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(govIdField);
-
-        // Password
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Password:")).setBounds(30, posY, 300, labelHeight);
-        passwordField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(passwordField);
-
-        // Confirm Password
-        posY += groupHeight + fieldSpacing;
-        add(new JLabel("Confirm Password:")).setBounds(30, posY, 300, labelHeight);
-        confirmPasswordField.setBounds(30, posY + fieldSpacing, 300, fieldHeight);
-        add(confirmPasswordField);
-
-        // Buttons
-        posY += groupHeight + fieldSpacing;
-        registerButton.setBounds(30, posY, 300, 50);
-        add(registerButton);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setLayout(null);
         
-        posY += 60;  // More space between buttons
-        backButton.setBounds(30, posY, 300, 50);
+        initializeComponents();
+        addActionListeners();
+    }
+
+    private void initializeComponents() {
+        JLabel headerLabel = new JLabel("CREATE ACCOUNT", JLabel.CENTER);
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        headerLabel.setForeground(brandGreen);
+        headerLabel.setBounds(262, 50, 500, 50);
+        add(headerLabel);
+
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+        cardPanel.setBounds(262, 120, 500, 480);
+        cardPanel.setBorder(BorderFactory.createLineBorder(brandGreen, 2));
+
+        // Step 1: Basic Information
+        JPanel step1Panel = new JPanel(null);
+        step1Panel.setBackground(Color.WHITE);
+
+        JLabel step1Label = new JLabel("Step 1: Personal Information", JLabel.CENTER);
+        step1Label.setFont(new Font("Arial", Font.BOLD, 20));
+        step1Label.setBounds(50, 10, 400, 30);
+        step1Panel.add(step1Label);
+
+        String[] labels1 = {"Last Name:", "First Name:", "Phone Number:", "Birth Date (YYYY-MM-DD):"};
+        JTextField[] fields1 = {
+            lastNameField = new JTextField(), firstNameField = new JTextField(),
+            phoneField = new JTextField(), birthDateField = new JTextField()
+        };
+
+        int posY = 50;
+        for (int i = 0; i < labels1.length; i++) {
+            JLabel label = new JLabel(labels1[i]);
+            label.setFont(new Font("Arial", Font.PLAIN, 16));
+            label.setBounds(50, posY, 200, 30);
+            step1Panel.add(label);
+
+            fields1[i].setFont(new Font("Arial", Font.PLAIN, 16));
+            fields1[i].setBounds(50, posY + 30, 400, 40);
+            step1Panel.add(fields1[i]);
+
+            posY += 70;
+        }
+
+        nextButton = new JButton("Next");
+        nextButton.setFont(new Font("Arial", Font.BOLD, 16));
+        nextButton.setBounds(150, posY + 20, 200, 40);
+        nextButton.setBackground(brandGreen);
+        nextButton.setForeground(Color.WHITE);
+        step1Panel.add(nextButton);
+
+        cardPanel.add(step1Panel, "Step1");
+
+        // Step 2: Contact & Security
+        JPanel step2Panel = new JPanel(null);
+        step2Panel.setBackground(Color.WHITE);
+
+        JLabel step2Label = new JLabel("Step 2: Contact & Security", JLabel.CENTER);
+        step2Label.setFont(new Font("Arial", Font.BOLD, 20));
+        step2Label.setBounds(50, 10, 400, 30);
+        step2Panel.add(step2Label);
+
+        String[] labels2 = {"Email:", "Government ID:", "Password:", "Confirm Password:"};
+        JTextField[] fields2 = {emailField = new JTextField(), govIdField = new JTextField()};
+
+        posY = 50;
+        for (int i = 0; i < labels2.length; i++) {
+            JLabel label = new JLabel(labels2[i]);
+            label.setFont(new Font("Arial", Font.PLAIN, 16));
+            label.setBounds(50, posY, 200, 30);
+            step2Panel.add(label);
+
+            if (i < 2) {
+                fields2[i].setFont(new Font("Arial", Font.PLAIN, 16));
+                fields2[i].setBounds(50, posY + 30, 400, 40);
+                step2Panel.add(fields2[i]);
+            } else {
+                JPasswordField passField = (i == 2) ? (passwordField = new JPasswordField()) : (confirmPasswordField = new JPasswordField());
+                passField.setFont(new Font("Arial", Font.PLAIN, 16));
+                passField.setBounds(50, posY + 30, 400, 40);
+                step2Panel.add(passField);
+            }
+            posY += 70;
+        }
+
+        prevButton = new JButton("Previous");
+        prevButton.setFont(new Font("Arial", Font.BOLD, 16));
+        prevButton.setBounds(50, posY + 20, 180, 40);
+        prevButton.setBackground(Color.LIGHT_GRAY);
+        prevButton.setForeground(Color.BLACK);
+        step2Panel.add(prevButton);
+
+        registerButton = new JButton("Register");
+        registerButton.setFont(new Font("Arial", Font.BOLD, 16));
+        registerButton.setBounds(270, posY + 20, 180, 40);
+        registerButton.setBackground(brandGreen);
+        registerButton.setForeground(Color.WHITE);
+        step2Panel.add(registerButton);
+
+        cardPanel.add(step2Panel, "Step2");
+
+        add(cardPanel);
+
+        // Back to Login Button
+        backButton = new JButton("Back to Login");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setBounds(262, 620, 500, 40);
+        backButton.setBackground(Color.WHITE);
+        backButton.setForeground(brandGreen);
         add(backButton);
+    }
 
-        // Action listener for register
-        registerButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Get the input values
-                String lastName = lastNameField.getText();
-                String firstName = firstNameField.getText();
-                String email = emailField.getText();
-                String phone = phoneField.getText();
-                String govId = govIdField.getText();
-                String birthDate = birthDateField.getText();
-                String password = new String(passwordField.getPassword());
-                String confirmPassword = new String(confirmPasswordField.getPassword());
+    private void addActionListeners() {
+        nextButton.addActionListener(e -> cardLayout.show(cardPanel, "Step2"));
+        prevButton.addActionListener(e -> cardLayout.show(cardPanel, "Step1"));
 
-                // Try parsing the birth date
-                LocalDate parsedBirthDate = null;
-                try {
-                    parsedBirthDate = LocalDate.parse(birthDate);
-                } catch (DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(RegisterForm.this, "Invalid birth date format. Please use YYYY-MM-DD.");
-                    return;
-                }
-
-                // Check password confirmation
-                if (!password.equals(confirmPassword)) {
-                    JOptionPane.showMessageDialog(RegisterForm.this, "Passwords do not match.");
-                    return;
-                }
-
-                // Create and register customer
-                Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
-                customer.register(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
-                JOptionPane.showMessageDialog(RegisterForm.this, "Registration successful! Please login.");
-                dispose(); // Close the register screen after successful registration
-                new LoginForm().setVisible(true); // Open login form after registration
-            }
-        });
-
-        // Action listener for back button
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // Close the current registration screen
-                new LoginForm().setVisible(true); // Open login form
-            }
+        registerButton.addActionListener(e -> handleRegistration());
+        backButton.addActionListener(e -> {
+            new LoginForm().setVisible(true);
+            dispose();
         });
     }
 
+    private void handleRegistration() {
+        String lastName = lastNameField.getText().trim();
+        String firstName = firstNameField.getText().trim();
+        String phone = phoneField.getText().trim();
+        String birthDate = birthDateField.getText().trim();
+        String email = emailField.getText().trim();
+        String govId = govIdField.getText().trim();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
+
+        LocalDate parsedBirthDate;
+        try {
+            parsedBirthDate = LocalDate.parse(birthDate);
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid birth date format. Use YYYY-MM-DD.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
+        customer.register(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
+        JOptionPane.showMessageDialog(this, "Registration successful! Please login.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        new LoginForm().setVisible(true);
+        dispose();
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new RegisterForm().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new RegisterForm().setVisible(true));
     }
 }

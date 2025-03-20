@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import transaction.Transaction;
-import user.Customer;
+import user.staff.Staff;
 //admin needs to login first before doing any action
 public class Admin extends Staff {
     private String admin_username;
@@ -252,7 +252,8 @@ public void removeStaffAccount() {
                 throw new CustomerException.PinMismatchException();
             }
 
-            List <Customer> customers1 = CustomerDAO.getAllCustomers();
+            CustomerDAO customerDAOInstance = new CustomerDAO();
+            List<Customer> customers1 = customerDAOInstance.getAllCustomers();
 
             for (Customer customer : customers1) {
                 if (customer.getGovernmentId().equals(governmentId)) {
