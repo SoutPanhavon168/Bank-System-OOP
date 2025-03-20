@@ -1,13 +1,12 @@
 package GUI.staff_gui;
 
+import database.StaffDAO;
 import java.awt.*;
-import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import database.StaffDAO;
 import user.Admin;
 import user.CustomerException;
 import user.staff.Staff;
@@ -547,33 +546,30 @@ public class StaffManagementPanel extends JPanel {
     }
     
     private void removeStaff(int staffId) {
-        int choice = JOptionPane.showConfirmDialog(this, 
-            "Are you sure you want to remove staff member with ID: " + staffId + "?", 
-            "Confirm Remove", 
-            JOptionPane.YES_NO_OPTION, 
-            JOptionPane.WARNING_MESSAGE);
-        
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to remove staff member with ID: " + staffId + "?",
+                "Confirm Remove",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
         if (choice == JOptionPane.YES_OPTION) {
             try {
-                // Call the removeStaffAccount method from Admin
-                admin.removeStaffAccount();
-                
-                // You can also directly use StaffDAO for more control
+                // Pass the staffId to the removeStaffAccount method
+                admin.removeStaffAccount(staffId);
+                // Or if you prefer to use StaffDAO directly:
                 // StaffDAO staffDAO = new StaffDAO();
                 // staffDAO.deleteStaff(staffId);
                 
-                JOptionPane.showMessageDialog(this, 
-                    "Staff account removed successfully.", 
-                    "Success", 
-                    JOptionPane.INFORMATION_MESSAGE);
-                
+                JOptionPane.showMessageDialog(this,
+                        "Staff account removed successfully.",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
                 // Refresh table
                 loadStaffData();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, 
-                    "Error removing staff: " + ex.getMessage(), 
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Error removing staff: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }

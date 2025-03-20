@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "Bank-System-OOP",
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"java.debug.settings.onBuildFailureProceed": true
+	}
+}
