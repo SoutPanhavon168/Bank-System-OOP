@@ -250,7 +250,7 @@ public ArrayList<BankAccount> getAllBankAccounts() {
         while (rs.next()) {
             int accountNumber = rs.getInt("account_number");
             double balance = rs.getDouble("balance");
-            accounts.add(new BankAccount(accountNumber, balance));
+            accounts.add(new BankAccount());
         }
     } catch (SQLException e) {
         e.printStackTrace();
