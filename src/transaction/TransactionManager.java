@@ -40,12 +40,10 @@ public class TransactionManager {
 
     public void deposit(ArrayList<BankAccount> bankAccounts) {
         Scanner input = new Scanner(System.in);
-    
         if (bankAccounts.isEmpty()) {
             System.out.println("No bank accounts available.");
             return;
         }
-    
         try {
             listBankAccounts(bankAccounts);
             System.out.print("Enter the number of the account: ");
@@ -59,27 +57,20 @@ public class TransactionManager {
             if (!verifyPin(selectedAccount)) {
                 return;
             }
-    
             System.out.print("Enter amount to deposit ($): ");
             double depositAmount = input.nextDouble();
-    
             TransactionException.validateAmount(depositAmount); // Validate deposit amount
-    
             // Create a transaction object
             Transaction transaction = new Transaction(selectedAccount, "Deposit", depositAmount, "Completed");
             addTransaction(transaction);
-    
             // Save the transaction to the database, which also updates the balance
             boolean success = transactionDAO.saveTransaction(transaction);
-    
             if (success) {
                 // After saving the transaction, fetch the updated account with the latest balance
                 BankAccountDAO bankAccountDAO = new BankAccountDAO();
-                BankAccount updatedAccount = bankAccountDAO.getBankAccountById(selectedAccount.getAccountNumber());
-    
+                BankAccount updatedAccount = bankAccountDAO.getBankAccountById(selectedAccount.getAccountNumber());    
                 // Print the updated balance from the database
-                System.out.println("Deposit successful. New balance: $" + updatedAccount.getBalance());
-    
+                System.out.println("Deposit successful. New balance: $" + updatedAccount.getBalance());   
                 // Print the transaction details
                 System.out.println(transaction.toString());
             } else {

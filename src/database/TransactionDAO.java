@@ -241,7 +241,22 @@ public class TransactionDAO {
             return false;
         }
     }
-
+public ArrayList<BankAccount> getAllBankAccounts() {
+    ArrayList<BankAccount> accounts = new ArrayList<>();
+    String query = "SELECT * FROM bankaccounts"; // Example query
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement statement = conn.createStatement();
+         ResultSet rs = statement.executeQuery(query)) {
+        while (rs.next()) {
+            int accountNumber = rs.getInt("account_number");
+            double balance = rs.getDouble("balance");
+            accounts.add(new BankAccount(accountNumber, balance));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return accounts;
+}
     public boolean transferFunds(int fromAccountNumber, int toAccountNumber, double amount) {
         String debitQuery = "UPDATE bankaccounts SET balance = balance - ? WHERE account_number = ? AND balance >= ?";
         String creditQuery = "UPDATE bankaccounts SET balance = balance + ? WHERE account_number = ?";
