@@ -1,20 +1,20 @@
-package GUI.customer_gui;
+package GUI.staff_gui;
 
+import database.StaffDAO;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import user.Customer;
+import user.staff.Staff;
 
-public class LoginForm extends JFrame {
+public class StaffLoginForm extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    private JButton registerButton;
     private JButton cancelButton;
-    private Color brandGreen = new Color(0, 175, 0);
+    private Color brandBlue = new Color(0, 102, 204);
     
-    public LoginForm() {
-        setTitle("Bank Customer Portal - Login");
+    public StaffLoginForm() {
+        setTitle("Bank Staff Portal - Login");
         setSize(1024, 768);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -27,26 +27,26 @@ public class LoginForm extends JFrame {
     
     private void initializeComponents() {
         // Header
-        JLabel headerLabel = new JLabel("BANK CUSTOMER PORTAL", JLabel.CENTER);
+        JLabel headerLabel = new JLabel("BANK STAFF PORTAL", JLabel.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 36));
-        headerLabel.setForeground(brandGreen);
+        headerLabel.setForeground(brandBlue);
         headerLabel.setBounds(262, 100, 500, 50);
         add(headerLabel);
         
         // Login panel
         JPanel loginPanel = new JPanel(null);
-        loginPanel.setBounds(312, 200, 400, 400); // Increased height to accommodate cancelButton properly
-        loginPanel.setBorder(BorderFactory.createLineBorder(brandGreen, 2));
+        loginPanel.setBounds(312, 200, 400, 350);
+        loginPanel.setBorder(BorderFactory.createLineBorder(brandBlue, 2));
         
-        JLabel loginLabel = new JLabel("Customer Login", JLabel.CENTER);
+        JLabel loginLabel = new JLabel("Staff Login", JLabel.CENTER);
         loginLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        loginLabel.setForeground(brandGreen);
+        loginLabel.setForeground(brandBlue);
         loginLabel.setBounds(100, 30, 200, 40);
         loginPanel.add(loginLabel);
         
-        JLabel emailLabel = new JLabel("Email or Phone:");
+        JLabel emailLabel = new JLabel("Email:");
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        emailLabel.setBounds(50, 100, 200, 30);
+        emailLabel.setBounds(50, 100, 100, 30);
         loginPanel.add(emailLabel);
         
         emailField = new JTextField();
@@ -67,23 +67,14 @@ public class LoginForm extends JFrame {
         loginButton = new JButton("Login");
         loginButton.setFont(new Font("Arial", Font.BOLD, 16));
         loginButton.setBounds(50, 280, 140, 40);
-        loginButton.setBackground(brandGreen);
+        loginButton.setBackground(brandBlue);
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
         loginPanel.add(loginButton);
         
-        registerButton = new JButton("Register");
-        registerButton.setFont(new Font("Arial", Font.BOLD, 16));
-        registerButton.setBounds(210, 280, 140, 40);
-        registerButton.setBackground(Color.WHITE);
-        registerButton.setForeground(brandGreen);
-        registerButton.setFocusPainted(false);
-        loginPanel.add(registerButton);
-        
-        // Adjust cancelButton placement to avoid overlap with other buttons
         cancelButton = new JButton("Cancel");
         cancelButton.setFont(new Font("Arial", Font.BOLD, 16));
-        cancelButton.setBounds(50, 340, 300, 40);  // Adjusted y value to move it further down
+        cancelButton.setBounds(210, 280, 140, 40);
         cancelButton.setBackground(Color.LIGHT_GRAY);
         cancelButton.setForeground(Color.BLACK);
         cancelButton.setFocusPainted(false);
@@ -92,16 +83,14 @@ public class LoginForm extends JFrame {
         add(loginPanel);
         
         // Version label
-        JLabel versionLabel = new JLabel("Customer Portal v1.0", JLabel.RIGHT);
+        JLabel versionLabel = new JLabel("Staff Portal v1.0", JLabel.RIGHT);
         versionLabel.setFont(new Font("Arial", Font.ITALIC, 12));
         versionLabel.setBounds(824, 698, 150, 20);
         add(versionLabel);
     }
     
-    
     private void addActionListeners() {
         loginButton.addActionListener(e -> handleLogin());
-        registerButton.addActionListener(e -> handleRegister());
         cancelButton.addActionListener(e -> System.exit(0));
         
         // Allow login by pressing Enter in password field
@@ -116,24 +105,34 @@ public class LoginForm extends JFrame {
     }
     
     private void handleLogin() {
-        String emailOrPhone = emailField.getText().trim();
+        String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
         
-        if (emailOrPhone.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter both email/phone and password.", 
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both email and password.", 
                                          "Login Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         try {
-            Customer customerInstance = new Customer();
-            Customer customer = customerInstance.login(emailOrPhone, password);
+            StaffDAO staffDAO = new StaffDAO();
+            Staff staff = staffDAO.verifyCredentials(email, password);
             
-            if (customer != null) {
-                // Call the onLoginSuccessful method
-                onLoginSuccessful(customer);
+            if (staff != null) {
+                // Check if the staff is an admin or has manager role
+                boolean isAdmin = (email.equals("admin") || staff.getRole() == Staff.StaffRole.MANAGER);
+                
+                // Show role-based message
+                String message = isAdmin ? "Admin Login Successful!" : "Employee Login Successful!";
+                JOptionPane.showMessageDialog(this, message, 
+                                              "Login Success", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Open the dashboard with role information
+                StaffDashboard dashboard = new StaffDashboard(staff, isAdmin);
+                dashboard.setVisible(true);
+                this.dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid email/phone or password.", 
+                JOptionPane.showMessageDialog(this, "Invalid email or password.", 
                                              "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
@@ -141,24 +140,9 @@ public class LoginForm extends JFrame {
                                          "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private void handleRegister() {
-        // Code to handle registration goes here (opening register form or similar)
-        RegisterForm registerForm = new RegisterForm();
-        registerForm.setVisible(true);
-        dispose();
-    }
     
-    // Define the method that is called after login is successful
-    private void onLoginSuccessful(Customer customer) {
-        JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + customer.getFullName(),
-                                      "Login Success", JOptionPane.INFORMATION_MESSAGE);
-        
-        MainMenuForm mainMenuForm = new MainMenuForm(customer);
-        mainMenuForm.setVisible(true);
-        dispose();
-    }
-
+    
+    
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -166,6 +150,6 @@ public class LoginForm extends JFrame {
             e.printStackTrace();
         }
         
-        SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
+        SwingUtilities.invokeLater(() -> new StaffLoginForm().setVisible(true));
     }
 }

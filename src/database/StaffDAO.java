@@ -1,6 +1,9 @@
 package database;
 import java.sql.*;
-import user.Staff;
+import java.time.LocalDate;
+import user.StaffException;
+import user.staff.Staff;
+import user.staff.Staff.StaffRole;
 public class StaffDAO {
     // Method to save a staff member to the database
     public void saveStaff(Staff staff) {
@@ -81,5 +84,87 @@ public class StaffDAO {
             e.printStackTrace(); // Log the exception (consider using a logger in real applications)
         }
         return -1; // Return -1 if customerId is not found
+    }
+
+    // Retrieve Staff by email
+    public Staff getStaffByEmail(String email) throws StaffException.DatabaseAccessException {
+        String sql = "SELECT * FROM Staff WHERE email = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve staff details
+                    int staffId = rs.getInt("staffId");
+                    String lastName = rs.getString("lastName");
+                    String firstName = rs.getString("firstName");
+                    String password = rs.getString("password"); // Store for verification
+                    String phoneNumber = rs.getString("phoneNumber");
+                    LocalDate birthDate = (rs.getDate("birthDate") != null) ? rs.getDate("birthDate").toLocalDate() : null;
+                    String governmentId = rs.getString("governmentId");
+
+                    // Convert role safely
+                    StaffRole role;
+                    try {
+                        role = StaffRole.valueOf(rs.getString("role").toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new SQLException("Invalid role value in database: " + rs.getString("role"));
+                    }
+
+                    // Return Staff object
+                    Staff staff = new Staff(lastName, firstName, email, password, password, phoneNumber, birthDate, governmentId, role);
+                    staff.setStaffId(staffId);
+                    return staff;
+                }
+            }
+        } catch (SQLException e) {
+            throw new StaffException.DatabaseAccessException("Error retrieving staff by email: " + e.getMessage(), e);
+        }
+
+        return null; // Return null if staff not found
+    }
+
+    // Verify Staff login credentials
+    public Staff verifyCredentials(String email, String password) throws StaffException.DatabaseAccessException {
+        String sql = "SELECT * FROM Staff WHERE email = ? AND password = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            stmt.setString(2, password); // Store hashed password if applicable
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve staff details
+                    int staffId = rs.getInt("staffId");
+                    String lastName = rs.getString("lastName");
+                    String firstName = rs.getString("firstName");
+                    String phoneNumber = rs.getString("phoneNumber");
+                    LocalDate birthDate = (rs.getDate("birthDate") != null) ? rs.getDate("birthDate").toLocalDate() : null;
+                    String governmentId = rs.getString("governmentId");
+
+                    // Convert role safely
+                    StaffRole role;
+                    try {
+                        role = StaffRole.valueOf(rs.getString("role").toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new SQLException("Invalid role value in database: " + rs.getString("role"));
+                    }
+
+                    // Return authenticated Staff object
+                    Staff staff = new Staff(lastName, firstName, email, password, password, phoneNumber, birthDate, governmentId, role);
+                    staff.setStaffId(staffId);
+                    return staff;
+                }
+            }
+        } catch (SQLException e) {
+            throw new StaffException.DatabaseAccessException("Error verifying staff credentials: " + e.getMessage(), e);
+        }
+
+        return null; // Return null if credentials are incorrect
     }
 }

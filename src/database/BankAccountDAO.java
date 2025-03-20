@@ -73,6 +73,7 @@ public class BankAccountDAO {
 
     // Helper method to map ResultSet to BankAccount object
     private static BankAccount mapResultSetToBankAccount(ResultSet rs) throws SQLException {
+        Date createdDate = rs.getDate("created_at");  // Make sure the column name matches in the DB
         BankAccount account = new BankAccount(
             rs.getString("first_name"),
             rs.getString("last_name"),
@@ -83,8 +84,10 @@ public class BankAccountDAO {
         account.setBalance(rs.getDouble("balance"));
         account.setCustomerId(rs.getInt("customerId"));
         account.setAccountNumber(rs.getInt("account_number"));
+        account.setCreatedDate(createdDate);
         return account;
     }
+
 
     // Method to retrieve a BankAccount by customerId
     public BankAccount getBankAccountByCustomerId(int customerId) {
@@ -248,5 +251,6 @@ public class BankAccountDAO {
             return false;
         }
     }
+    
     
 }
