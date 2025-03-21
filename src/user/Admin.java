@@ -13,20 +13,20 @@ import transaction.Transaction;
 import user.staff.Staff;
 //admin needs to login first before doing any action
 public class Admin extends Staff {
-    private String admin_username;
-    private String admin_password;
+    private String admin_username = "admin";
+    private String admin_password = "admin123";
     static ArrayList<BankAccount> users = new ArrayList<>();
     private int pin;
 
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role ) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
-        this.admin_username = "admin";
-        this.admin_password =  "admin123"; 
+        this.admin_username =admin_username;
+        this.admin_password =admin_password; 
     }
     public Admin() {
-        this.admin_username = "admin";
-        this.admin_password = "admin123";
+        this.admin_username = admin_username;
+        this.admin_password = admin_password;
     }
     public void admin_login(){
         Scanner sc = new Scanner(System.in);
