@@ -1,26 +1,26 @@
 package Interfaces;
 public interface Management {
     //customer management
-    void viewCustomerDetails();  // Both Admin & Staff
-    void viewSpecificCustomerDetails(int ID);  // Both Admin & Staff
-    void viewAllCustomers();  // Both Admin & Staff
-    void updateCustomerAccount();  // Both Admin & Staff
+    void viewCustomerDetails();
+    void viewSpecificCustomerDetails(int ID);
+    void viewAllCustomers();
+    void updateCustomerAccount();
 
     //bank account management
-    void createBankAccount();  // Both Admin & Staff
-    void deleteBankAccount(int accountId);  // Both Admin & Staff
-    void viewbankAccounts();  // Both Admin & Staff
-    void viewSpecificbankAccount(int accountId);  // Both Admin & Staff
-    void viewAllbankAccounts();  // Both Admin & Staff
-    void freezeAccount(int accountId);  // Both Admin & Staff
+    void createBankAccount();
+    void deleteBankAccount(int accountId);
+    void viewbankAccounts();
+    void viewSpecificbankAccount(int accountId);
+    void viewAllbankAccounts();
+    void freezeAccount(int accountId);
     void unfreezeAccount(int accountId);
 
     //transaction
     void viewAllTransactions();
     void viewSpecificTransaction(String transactionId);
-    void refundTransaction(String transactionId);  // Admin & Staff
-    void depositMoney(int accountNumber, double amount);  // Admin & Staff
-    void transferMoney(String fromAccountNumber, String toAccountNumber, double amount);  // Admin & Staff
+    void refundTransaction(String transactionId);
+    void depositMoney(int accountNumber, double amount);
+    void transferMoney(String fromAccountNumber, String toAccountNumber, double amount);
 
 }
 

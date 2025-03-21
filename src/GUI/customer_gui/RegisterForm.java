@@ -168,7 +168,20 @@ public class RegisterForm extends JFrame {
             JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        if (govId.length() != 12 ) {
+            JOptionPane.showMessageDialog(this, "Government ID must be 12 digits.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }else if (govId.contains("0")){
+            JOptionPane.showMessageDialog(this, "Government ID must not contain 0.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if(phone.length() != 10 ) {	
+            JOptionPane.showMessageDialog(this, "Phone number must be 10 digits.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }else if (phone.charAt(0) != '0'){
+            JOptionPane.showMessageDialog(this, "Phone number must start with 0.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         Customer customer = new Customer(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
         customer.register(lastName, firstName, email, password, confirmPassword, phone, parsedBirthDate, govId);
         JOptionPane.showMessageDialog(this, "Registration successful! Please login.", "Success", JOptionPane.INFORMATION_MESSAGE);

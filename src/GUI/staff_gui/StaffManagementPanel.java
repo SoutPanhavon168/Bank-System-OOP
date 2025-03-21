@@ -48,7 +48,6 @@ public class StaffManagementPanel extends JPanel {
         titleLabel.setForeground(brandBlue);
         
         headerPanel.add(titleLabel, BorderLayout.WEST);
-        
         // Search panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         searchPanel.setBackground(Color.WHITE);
