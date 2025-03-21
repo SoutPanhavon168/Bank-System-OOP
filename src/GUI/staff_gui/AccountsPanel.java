@@ -8,11 +8,13 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
+import user.Admin;
 import user.Customer;
 import user.staff.Staff;
 
 public class AccountsPanel extends JPanel {
     private Staff currentStaff;
+    private Admin admin;
     private BankAccountDAO bankAccountDAO;
     private JTable accountsTable;
     private DefaultTableModel tableModel;
@@ -145,7 +147,7 @@ public class AccountsPanel extends JPanel {
         deleteButton.setBackground(brandBlue);
         deleteButton.setForeground(Color.WHITE);
         deleteButton.setFocusPainted(false);
-        // deleteButton.addActionListener(e -> deleteAccount());
+        deleteButton.addActionListener(e -> deleteAccount());
         buttonPanel.add(deleteButton);
         
         add(buttonPanel, BorderLayout.SOUTH);
@@ -306,27 +308,42 @@ public class AccountsPanel extends JPanel {
         }
     }
     
-    /* private void deleteAccount() {
-        int selectedRow = accountsTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a bank account to delete.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    private void deleteAccount() {
+    int selectedRow = accountsTable.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a bank account to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
     
-        int accountId = (int) tableModel.getValueAt(selectedRow, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete account ID " + accountId + "?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-    
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = bankAccountDAO.deleteBankAccount(accountId);
-    
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Account ID " + accountId + " has been deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadAccounts(); // Reload the accounts after deletion
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete the account.", "Error", JOptionPane.ERROR_MESSAGE);
+    int accountId = (int) tableModel.getValueAt(selectedRow, 0);
+    int confirm = JOptionPane.showConfirmDialog(this,
+            "Are you sure you want to delete account ID " + accountId + "?",
+            "Confirm Deletion",
+            JOptionPane.YES_NO_OPTION);
+            
+    if (confirm == JOptionPane.YES_OPTION) {
+        try {
+            // Make sure admin is initialized somewhere in your class
+            if (admin == null) {
+                admin = new Admin();
             }
+            
+            // Call the removeAccount method with the accountId
+            admin.removeAccount(accountId);
+            
+            JOptionPane.showMessageDialog(this,
+                    "Account ID " + accountId + " has been deleted.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadAccounts(); // Reload the accounts after deletion
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to delete the account: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    } */
+    }
+}
     
     private void searchAccounts() {
         String searchTerm = searchField.getText().trim().toLowerCase();

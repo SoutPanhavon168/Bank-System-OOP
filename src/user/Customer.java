@@ -12,8 +12,7 @@
     public class Customer extends User {
 
         private int customerId;
-        private BankAccount bankAccount;
-        public ArrayList<BankAccount> bankAccounts;
+        private ArrayList<BankAccount> bankAccounts;
         private int pin; // Store the PIN
 
         public Customer() {
@@ -44,7 +43,7 @@
         }
 
         public void setPassword(String password) {
-            // You can add password validation here (e.g., minimum length, special characters, etc.)
+            // password validation is set in the methods
             this.password = password;
         }
         
@@ -269,40 +268,7 @@
             scanner.close();
         }
 
-        private boolean authenticateWithRetries(Scanner scanner) {
-            int attempts = 3;
-            CustomerDAO customerDAO = new CustomerDAO();
-        
-            while (attempts > 0) {
-                System.out.print("Enter your email or phone number: ");
-                String emailOrPhone = scanner.nextLine();
-        
-                System.out.print("Enter your password: ");
-                String enteredPassword = scanner.nextLine();
-        
-                try {
-                    // Retrieve customer by email or phone
-                    Customer customer = customerDAO.getCustomerByEmailOrPhone(emailOrPhone);
-        
-                    if (customer != null && customer.getPassword().equals(enteredPassword)) {
-                        return true; // Authentication successful
-                    } else {
-                        attempts--;
-                        System.out.println("Invalid credentials.");
-                        if (attempts > 0) {
-                            System.out.println("You have " + attempts + " attempts remaining.");
-                        } else {
-                            System.out.println("Too many failed attempts. Access denied.");
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return false; // Authentication failed
-        }
-        
-        
+                
         
         // Method to view account details and associated bank accounts
         public void viewBankAccountDetails() {
@@ -324,8 +290,6 @@
             }
         }
 
-    
-        
         public void updatePassword() {
             Scanner scanner = new Scanner(System.in);
         

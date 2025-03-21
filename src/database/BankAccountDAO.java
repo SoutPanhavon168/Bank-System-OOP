@@ -168,6 +168,24 @@ public class BankAccountDAO {
         return -1; // Return -1 if no account or PIN found
     }
 
+    // Add this method to BankAccountDAO
+    public boolean updateBalance(int accountNumber, double newBalance) {
+        String query = "UPDATE bankaccounts SET balance = ? WHERE account_number = ?";
+    
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+        
+            ps.setDouble(1, newBalance);
+            ps.setInt(2, accountNumber);
+        
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Method to update the PIN for a bank account
     public void updatePinForAccount(int accountNumber, int newPin) {
         String query = "UPDATE bankaccounts SET pin = ? WHERE account_number = ?";
@@ -251,6 +269,4 @@ public class BankAccountDAO {
             return false;
         }
     }
-    
-    
 }

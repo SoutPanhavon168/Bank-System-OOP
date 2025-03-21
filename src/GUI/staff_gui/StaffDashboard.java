@@ -130,8 +130,6 @@ public class StaffDashboard extends JFrame {
         add(menuPanel, BorderLayout.WEST);
     }
 
-    
-    
     private JButton createMenuButton(String text, String iconName) {
         JButton button = new JButton(text);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -171,7 +169,6 @@ public class StaffDashboard extends JFrame {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        
         add(mainPanel, BorderLayout.CENTER);
     }
     
@@ -323,7 +320,6 @@ public class StaffDashboard extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
     }
-    
     
     private void showSystemSettingsPanel() {
         clearMainPanel();

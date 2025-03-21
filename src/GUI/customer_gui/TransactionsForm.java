@@ -406,72 +406,141 @@ public class TransactionsForm extends JFrame {
         }
     }
 
-    // Handle Transfer
     private void handleTransfer() {
         if (getSelectedAccount() == null) {
             showStyledDialog("Please select an account first", false);
             return;
         }
-        if(!getSelectedAccount().isActive()) {
+        if (!getSelectedAccount().isActive()) {
             showStyledDialog("This account is not active. Please activate the account first.", false);
             return;
         }
     
-        // Create transfer dialog with clean interface
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         panel.setBackground(Color.WHITE);
-        
-        // Recipient account field with panel
-        JPanel recipientPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        recipientPanel.setBackground(Color.WHITE);
-        JLabel recipientLabel = new JLabel("Recipient Account Number:");
-        recipientLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+    
+        JLabel typeLabel = new JLabel("Transfer Type:");
+        typeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JRadioButton ownAccountsButton = new JRadioButton("Between my accounts");
+        JRadioButton otherAccountButton = new JRadioButton("To another person's account");
+    
+        ownAccountsButton.setSelected(true);
+        ButtonGroup transferTypeGroup = new ButtonGroup();
+        transferTypeGroup.add(ownAccountsButton);
+        transferTypeGroup.add(otherAccountButton);
+    
+        JPanel typePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        typePanel.add(typeLabel);
+        typePanel.add(ownAccountsButton);
+        typePanel.add(otherAccountButton);
+    
+        JComboBox<String> recipientAccountSelector = new JComboBox<>();
         JTextField recipientAccountField = new JTextField(15);
-        recipientAccountField.setFont(new Font("Arial", Font.PLAIN, 14));
-        recipientPanel.add(recipientLabel);
-        recipientPanel.add(recipientAccountField);
-        
-        // Amount field with panel
-        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        amountPanel.setBackground(Color.WHITE);
-        JLabel amountLabel = new JLabel("Amount:");
-        amountLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JPanel recipientOwnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel recipientOtherPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    
+        ArrayList<BankAccount> accounts = currentCustomer.getBankAccounts();
+        for (BankAccount account : accounts) {
+            if (account.getAccountNumber() != getSelectedAccount().getAccountNumber()) {
+                recipientAccountSelector.addItem("Account #" + account.getAccountNumber());
+            }
+        }
+        recipientOwnPanel.add(new JLabel("Transfer to:"));
+        recipientOwnPanel.add(recipientAccountSelector);
+    
+        recipientOtherPanel.add(new JLabel("Recipient Account Number:"));
+        recipientOtherPanel.add(recipientAccountField);
+        recipientOtherPanel.setVisible(false);
+    
+        ownAccountsButton.addActionListener(e -> {
+            recipientOwnPanel.setVisible(true);
+            recipientOtherPanel.setVisible(false);
+        });
+    
+        otherAccountButton.addActionListener(e -> {
+            recipientOwnPanel.setVisible(false);
+            recipientOtherPanel.setVisible(true);
+        });
+    
         JTextField amountField = new JTextField(15);
-        amountField.setFont(new Font("Arial", Font.PLAIN, 14));
-        amountPanel.add(amountLabel);
-        amountPanel.add(amountField);
-        
-        // PIN field with panel
-        JPanel pinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pinPanel.setBackground(Color.WHITE);
-        JLabel pinLabel = new JLabel("PIN:");
-        pinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         JPasswordField pinField = new JPasswordField(15);
-        pinField.setFont(new Font("Arial", Font.PLAIN, 14));
-        pinPanel.add(pinLabel);
+    
+        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        amountPanel.add(new JLabel("Amount to Transfer:"));
+        amountPanel.add(amountField);
+    
+        JPanel pinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pinPanel.add(new JLabel("Enter PIN:"));
         pinPanel.add(pinField);
-        
-        panel.add(recipientPanel);
+    
+        panel.add(typePanel);
+        panel.add(recipientOwnPanel);
+        panel.add(recipientOtherPanel);
         panel.add(amountPanel);
         panel.add(pinPanel);
-        
-        // Customized JOptionPane
-        UIManager.put("OptionPane.background", Color.WHITE);
-        UIManager.put("Panel.background", Color.WHITE);
-        UIManager.put("OptionPane.buttonFont", new FontUIResource("Arial", Font.BOLD, 14));
-        
-        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds", 
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+    
+        int result = JOptionPane.showConfirmDialog(this, panel, "Transfer Funds", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
     
         if (result == JOptionPane.OK_OPTION) {
-            showStyledDialog("Transfer feature is currently being implemented. Please try again later.", false);
-            
-            // Note: Implementation for transfer would go here
-            // Similar to the commented out code in the original TransactionsForm
+            try {
+                BankAccount sender = getSelectedAccount();
+                int pin = Integer.parseInt(new String(pinField.getPassword()));
+                if (pin != sender.getPin()) {
+                    showStyledDialog("Incorrect PIN. Transfer cancelled.", false);
+                    return;
+                }
+    
+                double amount = Double.parseDouble(amountField.getText());
+                if (amount <= 0 || amount > sender.getBalance()) {
+                    showStyledDialog("Invalid amount or insufficient funds.", false);
+                    return;
+                }
+    
+                BankAccount recipient = null;
+                BankAccountDAO bankAccountDAO = new BankAccountDAO();
+                TransactionDAO transactionDAO = new TransactionDAO();
+    
+                if (ownAccountsButton.isSelected()) {
+                    int selectedIndex = recipientAccountSelector.getSelectedIndex();
+                    recipient = accounts.get(selectedIndex);
+                } else {
+                    int recipientAccountNumber = Integer.parseInt(recipientAccountField.getText());
+                    recipient = bankAccountDAO.getBankAccountById(recipientAccountNumber);
+                    if (recipient == null || !recipient.isActive()) {
+                        showStyledDialog("Invalid or inactive recipient account.", false);
+                        return;
+                    }
+                }
+    
+                // Perform the transfer directly using TransactionDAO
+                boolean success = transactionDAO.transferFunds(sender.getAccountNumber(), recipient.getAccountNumber(), amount);
+    
+                if (success) {
+                    // Refresh the sender and recipient accounts
+                    BankAccount updatedSenderAccount = bankAccountDAO.getBankAccountById(sender.getAccountNumber());
+    
+                    // Update the customer's account list
+                    ArrayList<BankAccount> updatedAccounts = bankAccountDAO.getBankAccountsByCustomerId(currentCustomer.getCustomerId());
+                    currentCustomer.setBankAccounts(updatedAccounts);
+                    updateAccountSelector(); // Refresh the account selector with updated balances
+    
+                    showStyledDialog("Transfer successful! New balance: $" + String.format("%.2f", updatedSenderAccount.getBalance()), true);
+                } else {
+                    showStyledDialog("Transfer failed. Please try again.", false);
+                }
+            } catch (NumberFormatException e) {
+                showStyledDialog("Invalid input. Please enter valid numbers.", false);
+            } catch (Exception e) {
+                showStyledDialog("Error: " + e.getMessage(), false);
+            }
         }
     }
+    
+    
+    
+    
     
     // Handle Transaction History
     private void handleViewHistory() {

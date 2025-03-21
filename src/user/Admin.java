@@ -161,13 +161,32 @@ public void addStaffAccount() {
         System.out.println("Registration failed: " + e.getMessage());
     }
 }
-public void removeStaffAccount() {
-    Scanner sc = new Scanner(System.in);
-    System.out.println("Enter the account number(UserID) to remove: ");
-    int accountNumber = sc.nextInt();
+// For staff account removal
+public void removeStaffAccount(int accountNumber) {
     StaffDAO staffDAO = new StaffDAO();
     staffDAO.deleteStaff(accountNumber);
-    System.out.println("Account removed successfully");
+    // Return success/failure
+    // return true; // Or some meaningful return value
+}
+
+// For updating account
+public void updateAccount(int customerId, String newPassword) {
+    CustomerDAO customerDAO = new CustomerDAO();
+    customerDAO.updatePasswordInDatabase(customerId, newPassword);
+    // Return success/failure
+}
+
+public void removeAccount(int accountNumber) {
+    CustomerDAO customerDAO = new CustomerDAO();
+    customerDAO.deleteCustomer(accountNumber);
+    // If you want to get success/failure feedback, you could modify this to return a boolean
+}
+
+// For updating staff account
+public void updateStaffAccount(int staffId, String newPassword) {
+    StaffDAO staffDAO = new StaffDAO();
+    staffDAO.updateStaffPassword(staffId, newPassword);
+    // Return success/failure
 }
     public void addAccount() {
         Scanner scanner = new Scanner(System.in);

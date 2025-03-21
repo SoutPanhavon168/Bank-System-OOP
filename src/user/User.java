@@ -3,7 +3,6 @@ import Interfaces.Authentication;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public abstract class User implements Authentication{
     protected int userId;
@@ -19,9 +18,9 @@ public abstract class User implements Authentication{
     protected boolean isStaff;
 
     protected static List<User> users = new ArrayList<>(); // All users stored here
+    
 
-
-    public User(){}
+    public User(){} // 
 
     public User(String lastName, String firstName, String email, String password, String confirmPassword, String phoneNumber, LocalDate birthDate, String governmentId){
         this.lastName = lastName;
