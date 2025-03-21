@@ -21,17 +21,15 @@ public class Admin extends Staff {
     public Admin(String admin_password,String admin_username,String lastName, String firstName, String email, String password, String confirmPassword,
             String phoneNumber, LocalDate birthDate, String governmentId, StaffRole role ) {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId, role);
-        this.admin_username = admin_username;
-        this.admin_password = admin_password; 
+        this.admin_username = "admin";
+        this.admin_password =  "admin123"; 
     }
     public Admin() {
-        this.admin_username = admin_username;
-        this.admin_password = admin_password;
+        this.admin_username = "admin";
+        this.admin_password = "admin123";
     }
     public void admin_login(){
         Scanner sc = new Scanner(System.in);
-        admin_username = "admin";
-        admin_password = "admin123";
         try  {
             System.out.println("Enter the admin username: ");
             String username = sc.nextLine();

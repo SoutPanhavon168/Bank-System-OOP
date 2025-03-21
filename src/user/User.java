@@ -95,9 +95,6 @@ public abstract class User implements Authentication{
     } 
 
     // method to update password when the user forget password, put on public to allow external access
-    public void forgotPassword(){
-        //forgot password
-    }
 
     // method to check if user is admin, put on public to allow external access
     public boolean isAdmin(){

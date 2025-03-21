@@ -25,7 +25,6 @@ public class Staff extends User implements Management {
         super(lastName, firstName, email, password, confirmPassword, phoneNumber, birthDate, governmentId);
         this.staffId = staffId;
         this.role = role;
-        
         // Initialize managers
         this.userManager = new UserManager(this);
         this.accountManager = new AccountManager(this);
