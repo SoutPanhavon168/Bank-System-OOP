@@ -96,7 +96,7 @@ public class MainMenuForm extends JFrame {
         profileButton.addActionListener(e -> showProfilePanel());
         createAccountButton.addActionListener(e -> showCreateAccountPanel());
         logoutButton.addActionListener(e -> handleLogout());
-        
+
         add(menuPanel, BorderLayout.WEST);
     }
     

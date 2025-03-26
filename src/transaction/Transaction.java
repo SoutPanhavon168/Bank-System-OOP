@@ -22,7 +22,7 @@ public class Transaction {
         this.bankAccount = bankAccount;
         this.type = TransactionType.valueOf(type.toUpperCase());
         this.amount = amount;
-        this.status = "Pending"; // Initially set as pending until PIN is verified
+        this.status = "Completed";//ly set as pending until PIN is verified
         this.transactionDate = LocalDateTime.now();
         
         // PIN verification happens at creation time

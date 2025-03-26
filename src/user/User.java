@@ -18,9 +18,9 @@ public abstract class User implements Authentication{
     protected boolean isStaff;
 
     protected static List<User> users = new ArrayList<>(); // All users stored here
+    
 
-
-    public User(){}
+    public User(){} // 
 
     public User(String lastName, String firstName, String email, String password, String confirmPassword, String phoneNumber, LocalDate birthDate, String governmentId){
         this.lastName = lastName;
